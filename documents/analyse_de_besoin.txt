@@ -1,0 +1,23 @@
+Analyse des besoins – Projet C fin d’année CIR1 
+
+La société ClueLau souhaite développer un petit jeu d’enquête jouable dans un terminal. 
+Ce jeu doit s’inspirer du Cluedo, sans forcément reprendre exactement toutes ses règles. 
+
+Besoins du client 
+ Jeu inspiré du Cluedo  
+
+ Jeu jouable dans un terminal 
+
+ Retrouver une mécanique de déduction autour d’une combinaison secrète à découvrir  
+
+  Mode multijoueur  
+  
+  Présence de joueurs humains et de joueurs contrôlés par ordinateur  
+  
+  Deux comportements d’intelligence artificielle :  
+  
+     IA simple : comportement naïf, assez basique, ne jouant pas forcément très bien  
+     
+     IA avancée : capable de mémoriser les informations utiles et de tenir compte de ce qu’il s’est passé pendant la       partie afin d’adopter une stratégie plus subtile, voire parfois trompeuse  
+  
+  Interface claire, lisible et compréhensible par tous afin de permettre de jouer confortablement  
