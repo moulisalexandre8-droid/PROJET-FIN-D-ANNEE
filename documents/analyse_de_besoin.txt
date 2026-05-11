@@ -57,15 +57,7 @@ Besoins du client
  Structure modulaire du programme 
  
      Le projet devra être organisé en plusieurs fichiers .h et .c afin de rendre le code plus clair et plus facile à maintenir. 
-     Chaque partie du programme devra avoir un rôle précis. 
- 
- Algorithmes des intelligences artificielles 
- 
-     Le programme devra contenir deux comportements d’intelligence artificielle différents : 
-     
-       une IA simple avec un comportement basique et naïf ;  
-       
-       une IA avancée capable d’analyser les informations obtenues pendant la partie.  
+     Chaque partie du programme devra avoir un rôle précis.
  
  Différents niveaux de difficulté des IA 
  
