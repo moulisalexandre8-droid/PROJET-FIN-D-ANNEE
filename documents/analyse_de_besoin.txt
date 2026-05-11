@@ -10,15 +10,17 @@ Besoins du client
 
  Retrouver une mécanique de déduction autour d’une combinaison secrète à découvrir  
 
-  Mode multijoueur  
+  Mode multijoueur  →  6max → c'est ok sur un seul pc 
   
   Présence de joueurs humains et de joueurs contrôlés par ordinateur  
   
-  Deux comportements d’intelligence artificielle :  
+  Deux comportements d’intelligence artificielle :  → 3 niveaux de difficultés
   
      IA simple : comportement naïf, assez basique, ne jouant pas forcément très bien  
      
      IA avancée : capable de mémoriser les informations utiles et de tenir compte de ce qu’il s’est passé pendant la partie afin d’adopter une stratégie plus subtile, voire parfois trompeuse  
+
+→ faire une variante de l'avancé pour proposer une niveau difficile
   
   Interface claire, lisible et compréhensible par tous afin de permettre de jouer confortablement  
 
@@ -32,6 +34,7 @@ Besoins du client
      Le jeu devra fonctionner avec un système de tours. 
      Chaque joueur jouera à son tour et pourra effectuer les actions autorisées par les règles du jeu. 
      Le programme devra gérer automatiquement le passage au joueur suivant. 
+→ indicateur de tour pour savoir qui doit jouer 
  
  Conditions de victoire et de défaite 
  
