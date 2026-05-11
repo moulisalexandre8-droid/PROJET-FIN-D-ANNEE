@@ -30,7 +30,7 @@ Documents résultant de la conception (conception technique)
  Affichage des actions et du déroulement de la partie 
  
      L’interface devra afficher clairement les différentes actions réalisées pendant la partie. 
-     Les joueurs devront pouvoir suivre facilement le déroulement du jeu, les tours, les propositions et les informations importantes.                informations importantes. 
+     Les joueurs devront pouvoir suivre facilement le déroulement du jeu, les tours, les propositions et les               informations importantes.         
  
  Structure modulaire du programme 
  
@@ -55,19 +55,19 @@ Documents résultant de la conception (conception technique)
  
  Documentation technique du programme 
  
-     Une documentation devra expliquer le fonctionnement du code, des fonctions et de l’organisation du projet afin        de     faciliter la compréhension et la maintenance. 
+     Une documentation devra expliquer le fonctionnement du code, des fonctions et de l’organisation du projet afin        de faciliter la compréhension et la maintenance. 
  
  Diagrammes et schémas de conception 
  
-     Des diagrammes ou schémas pourront être réalisés afin de représenter l’organisation du programme et les relations entre les différentes parties du projet. 
+     Des diagrammes ou schémas pourront être réalisés afin de représenter l’organisation du programme et les               relations entre les différentes parties du projet. 
  
  Organisation des différentes fonctionnalités du jeu 
  
-     Les fonctionnalités du jeu devront être séparées de manière logique afin d’améliorer la lisibilité et le     développement du programme. 
+     Les fonctionnalités du jeu devront être séparées de manière logique afin d’améliorer la lisibilité et le              développement du programme. 
  
  Maquette de l’interface terminal 
  
-     Une représentation de l’interface pourra être réalisée avant le développement afin d’organiser l’affichage des      menus et des informations. 
+     Une représentation de l’interface pourra être réalisée avant le développement afin d’organiser l’affichage des        menus et des informations. 
  
  Manuel utilisateur 
  
