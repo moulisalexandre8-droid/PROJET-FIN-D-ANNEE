@@ -1,23 +1,116 @@
-Analyse des besoins – Projet C fin d’année CIR1 
+Analyse des besoins et conception technique
+Projet C – Fin d’année CIR1
+Jeu d’enquête inspiré du Cluedo
 
-La société ClueLau souhaite développer un petit jeu d’enquête jouable dans un terminal. 
-Ce jeu doit s’inspirer du Cluedo, sans forcément reprendre exactement toutes ses règles. 
+1. Présentation du projet
 
-Besoins du client 
- Jeu inspiré du Cluedo  
+ Dans le cadre du projet de fin d’année de CIR1, notre groupe de trois étudiants doit développer un jeu d’enquête en langage C jouable dans un terminal.
+ Le projet est réalisé pour la société fictive ClueLau, qui souhaite obtenir un jeu inspiré du Cluedo tout en conservant une certaine liberté dans les règles et les   mécaniques du jeu.
+ Le développement du projet se déroulera sur une période de deux semaines, avec un temps total estimé à 74,5 heures de travail.
+ L’objectif principal est de créer un jeu fonctionnel, clair et agréable à utiliser, proposant une mécanique de déduction autour d’une combinaison secrète à           découvrir.
 
- Jeu jouable dans un terminal 
+2. Contexte et objectifs du projet
 
- Retrouver une mécanique de déduction autour d’une combinaison secrète à découvrir  
+ Le client souhaite disposer d’un jeu :
+ jouable directement dans un terminal ;
+ accessible et compréhensible par tous ;
+ permettant de jouer à plusieurs sur un seul ordinateur ;
+ proposant des joueurs humains ainsi que des intelligences artificielles.
+ Le projet devra également mettre en avant :
+ une bonne organisation du code ;
+ une architecture logicielle claire ;
+ une séparation des différentes fonctionnalités ;
+ une documentation technique complète.
+ Le jeu devra être suffisamment flexible pour permettre des évolutions futures et une maintenance simplifiée.
 
-  Mode multijoueur  
-  
-  Présence de joueurs humains et de joueurs contrôlés par ordinateur  
-  
-  Deux comportements d’intelligence artificielle :  
-  
-     IA simple : comportement naïf, assez basique, ne jouant pas forcément très bien  
-     
-     IA avancée : capable de mémoriser les informations utiles et de tenir compte de ce qu’il s’est passé pendant la       partie afin d’adopter une stratégie plus subtile, voire parfois trompeuse  
-  
-  Interface claire, lisible et compréhensible par tous afin de permettre de jouer confortablement  
+3. Analyse des besoins du client
+3.1 Besoins fonctionnels
+
+ Le logiciel devra permettre :
+ de lancer une partie multijoueur ;
+ de choisir le nombre de joueurs (maximum 6 joueurs sur un même ordinateur) ;
+ de gérer des joueurs humains et des joueurs contrôlés par ordinateur ;
+ de gérer un système de tours ;
+ de gérer des cartes, suspects, objets et indices ;
+ de permettre des propositions et accusations ;
+ de vérifier les conditions de victoire et de défaite ;
+ d’afficher clairement le déroulement de la partie.
+ Le principe du jeu reposera sur une mécanique de déduction autour d’une combinaison secrète à découvrir.
+
+3.2 Gestion des intelligences artificielles
+
+ Le client souhaite intégrer plusieurs niveaux d’intelligence artificielle afin de rendre les parties plus variées.
+ IA simple
+ L’IA simple devra adopter un comportement basique et naïf.
+ Elle prendra des décisions simples sans réelle stratégie avancée.
+ IA avancée
+ L’IA avancée devra être capable :
+ de mémoriser les informations découvertes ;
+ d’analyser le déroulement de la partie ;
+ d’adapter ses décisions en fonction des informations obtenues.
+ Niveau difficile
+ Une variante plus complexe de l’IA avancée pourra être ajoutée afin de proposer un niveau de difficulté plus élevé et des comportements plus subtils.
+
+3.3 Interface utilisateur
+
+ L’interface devra être :
+ claire ;
+ lisible ;
+ compréhensible ;
+ adaptée à une utilisation dans un terminal.
+ Le jeu devra afficher :
+ les tours des joueurs ;
+ les actions réalisées ;
+ les propositions ;
+ les résultats importants.
+ Un indicateur de tour permettra de savoir quel joueur doit jouer.
+
+4. Contraintes du projet
+
+ Le projet devra respecter plusieurs contraintes :
+ développement en langage C ;
+ travail en équipe de trois personnes ;
+ temps limité à deux semaines ;
+ architecture claire et modulaire ;
+ utilisation de plusieurs fichiers .c et .h.
+
+5. Architecture générale
+
+ Afin de rendre le programme plus lisible et plus facile à maintenir, le projet sera organisé sous forme modulaire.
+ Chaque fonctionnalité importante du jeu sera séparée dans différents fichiers source.
+ Cette organisation permettra :
+ un travail plus simple en équipe ;
+ une meilleure répartition des tâches ;
+ une maintenance facilitée ;
+ une meilleure lisibilité du code.
+
+6. Méthode de travail
+
+ Le projet sera réalisé en suivant une organisation inspirée des méthodes agiles vues en cours.
+ Le travail sera réparti entre les trois membres du groupe afin d’avancer simultanément sur plusieurs parties du projet :
+  -développement ;
+  -interface ;
+  -intelligence artificielle ;
+  -documentation ;
+  -tests.
+ Des phases régulières de vérification permettront :
+  -de tester les fonctionnalités ;
+  -d’éviter les erreurs importantes ;
+  -d’adapter le projet si nécessaire.
+
+7. Validation et tests
+
+ Plusieurs niveaux de tests seront réalisés :
+  -tests unitaires ;
+  -tests d’intégration ;
+  -tests de validation du jeu complet.
+  -Ces tests permettront de vérifier :
+  -le bon fonctionnement des mécaniques ;
+  -la stabilité du programme ;
+  -la conformité avec les besoins du client.
+
+10. Conclusion
+
+ Ce projet a pour objectif de développer un jeu d’enquête inspiré du Cluedo, entièrement jouable dans un terminal et capable de gérer plusieurs joueurs humains ainsi  que plusieurs niveaux d’intelligence artificielle.
+ La séparation du programme en plusieurs fichiers .c et .h, associée à une architecture modulaire, permettra de produire un programme plus clair, plus maintenable et  plus simple à développer en équipe.
+ L’organisation du projet, la répartition du temps et les différentes phases de conception permettront d’assurer un développement structuré et cohérent avant le       début de la programmation.
