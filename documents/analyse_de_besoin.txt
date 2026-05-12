@@ -31,7 +31,7 @@ Jeu d’enquête inspiré du Cluedo
  de choisir le nombre de joueurs (maximum 6 joueurs sur un même ordinateur) ;
  de gérer des joueurs humains et des joueurs contrôlés par ordinateur ;
  de gérer un système de tours ;
- de gérer des cartes, suspects, objets et indices ;
+ de gérer des cartes, suspects, objets et indices (6 max à chaque fois);
  de permettre des propositions et accusations ;
  de vérifier les conditions de victoire et de défaite ;
  d’afficher clairement le déroulement de la partie.
