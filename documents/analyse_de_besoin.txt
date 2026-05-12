@@ -109,7 +109,7 @@ Jeu d’enquête inspiré du Cluedo
   -la stabilité du programme ;
   -la conformité avec les besoins du client.
 
-10. Conclusion
+8. Conclusion
 
  Ce projet a pour objectif de développer un jeu d’enquête inspiré du Cluedo, entièrement jouable dans un terminal et capable de gérer plusieurs joueurs humains ainsi  que plusieurs niveaux d’intelligence artificielle.
  La séparation du programme en plusieurs fichiers .c et .h, associée à une architecture modulaire, permettra de produire un programme plus clair, plus maintenable et  plus simple à développer en équipe.
