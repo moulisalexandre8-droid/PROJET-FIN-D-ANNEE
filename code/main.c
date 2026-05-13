@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow(
+    SDL_Window* fenetre = SDL_CreateWindow(
         "Cluelau",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -18,75 +18,93 @@ int main(int argc, char* argv[])
         0
     );
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* rendu = SDL_CreateRenderer(fenetre, -1, SDL_RENDERER_ACCELERATED);
 
-    if (!renderer)
+    if (!rendu)
     {
         printf("Erreur renderer : %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
+        SDL_DestroyWindow(fenetre);
         SDL_Quit();
         return 1;
     }
 
-    // Taille d'une case (grille Cluedo)
-    int tileSize = 50;
+    // Taille d'une case de la grille
+    int tailleCase = 50;
 
-    // Position joueur (alignée sur grille)
-    int playerX = 100;
-    int playerY = 100;
+    // Position du joueur
+    int joueurX = 100;
+    int joueurY = 100;
 
-    int running = 1;
-    SDL_Event event;
+    int enCours = 1;
+    SDL_Event evenement;
 
-    while (running)
+    int peutBouger = 1;
+
+    while (enCours)
     {
-        // fermer la fenetre
-        while (SDL_PollEvent(&event))
+        // Gestion des événements (fermeture fenêtre)
+        while (SDL_PollEvent(&evenement))
         {
-            if (event.type == SDL_QUIT)
+            if (evenement.type == SDL_QUIT)
             {
-                running = 0;
+                enCours = 0;
+            }
+
+            // Réactivation du mouvement quand on relâche une touche
+            if (evenement.type == SDL_KEYUP)
+            {
+                peutBouger = 1;
             }
         }
 
-        // clavier
-        const Uint8* state = SDL_GetKeyboardState(NULL);
+        // Lecture clavier en continu
+        const Uint8* etatClavier = SDL_GetKeyboardState(NULL);
 
-        if (state[SDL_SCANCODE_UP])
-            playerY -= tileSize;
+        if (peutBouger)
+        {
+            if (etatClavier[SDL_SCANCODE_UP])    { joueurY -= tailleCase; peutBouger = 0; }
+            if (etatClavier[SDL_SCANCODE_DOWN])  { joueurY += tailleCase; peutBouger = 0; }
+            if (etatClavier[SDL_SCANCODE_LEFT])  { joueurX -= tailleCase; peutBouger = 0; }
+            if (etatClavier[SDL_SCANCODE_RIGHT]) { joueurX += tailleCase; peutBouger = 0; }
+        }
 
-        if (state[SDL_SCANCODE_DOWN])
-            playerY += tileSize;
+        // Limites de la fenêtre
+        if (joueurX < 0) joueurX = 0;
+        if (joueurY < 0) joueurY = 0;
 
-        if (state[SDL_SCANCODE_LEFT])
-            playerX -= tileSize;
+        if (joueurX > 1550 - tailleCase) joueurX = 1550 - tailleCase;
+        if (joueurY > 850 - tailleCase) joueurY = 850 - tailleCase;
 
-        if (state[SDL_SCANCODE_RIGHT])
-            playerX += tileSize;
+        // Fond noir
+        SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
+        SDL_RenderClear(rendu);
 
-        // limite des ecrans
-        if (playerX < 0) playerX = 0;
-        if (playerY < 0) playerY = 0;
+        // Dessin de la grille
+        SDL_SetRenderDrawColor(rendu, 40, 40, 40, 255);
 
-        if (playerX > 1550 - tileSize) playerX = 1550 - tileSize;
-        if (playerY > 850 - tileSize) playerY = 850 - tileSize;
+        for (int x = 0; x < 1550; x += tailleCase)
+        {
+            SDL_RenderDrawLine(rendu, x, 0, x, 850);
+        }
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+        for (int y = 0; y < 850; y += tailleCase)
+        {
+            SDL_RenderDrawLine(rendu, 0, y, 1550, y);
+        }
 
-        // Joueur
-        SDL_Rect player = {playerX, playerY, tileSize, tileSize};
+        // Dessin du joueur
+        SDL_Rect joueur = {joueurX, joueurY, tailleCase, tailleCase};
 
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &player);
+        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+        SDL_RenderFillRect(rendu, &joueur);
 
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(rendu);
 
         SDL_Delay(16);
     }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(rendu);
+    SDL_DestroyWindow(fenetre);
     SDL_Quit();
 
     return 0;
