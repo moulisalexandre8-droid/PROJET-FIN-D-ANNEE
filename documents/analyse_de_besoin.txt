@@ -23,6 +23,21 @@ Jeu d’enquête inspiré du Cluedo
  une documentation technique complète.
  Le jeu devra être suffisamment flexible pour permettre des évolutions futures et une maintenance simplifiée.
 
+2.1 Parties prenantes du projet
+
+Plusieurs acteurs interviennent dans la réalisation du projet :
+
+Le client (ClueLau) :
+ Il est à l’origine de la demande. Il définit les besoins, les contraintes et les objectifs du projet. Il attend un produit fonctionnel répondant au cahier des charges.
+L’équipe de développement (les trois étudiants) :
+ Elle est responsable de la conception, du développement, des tests et de la documentation du projet. Elle doit organiser le travail, répartir les tâches et assurer la qualité du code.
+Les encadrants pédagogiques :
+ Ils jouent un rôle de suivi et de validation. Ils apportent des conseils techniques et méthodologiques, et évaluent le projet final.
+ Les utilisateurs finaux
+ Ce sont les personnes qui utiliseront le jeu. Leur expérience est importante, notamment en termes de lisibilité, de compréhension et de plaisir de jeu.
+
+Cette identification permet de mieux comprendre les attentes de chacun et d’adapter les choix techniques et fonctionnels.
+
 3. Analyse des besoins du client
 3.1 Besoins fonctionnels
 
@@ -31,7 +46,7 @@ Jeu d’enquête inspiré du Cluedo
  de choisir le nombre de joueurs (maximum 6 joueurs sur un même ordinateur) ;
  de gérer des joueurs humains et des joueurs contrôlés par ordinateur ;
  de gérer un système de tours ;
- de gérer des cartes, suspects, objets et indices ;
+ de gérer des cartes, suspects, objets et indices (6 max à chaque fois);
  de permettre des propositions et accusations ;
  de vérifier les conditions de victoire et de défaite ;
  d’afficher clairement le déroulement de la partie.
@@ -97,6 +112,48 @@ Jeu d’enquête inspiré du Cluedo
   -de tester les fonctionnalités ;
   -d’éviter les erreurs importantes ;
   -d’adapter le projet si nécessaire.
+
+6.1 Priorisation des tâches
+
+Afin d’optimiser le développement dans un temps limité, les tâches seront organisées par ordre de priorité :
+
+Priorité 1 – Fonctionnalités essentielles (indispensables)
+
+ Ces éléments doivent être réalisés en premier pour garantir un jeu fonctionnel :
+ 
+ structure du programme (main, fichiers .c/.h) ;
+ gestion des joueurs ;
+ gestion des cartes et de la combinaison secrète ;
+ système de tours ;
+ propositions et accusations ;
+ conditions de victoire et de défaite.
+
+Priorité 2 – Fonctionnalités importantes
+
+ Ces éléments améliorent fortement l’expérience utilisateur :
+ 
+ interface terminal claire et lisible ;
+ affichage structuré des actions et des tours ;
+ première version d’intelligence artificielle (IA simple) ;
+ gestion correcte des entrées utilisateur.
+
+Priorité 3 – Améliorations avancées
+
+ Ces fonctionnalités apportent de la profondeur au jeu :
+ 
+ IA avancée avec stratégie ;
+ amélioration de la lisibilité (mise en forme, messages) ;
+ optimisation du code et refactorisation.
+
+Priorité 4 – Bonus (si temps disponible)
+
+ Ces éléments ne sont pas indispensables mais valorisent le projet :
+ 
+ niveau de difficulté supplémentaire pour l’IA ;
+ ajout de variantes de règles ;
+ amélioration esthétique de l’interface terminal.
+
+Cette priorisation permet de s’assurer que le projet reste fonctionnel même en cas de contraintes de temps, tout en laissant la possibilité d’ajouter des améliorations.
 
 7. Validation et tests
 
