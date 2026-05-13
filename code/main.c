@@ -3,11 +3,7 @@
 
 int main(int argc, char* argv[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        printf("Erreur SDL : %s\n", SDL_GetError());
-        return 1;
-    }
+    SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window* window = SDL_CreateWindow(
         "Cluelau",
@@ -20,15 +16,6 @@ int main(int argc, char* argv[])
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    if (!renderer)
-    {
-        printf("Erreur renderer : %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
-
-    // Position joueur
     int playerX = 100;
     int playerY = 100;
 
@@ -37,43 +24,34 @@ int main(int argc, char* argv[])
 
     while (running)
     {
-        // EVENTS
+        // Events (fermeture fenêtre)
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
             {
                 running = 0;
             }
-
-            // 🔥 DEPLACEMENT CLAVIER
-            if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                    case SDLK_UP:
-                        playerY -= 10;
-                        break;
-
-                    case SDLK_DOWN:
-                        playerY += 10;
-                        break;
-
-                    case SDLK_LEFT:
-                        playerX -= 10;
-                        break;
-
-                    case SDLK_RIGHT:
-                        playerX += 10;
-                        break;
-                }
-            }
         }
 
-        // BACKGROUND
+        // CLAVIER EN TEMPS RÉEL
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+
+        if (state[SDL_SCANCODE_UP])
+            playerY -= 5;
+
+        if (state[SDL_SCANCODE_DOWN])
+            playerY += 5;
+
+        if (state[SDL_SCANCODE_LEFT])
+            playerX -= 5;
+
+        if (state[SDL_SCANCODE_RIGHT])
+            playerX += 5;
+
+        // dessine
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // PLAYER
         SDL_Rect player = {playerX, playerY, 50, 50};
 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
