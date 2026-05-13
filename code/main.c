@@ -3,14 +3,12 @@
 
 int main(int argc, char* argv[])
 {
-    // Initialisation SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         printf("Erreur SDL : %s\n", SDL_GetError());
         return 1;
     }
 
-    // Création fenêtre
     SDL_Window* window = SDL_CreateWindow(
         "Cluelau",
         SDL_WINDOWPOS_CENTERED,
@@ -20,14 +18,6 @@ int main(int argc, char* argv[])
         0
     );
 
-    if (!window)
-    {
-        printf("Erreur fenetre : %s\n", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    // Renderer
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!renderer)
@@ -42,39 +32,58 @@ int main(int argc, char* argv[])
     int playerX = 100;
     int playerY = 100;
 
-    // Boucle de jeu
     int running = 1;
     SDL_Event event;
 
     while (running)
     {
-        // Gestion événements
+        // EVENTS
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
             {
                 running = 0;
             }
+
+            // 🔥 DEPLACEMENT CLAVIER
+            if (event.type == SDL_KEYDOWN)
+            {
+                switch (event.key.keysym.sym)
+                {
+                    case SDLK_UP:
+                        playerY -= 10;
+                        break;
+
+                    case SDLK_DOWN:
+                        playerY += 10;
+                        break;
+
+                    case SDLK_LEFT:
+                        playerX -= 10;
+                        break;
+
+                    case SDLK_RIGHT:
+                        playerX += 10;
+                        break;
+                }
+            }
         }
 
-        // Fond noir
+        // BACKGROUND
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Joueur (carré rouge)
+        // PLAYER
         SDL_Rect player = {playerX, playerY, 50, 50};
 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderFillRect(renderer, &player);
 
-        // Affichage
         SDL_RenderPresent(renderer);
 
-        // petite pause CPU
         SDL_Delay(16);
     }
 
-    // Nettoyage
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
