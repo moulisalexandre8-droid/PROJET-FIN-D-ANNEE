@@ -18,7 +18,7 @@ Joueur initialiserJoueur();
 // gameplay
 void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase, int* peutBouger);
 void appliquerLimites(Joueur* j, int tailleCase, int largeur, int hauteur);
-void dessiner(SDL_Renderer* rendu, Joueur j, int tailleCase);
+void dessinerGrille(SDL_Renderer* rendu, int tailleCase);
 
 // boucle principale
 void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu);

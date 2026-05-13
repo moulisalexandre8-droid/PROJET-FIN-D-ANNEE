@@ -50,9 +50,9 @@ void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase, int* peutBouger)
         return;
 
     if (etat[SDL_SCANCODE_UP])    { j->y -= tailleCase; *peutBouger = 0; }
-    if (etat[SDL_SCANCODE_DOWN])  { j->y += tailleCase; *peutBouger = 0; }
-    if (etat[SDL_SCANCODE_LEFT])  { j->x -= tailleCase; *peutBouger = 0; }
-    if (etat[SDL_SCANCODE_RIGHT]) { j->x += tailleCase; *peutBouger = 0; }
+    else if (etat[SDL_SCANCODE_DOWN]) { j->y += tailleCase; *peutBouger = 0; }
+    else if (etat[SDL_SCANCODE_LEFT]) { j->x -= tailleCase; *peutBouger = 0; }
+    else if (etat[SDL_SCANCODE_RIGHT]) { j->x += tailleCase; *peutBouger = 0; }
 }
 
 // pas sortir de l'écran
@@ -65,18 +65,15 @@ void appliquerLimites(Joueur* j, int tailleCase, int largeur, int hauteur)
     if (j->y > hauteur - tailleCase) j->y = hauteur - tailleCase;
 }
 
-// dessiner le joueur
-void dessiner(SDL_Renderer* rendu, Joueur j, int tailleCase)
+void dessinerGrille(SDL_Renderer* rendu, int tailleCase)
 {
-    SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
-    SDL_RenderClear(rendu);
+    SDL_SetRenderDrawColor(rendu, 40, 40, 40, 255);
 
-    SDL_Rect player = { j.x, j.y, tailleCase, tailleCase };
+    for (int x = 0; x < 1550; x += tailleCase)
+        SDL_RenderDrawLine(rendu, x, 0, x, 850);
 
-    SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
-    SDL_RenderFillRect(rendu, &player);
-
-    SDL_RenderPresent(rendu);
+    for (int y = 0; y < 850; y += tailleCase)
+        SDL_RenderDrawLine(rendu, 0, y, 1550, y);
 }
 
 // nettoyer SDL
@@ -114,7 +111,19 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         bougerJoueur(etat, &joueur, tailleCase, &peutBouger);
         appliquerLimites(&joueur, tailleCase, 1550, 850);
-        dessiner(rendu, joueur, tailleCase);
+
+        // ================= RENDU UNIQUE =================
+        SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
+        SDL_RenderClear(rendu);
+
+        dessinerGrille(rendu, tailleCase);
+
+        SDL_Rect player = { joueur.x, joueur.y, tailleCase, tailleCase };
+
+        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+        SDL_RenderFillRect(rendu, &player);
+
+        SDL_RenderPresent(rendu);
 
         SDL_Delay(16);
     }
