@@ -14,3 +14,6 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+// ne pas ublier de bien se placer dans le repère avec un cd ( cd /c/Users/teort/OneDrive/Documents/Junia/Informatique/PROJET-FIN-D-ANNEE)
+// La commande est make pour compiler le projet
+// et ensuite ./cluelau.exe pour lancer le jeu

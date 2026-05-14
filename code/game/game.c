@@ -1,5 +1,5 @@
 #include "game.h"
-#include <SDL2/SDL.h>
+#include "../ui/renderer.h"
 #include <stdio.h>
 
 // On définit le plateau de jeu : 1 = mur, 0 = case jouable,2 à 10 pieces)
@@ -84,40 +84,6 @@ void appliquerLimites(Joueur* j, int tailleCase, int largeur, int hauteur)
     if (j->y > hauteur - tailleCase) j->y = hauteur - tailleCase;
 }
 
-void dessinerGrille(SDL_Renderer* rendu, int tailleCase)
-{
-    for (int ligne = 0; ligne < 26; ligne++)
-    {
-        for (int colonne = 0; colonne < 28; colonne++)
-        {
-            SDL_Rect casePlateau =
-            {
-                colonne * tailleCase,
-                ligne * tailleCase,
-                tailleCase,
-                tailleCase
-            };
-
-            // case jouable
-            if (plateau[ligne][colonne] == 1)
-            {
-                SDL_SetRenderDrawColor(rendu, 80, 80, 80, 255);
-            }
-            else
-            {
-                // mur
-                SDL_SetRenderDrawColor(rendu, 30, 30, 30, 255);
-            }
-
-            SDL_RenderFillRect(rendu, &casePlateau);
-
-            // contour
-            SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
-            SDL_RenderDrawRect(rendu, &casePlateau);
-        }
-    }
-}
-
 // nettoyer SDL
 void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
@@ -157,7 +123,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
         SDL_RenderClear(rendu);
 
-        dessinerGrille(rendu, tailleCase);
+        dessinerGrille(rendu,plateau, tailleCase);
 
         SDL_Rect player = { joueur.x, joueur.y, tailleCase, tailleCase };
 
