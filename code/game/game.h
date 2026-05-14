@@ -7,13 +7,14 @@ typedef struct
 {
     int x;
     int y;
+    SDL_Color couleur;
 } Joueur;
 
 // init SDL
 int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu);
 
 // joueur
-Joueur initialiserJoueur();
+Joueur initialiserJoueur(int x, int y, SDL_Color couleur);
 
 // gameplay
 void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase, int* peutBouger);

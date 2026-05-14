@@ -68,12 +68,18 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
     return 1;
 }
 
-// initialisation du joueur
-Joueur initialiserJoueur()
+// initialisation des joueurs
+Joueur initialiserJoueur(int x, int y, SDL_Color couleur)
 {
-    Joueur j = {231,0};
+    Joueur j;
+
+    j.x = x;
+    j.y = y;
+    j.couleur = couleur;
+
     return j;
 }
+
 // pas sortir de l'écran
 void appliquerLimites(Joueur* j, int tailleCase, int largeur, int hauteur)
 {
@@ -96,8 +102,12 @@ void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu)
 void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
     int tailleCase = 33;
+    // Initialisation des joueurs
+    SDL_Color rouge = {255, 0, 0, 255};
+    SDL_Color bleu = {0, 0, 255, 255};
 
-    Joueur joueur = initialiserJoueur();
+    Joueur joueur1 = initialiserJoueur(231, 0, rouge);
+    Joueur joueur2 = initialiserJoueur(0, 231, bleu);
 
     int enCours = 1;
     int peutBouger = 1;
@@ -117,18 +127,24 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         const Uint8* etat = SDL_GetKeyboardState(NULL);
 
-        bougerJoueur(etat, &joueur, tailleCase, &peutBouger);
-        appliquerLimites(&joueur, tailleCase,925,860 );
+        bougerJoueur(etat, &joueur1, tailleCase, &peutBouger);
+        appliquerLimites(&joueur1, tailleCase,925,860 );
 
         SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
         SDL_RenderClear(rendu);
 
         dessinerGrille(rendu,plateau, tailleCase);
 
-        SDL_Rect player = { joueur.x, joueur.y, tailleCase, tailleCase };
+        SDL_Rect player1 = { joueur1.x, joueur1.y, tailleCase, tailleCase };
+        SDL_Rect player2 = { joueur2.x, joueur2.y, tailleCase, tailleCase };
 
+        // joueur rouge
         SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
-        SDL_RenderFillRect(rendu, &player);
+        SDL_RenderFillRect(rendu, &player1);
+
+        // joueur bleu
+        SDL_SetRenderDrawColor(rendu, 0, 0, 255, 255);
+        SDL_RenderFillRect(rendu, &player2);
 
         SDL_RenderPresent(rendu);
 

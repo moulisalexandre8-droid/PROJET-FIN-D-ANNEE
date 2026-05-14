@@ -14,16 +14,16 @@ void dessinerGrille(SDL_Renderer* rendu, int plateau[26][28], int tailleCase)
                 tailleCase
             };
 
+            // mur
+        if (plateau[ligne][colonne] == 1)
+        {
+            SDL_SetRenderDrawColor(rendu, 20, 20, 20, 255);
+        }
+        else
+        {
             // case jouable
-            if (plateau[ligne][colonne] == 1)
-            {
-                SDL_SetRenderDrawColor(rendu, 20, 20, 20, 255);
-            }
-            else
-            {
-                // mur
-                SDL_SetRenderDrawColor(rendu, 100, 100, 100, 255);
-            }
+            SDL_SetRenderDrawColor(rendu, 100, 100, 100, 255);
+        }
 
             SDL_RenderFillRect(rendu, &casePlateau);
 
