@@ -141,16 +141,21 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         dessinerGrille(rendu,plateau, tailleCase);
 
-        SDL_Rect player1 = { joueur1.x, joueur1.y, tailleCase, tailleCase };
-        SDL_Rect player2 = { joueur2.x, joueur2.y, tailleCase, tailleCase };
+        dessinerJoueur(
+            rendu,
+            joueur1.x,
+            joueur1.y,
+            tailleCase,
+            joueur1.couleur
+        );
 
-        // joueur rouge
-        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
-        SDL_RenderFillRect(rendu, &player1);
-
-        // joueur bleu
-        SDL_SetRenderDrawColor(rendu, 0, 0, 255, 255);
-        SDL_RenderFillRect(rendu, &player2);
+        dessinerJoueur(
+            rendu,
+            joueur2.x,
+            joueur2.y,
+            tailleCase,
+            joueur2.couleur
+        );
 
         SDL_RenderPresent(rendu);
 
