@@ -41,6 +41,11 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
         printf("Erreur SDL : %s\n", SDL_GetError());
         return 0;
     }
+    if (TTF_Init() == -1)
+    {
+        printf("Erreur SDL_ttf : %s\n", TTF_GetError());
+        return 0;
+    }
 
     *fenetre = SDL_CreateWindow(
         "Cluelau",
@@ -95,6 +100,7 @@ void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
     SDL_DestroyRenderer(rendu);
     SDL_DestroyWindow(fenetre);
+    TTF_Quit();
     SDL_Quit();
 }
 
