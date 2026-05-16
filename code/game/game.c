@@ -1,8 +1,12 @@
 #include "game.h"
 #include "../ui/renderer.h"
 #include <stdio.h>
+#include <string.h>
 
-// On définit le plateau de jeu : 1 = mur, 0 = case jouable,2 à 10 pieces)
+// ----------------------
+// PLATEAU
+// ----------------------
+
 int plateau[26][28] =
 {
     {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1},
@@ -33,7 +37,10 @@ int plateau[26][28] =
     {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1}
 };
 
-// INIT SDL
+// ----------------------
+// SDL INIT
+// ----------------------
+
 int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -41,40 +48,28 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
         printf("Erreur SDL : %s\n", SDL_GetError());
         return 0;
     }
+
     if (TTF_Init() == -1)
     {
-        printf("Erreur SDL_ttf : %s\n", TTF_GetError());
+        printf("Erreur TTF : %s\n", TTF_GetError());
         return 0;
     }
 
-    *fenetre = SDL_CreateWindow(
-        "Cluelau",
+    *fenetre = SDL_CreateWindow("Cluelau",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        925,
-        860,
-        0
-    );
-
-    if (!*fenetre)
-    {
-        printf("Erreur fenetre : %s\n", SDL_GetError());
-        return 0;
-    }
+        925, 860, 0);
 
     *rendu = SDL_CreateRenderer(*fenetre, -1, SDL_RENDERER_ACCELERATED);
 
-    if (!*rendu)
-    {
-        printf("Erreur renderer : %s\n", SDL_GetError());
-        return 0;
-    }
-
-    return 1;
+    return (*fenetre && *rendu);
 }
 
-// initialisation des joueurs
-Joueur initialiserJoueur(int x, int y, SDL_Color couleur)
+// ----------------------
+// JOUEUR
+// ----------------------
+
+Joueur initialiserJoueur(int x, int y, SDL_Color couleur, const char* nom)
 {
     Joueur j;
 
@@ -82,86 +77,15 @@ Joueur initialiserJoueur(int x, int y, SDL_Color couleur)
     j.y = y;
     j.couleur = couleur;
 
+    strcpy(j.nom, nom);
+    j.mouvementsRestants = 6;
+
     return j;
 }
 
-// pas sortir de l'écran
-void appliquerLimites(Joueur* j, int tailleCase, int largeur, int hauteur)
-{
-    if (j->x < 0) j->x = 0;
-    if (j->y < 0) j->y = 0;
-
-    if (j->x > largeur - tailleCase) j->x = largeur - tailleCase;
-    if (j->y > hauteur - tailleCase) j->y = hauteur - tailleCase;
-}
-
-// nettoyer SDL
-void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu)
-{
-    SDL_DestroyRenderer(rendu);
-    SDL_DestroyWindow(fenetre);
-    TTF_Quit();
-    SDL_Quit();
-}
-
-// la boucle principale du jeu
-void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
-{
-    int tailleCase = 33;
-    // Initialisation des joueurs
-    SDL_Color rouge = {255, 0, 0, 255};
-    SDL_Color bleu = {0, 0, 255, 255};
-
-    Joueur joueur1 = initialiserJoueur(231, 0, rouge);
-    Joueur joueur2 = initialiserJoueur(0, 231, bleu);
-
-    int enCours = 1;
-    int peutBouger = 1;
-
-    SDL_Event event;
-
-    while (enCours)
-    {
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-                enCours = 0;
-
-            if (event.type == SDL_KEYUP)
-                peutBouger = 1;
-        }
-
-        const Uint8* etat = SDL_GetKeyboardState(NULL);
-
-        bougerJoueur(etat, &joueur1, tailleCase, &peutBouger);
-        appliquerLimites(&joueur1, tailleCase,925,860 );
-
-        SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
-        SDL_RenderClear(rendu);
-
-        dessinerGrille(rendu,plateau, tailleCase);
-
-        dessinerJoueur(
-            rendu,
-            joueur1.x,
-            joueur1.y,
-            tailleCase,
-            joueur1.couleur
-        );
-
-        dessinerJoueur(
-            rendu,
-            joueur2.x,
-            joueur2.y,
-            tailleCase,
-            joueur2.couleur
-        );
-
-        SDL_RenderPresent(rendu);
-
-        SDL_Delay(16);
-    }
-}
+// ----------------------
+// COLLISIONS
+// ----------------------
 
 int estUnMur(int ligne, int colonne)
 {
@@ -170,59 +94,146 @@ int estUnMur(int ligne, int colonne)
 
 int peutAller(int x, int y, int tailleCase)
 {
-    int colonne = x / tailleCase;
-    int ligne = y / tailleCase;
+    int col = x / tailleCase;
+    int lig = y / tailleCase;
 
-    if (estUnMur(ligne, colonne))
-    {
+    if (lig < 0 || lig >= 26 || col < 0 || col >= 28)
         return 0;
-    }
 
-    return 1;
+    return !estUnMur(lig, col);
 }
 
-void deplacerJoueur(Joueur* j, int nouvelleX, int nouvelleY)
-{
-    j->x = nouvelleX;
-    j->y = nouvelleY;
-}
+// ----------------------
+// DEPLACEMENT (FIX IMPORTANT)
+// ----------------------
 
-//mouchette pour le déplacement du joueur
-
-void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase, int* peutBouger)
+void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase)
 {
-    if (!*peutBouger)
+    if (j->mouvementsRestants <= 0)
         return;
 
-    int nouvelleX = j->x;
-    int nouvelleY = j->y;
+    static int lock = 0;
 
-    if (etat[SDL_SCANCODE_UP])
+    if (lock)
     {
-        nouvelleY -= tailleCase;
-        *peutBouger = 0;
+        if (!etat[SDL_SCANCODE_UP] &&
+            !etat[SDL_SCANCODE_DOWN] &&
+            !etat[SDL_SCANCODE_LEFT] &&
+            !etat[SDL_SCANCODE_RIGHT])
+        {
+            lock = 0;
+        }
+        return;
     }
+        int dx = 0, dy = 0;
 
-    if (etat[SDL_SCANCODE_DOWN])
+    if (etat[SDL_SCANCODE_UP]) dy = -tailleCase;
+    else if (etat[SDL_SCANCODE_DOWN]) dy = tailleCase;
+    else if (etat[SDL_SCANCODE_LEFT]) dx = -tailleCase;
+    else if (etat[SDL_SCANCODE_RIGHT]) dx = tailleCase;
+
+    if (dx == 0 && dy == 0)
+        return;
+        int nx = j->x + dx;
+    int ny = j->y + dy;
+
+    if (peutAller(nx, ny, tailleCase))
     {
-        nouvelleY += tailleCase;
-        *peutBouger = 0;
+        j->x = nx;
+        j->y = ny;
+        j->mouvementsRestants--;
+
+        lock = 1;
     }
+}
 
-    if (etat[SDL_SCANCODE_LEFT])
-    {
-        nouvelleX -= tailleCase;
-        *peutBouger = 0;
-    }
+void deplacerJoueur(Joueur* j, int nx, int ny)
+{
+    j->x = nx;
+    j->y = ny;
+}
 
-    if (etat[SDL_SCANCODE_RIGHT])
-    {
-        nouvelleX += tailleCase;
-        *peutBouger = 0;
-    }
+// ----------------------
+// LIMITES
+// ----------------------
 
-    if (peutAller(nouvelleX, nouvelleY, tailleCase))
+void appliquerLimites(Joueur* j, int tailleCase, int w, int h)
+{
+    if (j->x < 0) j->x = 0;
+    if (j->y < 0) j->y = 0;
+
+    if (j->x > w - tailleCase) j->x = w - tailleCase;
+    if (j->y > h - tailleCase) j->y = h - tailleCase;
+}
+
+// ----------------------
+// CLEAN
+// ----------------------
+
+void nettoyer(SDL_Window* f, SDL_Renderer* r)
+{
+    SDL_DestroyRenderer(r);
+    SDL_DestroyWindow(f);
+    TTF_Quit();
+    SDL_Quit();
+}
+
+// ----------------------
+// LOOP
+// ----------------------
+
+void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
+{
+    int tailleCase = 33;
+
+    SDL_Color rouge = {255,0,0,255};
+    SDL_Color bleu = {0,0,255,255};
+
+    Joueur j1 = initialiserJoueur(231,0,rouge,"J1");
+    Joueur j2 = initialiserJoueur(0,231,bleu,"J2");
+
+    Joueur* actif = &j1;
+
+    SDL_Event e;
+    int run = 1;
+
+    while (run)
     {
-        deplacerJoueur(j, nouvelleX, nouvelleY);
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+                run = 0;
+
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
+            {
+                actif = (actif == &j1) ? &j2 : &j1;
+                actif->mouvementsRestants = 6;
+            }
+        }
+
+        const Uint8* etat = SDL_GetKeyboardState(NULL);
+
+        bougerJoueur(etat, actif, tailleCase);
+        if (actif->mouvementsRestants <= 0)
+        {
+            if (actif == &j1)
+                actif = &j2;
+            else
+                actif = &j1;
+        
+            actif->mouvementsRestants = 6;
+        }
+        appliquerLimites(actif, tailleCase, 925, 860);
+
+        SDL_SetRenderDrawColor(rendu,0,0,0,255);
+        SDL_RenderClear(rendu);
+
+        dessinerGrille(rendu, plateau, tailleCase);
+
+        dessinerJoueur(rendu, j1.x, j1.y, tailleCase, j1.couleur);
+        dessinerJoueur(rendu, j2.x, j2.y, tailleCase, j2.couleur);
+
+        SDL_RenderPresent(rendu);
+        SDL_Delay(16);
     }
 }
