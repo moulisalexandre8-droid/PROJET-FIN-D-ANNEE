@@ -3,9 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// ----------------------
-// PLATEAU
-// ----------------------
+// Plateau de jeu : 0 = sol, 1 = mur, 2-10 = pièces, 11 = porte
 
 int plateau[26][28] =
 {
@@ -37,9 +35,7 @@ int plateau[26][28] =
     {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1}
 };
 
-// ----------------------
-// SDL INIT
-// ----------------------
+// Sdl et initialisation
 
 int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
 {
@@ -65,9 +61,7 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
     return (*fenetre && *rendu);
 }
 
-// ----------------------
-// JOUEUR
-// ----------------------
+// joueur
 
 Joueur initialiserJoueur(int x, int y, SDL_Color couleur, const char* nom)
 {
@@ -83,9 +77,7 @@ Joueur initialiserJoueur(int x, int y, SDL_Color couleur, const char* nom)
     return j;
 }
 
-// ----------------------
-// COLLISIONS
-// ----------------------
+// colisions et limites
 
 int estUnMur(int ligne, int colonne)
 {
@@ -103,16 +95,14 @@ int peutAller(int x, int y, int tailleCase)
     return !estUnMur(lig, col);
 }
 
-// ----------------------
-// DEPLACEMENT (FIX IMPORTANT)
-// ----------------------
+// deplacement
 
 void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase)
 {
     if (j->mouvementsRestants <= 0)
         return;
 
-    static int lock = 0;
+    static int lock = 0; // empeche de se teleporter en maintenant une touche
 
     if (lock)
     {
@@ -135,7 +125,7 @@ void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase)
     if (dx == 0 && dy == 0)
         return;
         int nx = j->x + dx;
-    int ny = j->y + dy;
+        int ny = j->y + dy;
 
     if (peutAller(nx, ny, tailleCase))
     {
@@ -153,9 +143,7 @@ void deplacerJoueur(Joueur* j, int nx, int ny)
     j->y = ny;
 }
 
-// ----------------------
-// LIMITES
-// ----------------------
+//limites du plateau
 
 void appliquerLimites(Joueur* j, int tailleCase, int w, int h)
 {
@@ -166,9 +154,7 @@ void appliquerLimites(Joueur* j, int tailleCase, int w, int h)
     if (j->y > h - tailleCase) j->y = h - tailleCase;
 }
 
-// ----------------------
-// CLEAN
-// ----------------------
+// cleanup
 
 void nettoyer(SDL_Window* f, SDL_Renderer* r)
 {
@@ -178,9 +164,7 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
     SDL_Quit();
 }
 
-// ----------------------
-// LOOP
-// ----------------------
+// boucle principale
 
 void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
@@ -194,12 +178,12 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
     Joueur* actif = &j1;
 
-    SDL_Event e;
-    int run = 1;
+    SDL_Event e;// contient les événements (clavier, souris, etc.)
+    int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
     while (run)
     {
-        while (SDL_PollEvent(&e))
+        while (SDL_PollEvent(&e))// lit les evenemment
         {
             if (e.type == SDL_QUIT)
                 run = 0;
@@ -233,7 +217,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         dessinerJoueur(rendu, j1.x, j1.y, tailleCase, j1.couleur);
         dessinerJoueur(rendu, j2.x, j2.y, tailleCase, j2.couleur);
 
-        SDL_RenderPresent(rendu);
+        SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
     }
 }

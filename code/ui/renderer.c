@@ -28,29 +28,15 @@ SDL_Color obtenirCouleurCase(int valeur)
     }
 }
 
-void afficherTexte(
-    SDL_Renderer* rendu,
-    TTF_Font* police,
-    const char* texte,
-    int x,
-    int y
-)
+void afficherTexte(SDL_Renderer* rendu,TTF_Font* police,const char* texte,int x,int y)
 {
     SDL_Color blanc = {255,255,255,255};
 
-    SDL_Surface* surface =
-        TTF_RenderText_Blended(police, texte, blanc);
+    SDL_Surface* surface = TTF_RenderText_Blended(police, texte, blanc);
 
-    SDL_Texture* texture =
-        SDL_CreateTextureFromSurface(rendu, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(rendu, surface);
 
-    SDL_Rect rectTexte =
-    {
-        x,
-        y,
-        surface->w,
-        surface->h
-    };
+    SDL_Rect rectTexte ={x,y,surface->w,surface->h};
 
     SDL_RenderCopy(rendu, texture, NULL, &rectTexte);
 
@@ -58,10 +44,7 @@ void afficherTexte(
     SDL_DestroyTexture(texture);
 }
 
-void afficherNomsPieces(
-    SDL_Renderer* rendu,
-    TTF_Font* police
-)
+void afficherNomsPieces(SDL_Renderer* rendu,TTF_Font* police)
 {
     afficherTexte(rendu, police, "CUISINE", 80, 90);
 
@@ -82,36 +65,17 @@ void afficherNomsPieces(
     afficherTexte(rendu, police, "HALL", 455, 430);
 }
 
-void dessinerCase(
-    SDL_Renderer* rendu,
-    int valeur,
-    int x,
-    int y,
-    int tailleCase
-)
+void dessinerCase(SDL_Renderer* rendu,int valeur,int x,int y,int tailleCase)
 {
-    SDL_Rect casePlateau =
-    {
-        x,
-        y,
-        tailleCase,
-        tailleCase
-    };
+    SDL_Rect casePlateau ={x,y,tailleCase,tailleCase};
 
-    SDL_Color couleur =
-        obtenirCouleurCase(valeur);
+    SDL_Color couleur = obtenirCouleurCase(valeur);// obtient la couleur de la case en fonction de sa valeur
 
-    SDL_SetRenderDrawColor(
-        rendu,
-        couleur.r,
-        couleur.g,
-        couleur.b,
-        couleur.a
-    );
+    SDL_SetRenderDrawColor(rendu,couleur.r,couleur.g,couleur.b,couleur.a);// configure le renderer pour dessiner avec la couleur de la case
 
     SDL_RenderFillRect(rendu, &casePlateau);
 
-    if (!estUnePiece(valeur))
+    if (!estUnePiece(valeur))// si c pas uune pièce, on dessine un contour noir pour les murs et les couloirs
     {
         SDL_SetRenderDrawColor(rendu, 0,0,0,255);
 
@@ -119,65 +83,29 @@ void dessinerCase(
     }
 }
 
-void dessinerPlateau(
-    SDL_Renderer* rendu,
-    int plateau[26][28],
-    int tailleCase
-)
+void dessinerPlateau(SDL_Renderer* rendu,int plateau[26][28],int tailleCase)
 {
     for (int ligne = 0; ligne < 26; ligne++)
     {
         for (int colonne = 0; colonne < 28; colonne++)
         {
-            dessinerCase(
-                rendu,
-                plateau[ligne][colonne],
-                colonne * tailleCase,
-                ligne * tailleCase,
-                tailleCase
-            );
+            dessinerCase(rendu,plateau[ligne][colonne],colonne * tailleCase,ligne * tailleCase,tailleCase);
         }
     }
 }
 
-void dessinerJoueur(
-    SDL_Renderer* rendu,
-    int x,
-    int y,
-    int tailleCase,
-    SDL_Color couleur
-)
+void dessinerJoueur(SDL_Renderer* rendu,int x,int y,int tailleCase,SDL_Color couleur)
 {
-    SDL_Rect joueur =
-    {
-        x,
-        y,
-        tailleCase,
-        tailleCase
-    };
+    SDL_Rect joueur ={x,y,tailleCase,tailleCase};
 
-    SDL_SetRenderDrawColor(
-        rendu,
-        couleur.r,
-        couleur.g,
-        couleur.b,
-        couleur.a
-    );
+    SDL_SetRenderDrawColor(rendu,couleur.r,couleur.g,couleur.b,couleur.a);
 
     SDL_RenderFillRect(rendu, &joueur);
 }
 
-void dessinerGrille(
-    SDL_Renderer* rendu,
-    int plateau[26][28],
-    int tailleCase
-)
+void dessinerGrille(SDL_Renderer* rendu,int plateau[26][28],int tailleCase)
 {
-    TTF_Font* police =
-        TTF_OpenFont(
-            "code/assets/fonts/Roboto-Regular.ttf",
-            20
-        );
+    TTF_Font* police = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf",20);
 
     if (police == NULL)
     {
