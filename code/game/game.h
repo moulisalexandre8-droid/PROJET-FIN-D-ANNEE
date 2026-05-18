@@ -38,6 +38,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu);
 // nettoyage
 void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu);
 
+void placerJoueurCase(Joueur* j,int col,int lig,int tailleCaseX,int tailleCaseY);
+
 //temporaire pour afficher la grille de debug
 void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX,int tailleCaseY);
 

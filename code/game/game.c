@@ -106,7 +106,9 @@ int estUnMur(int ligne, int colonne)
     return plateau[ligne][colonne] == 1;
 }
 
-int peutAller(int ancienneX,int ancienneY,int x,int y,int tailleCaseX,int tailleCaseY)
+int peutAller(int ancienneX,int ancienneY,
+              int x,int y,
+              int tailleCaseX,int tailleCaseY)
 {
     int col = (x - OFFSET_X) / tailleCaseX;
     int lig = (y - OFFSET_Y) / tailleCaseY;
@@ -114,44 +116,58 @@ int peutAller(int ancienneX,int ancienneY,int x,int y,int tailleCaseX,int taille
     int ancienneCol = (ancienneX - OFFSET_X) / tailleCaseX;
     int ancienneLig = (ancienneY - OFFSET_Y) / tailleCaseY;
 
-    if (lig < 0 || lig >= 26 || col < 0 || col >= 28)
+    // limites tableau
+    if (lig < 0 || lig >= 25 || col < 0 || col >= 26)
         return 0;
 
     int caseArrivee = plateau[lig][col];
 
-    // mur
-    if (caseArrivee == 0)
-        return 0;
+    //chemainement de base : on peut aller sur les cases vides et la piscine
 
-    // chemin normal
-    if (caseArrivee == 1)
+    if (caseArrivee == 0)
         return 1;
 
+    //mur
+
+    if (caseArrivee == 1)
+        return 0;
+
+    // piscine
+
+    if (caseArrivee == 6)
+        return 1;
+
+    // portes : on doit venir d'une direction précise pour pouvoir les traverser
+
     // porte haut
-    if (caseArrivee == 2)
+    if (caseArrivee == 12)
     {
-        return ancienneLig > lig;
+        return lig > ancienneLig;
     }
 
     // porte bas
-    if (caseArrivee == 3)
+    if (caseArrivee == 13)
     {
-        return ancienneLig < lig;
+        return lig < ancienneLig;
     }
 
     // porte gauche
-    if (caseArrivee == 4)
+    if (caseArrivee == 14)
     {
-        return ancienneCol > col;
+        return col > ancienneCol;
     }
 
     // porte droite
-    if (caseArrivee == 5)
+    if (caseArrivee == 15)
     {
-        return ancienneCol < col;
+        return col < ancienneCol;
     }
 
-    return 1;
+    // pieces 
+    if (caseArrivee >= 2 && caseArrivee <= 11)
+        return 0;
+
+    return 0;
 }
 
 // deplacement
@@ -239,19 +255,25 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
     SDL_Quit();
 }
 
+void placerJoueurCase(Joueur* j,int col,int lig,int tailleCaseX,int tailleCaseY)
+{
+    j->x = OFFSET_X + col * tailleCaseX;
+    j->y = OFFSET_Y + lig * tailleCaseY;
+}
+
 // boucle principale
 
 void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
-    int tailleCaseX = 33.5;
-    int tailleCaseY = 31.5;
+    int tailleCaseX = 33;
+    int tailleCaseY = 31;
 
     SDL_Texture* textureRose =chargerTexture(rendu,"code/assets/icons/Joueur1.png");
     SDL_Texture* textureMoutarde =chargerTexture(rendu,"code/assets/icons/Joueur2.png");
     SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
 
-    Joueur j1 = initialiserJoueur(rendu,231,0,"code/assets/icons/Joueur1.png","J1");
-    Joueur j2 = initialiserJoueur(rendu,0,231,"code/assets/icons/Joueur2.png","J2");
+    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
+    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
 
     SDL_Surface* surfaceFond =IMG_Load("code/assets/board/cluedo_board.png");
 
@@ -260,6 +282,9 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_FreeSurface(surfaceFond);
 
     Joueur* actif = &j1;
+
+    placerJoueurCase(&j1, 9, 0, tailleCaseX, tailleCaseY);
+    placerJoueurCase(&j2, 0, 7, tailleCaseX, tailleCaseY);
 
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
@@ -296,7 +321,6 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_RenderClear(rendu);
 
         dessinerTexture(rendu,plateauTexture,0,0,925,860);
-        dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);//temporaire pour afficher la grille de debug
 
         dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
 
