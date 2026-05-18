@@ -1,0 +1,22 @@
+Ici sont décrites les règles du jeu :
+
+21 cartes en tout :
+-6 cartes suspect
+-6 cartes arme
+-6 cartes lieu
+
+Max 6 joueurs
+
+Déroulement d'un tour :
+
+-le joueur lance les dés (automatiquement fait par l'ordi)
+-le joueur se déplace du nombre indiqué sur les dés (limite imposé par l'ordi = pas de triche possible)
+-quand il rentre dans une salle il choisis un autre joueur et fait une proposition : suspect, arme, lieu
+    → le lieu est celui dans lequel est le joueur
+-le joueur visé montre une carte, si il en a une, parmis celle citée
+-boucle sur ça
+
+Chaque joueur devra trouver un moyen pour noter ses investigations, aucune grille ne sera supporter in game.
+
+Quand un joueur pense avoir guess il peut se rendre au centre pour faire sa proposition finale,
+l'ordinateur verifiera alors si sa proposition est bonne, si oui il gagne la partie, si non il a perdu et la partie continue.
