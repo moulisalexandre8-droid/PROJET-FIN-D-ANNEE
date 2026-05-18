@@ -1,0 +1,6 @@
+modifier couleur porte → évité confusion, potentiel rajout vrai image joueur
+
+piece avec mur moins épais, trop lourd visuellement 
+
+passage secret potentiel a la fin ?
+

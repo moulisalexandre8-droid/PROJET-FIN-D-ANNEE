@@ -1,0 +1,32 @@
+Ce document servira de journal de suivis que nous allons remplir tout au long de la conception du jeu.
+Nous allons strutcturer le document suivant en différents chapitres qui correspondront aux différents jalons.
+Ce journal permettra une compréhension des méthodes de travails utilisés, des moyens employés et des outils sollicités.
+
+
+
+
+JALON 1 :
+Ce premier jalon était consacré à l'analyse des besoins et la conception technique du projet. 
+Durant celui-ci nous avons pu prendre rendez-vous avec le client pour préciser les besoins.
+Le temps consacrait à ce jalon a permis l'écriture des deux documents textes, analyse de besoins et conception technique.
+
+
+
+JALON 2 :
+Ce deuxième jalon était réservé à la base du projet.
+Nous avons codé les fondamentaux nécessaires au lancement du jeu dont le plateau de jeu.
+Nous nous sommes permis d'utiliser l'IA 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
