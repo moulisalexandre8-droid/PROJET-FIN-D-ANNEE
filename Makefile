@@ -2,6 +2,8 @@ CC = gcc
 
 SRC = code/main.c \
       code/game/game.c \
+      code/game/board.c \
+      code/players/player.c \
       code/ui/renderer.c \
       code/utils/loader.c
 

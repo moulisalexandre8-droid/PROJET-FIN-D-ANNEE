@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
+#include "../utils/constants.h"
 #include <SDL2/SDL_image.h>
 
 typedef struct
