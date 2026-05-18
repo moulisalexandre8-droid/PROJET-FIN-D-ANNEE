@@ -1,6 +1,9 @@
 #include "renderer.h"
 #include <stdio.h>
 
+#define OFFSET_X 59
+#define OFFSET_Y 40// pour les marges décoratives du plateau, à ajuster si besoin
+
 int estUnePiece(int valeur)
 {
     return valeur >= 2 && valeur <= 10;
@@ -65,9 +68,9 @@ void afficherNomsPieces(SDL_Renderer* rendu,TTF_Font* police)
     afficherTexte(rendu, police, "HALL", 455, 430);
 }
 
-void dessinerCase(SDL_Renderer* rendu,int valeur,int x,int y,int tailleCase)
+void dessinerCase(SDL_Renderer* rendu,int valeur,int x,int y,int tailleCaseX,int tailleCaseY)
 {
-    SDL_Rect casePlateau ={x,y,tailleCase,tailleCase};
+    SDL_Rect casePlateau ={x,y,tailleCaseX,tailleCaseY};
 
     SDL_Color couleur = obtenirCouleurCase(valeur);// obtient la couleur de la case en fonction de sa valeur
 
@@ -83,27 +86,25 @@ void dessinerCase(SDL_Renderer* rendu,int valeur,int x,int y,int tailleCase)
     }
 }
 
-void dessinerPlateau(SDL_Renderer* rendu,int plateau[26][28],int tailleCase)
+void dessinerPlateau(SDL_Renderer* rendu,int plateau[26][28],int tailleCaseX,int tailleCaseY)
 {
     for (int ligne = 0; ligne < 26; ligne++)
     {
         for (int colonne = 0; colonne < 28; colonne++)
         {
-            dessinerCase(rendu,plateau[ligne][colonne],colonne * tailleCase,ligne * tailleCase,tailleCase);
+            dessinerCase(rendu,plateau[ligne][colonne],colonne * tailleCaseX,ligne * tailleCaseY,tailleCaseX,tailleCaseY);
         }
     }
 }
 
-void dessinerJoueur(SDL_Renderer* rendu,int x,int y,int tailleCase,SDL_Color couleur)
+void dessinerJoueur(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int tailleCaseX,int tailleCaseY)
 {
-    SDL_Rect joueur ={x,y,tailleCase,tailleCase};
+    SDL_Rect dest ={x,y,tailleCaseX,tailleCaseY};
 
-    SDL_SetRenderDrawColor(rendu,couleur.r,couleur.g,couleur.b,couleur.a);
-
-    SDL_RenderFillRect(rendu, &joueur);
+    SDL_RenderCopy(rendu, texture, NULL, &dest);
 }
 
-void dessinerGrille(SDL_Renderer* rendu,int plateau[26][28],int tailleCase)
+void dessinerGrille(SDL_Renderer* rendu,int plateau[26][28],int tailleCaseX,int tailleCaseY)
 {
     TTF_Font* police = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf",20);
 
@@ -113,9 +114,47 @@ void dessinerGrille(SDL_Renderer* rendu,int plateau[26][28],int tailleCase)
         return;
     }
 
-    dessinerPlateau(rendu, plateau, tailleCase);
+    dessinerPlateau(rendu, plateau, tailleCaseX, tailleCaseY);
 
     afficherNomsPieces(rendu, police);
 
     TTF_CloseFont(police);
+}
+
+void dessinerTexture(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int largeur,int hauteur)
+{
+    SDL_Rect dest ={x,y,largeur,hauteur};
+
+    SDL_RenderCopy(rendu, texture, NULL, &dest);
+}
+
+void dessinerFond(SDL_Renderer* rendu, SDL_Texture* textureFond)
+{
+    SDL_Rect fond ={0,0,925,860};
+
+    SDL_RenderCopy(rendu, textureFond, NULL, &fond);
+}
+
+// a suppprimer après les tests
+void dessinerGrilleDebug(SDL_Renderer* rendu,
+                         int tailleCaseX,
+                         int tailleCaseY)
+{
+    SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+
+    for (int lig = 0; lig < 26; lig++)
+    {
+        for (int col = 0; col < 25; col++)
+        {
+            SDL_Rect rect =
+            {
+                OFFSET_X + col * tailleCaseX,
+                OFFSET_Y + lig * tailleCaseY,
+                tailleCaseX,
+                tailleCaseY
+            };
+
+            SDL_RenderDrawRect(rendu, &rect);
+        }
+    }
 }
