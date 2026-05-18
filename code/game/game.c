@@ -2,6 +2,9 @@
 #include "../utils/constants.h"
 #include "../ui/renderer.h"
 #include "../utils/loader.h"
+#include "../ui/window.h"
+#include "../ui/buttons.h"
+#include "../ui/text.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -78,19 +81,43 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
+    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");
+    Bouton boutonTour = creerBouton(1000, 300, 300, 60, "Fin du tour");
+
+    TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
+
+    if (!font)
+    {
+        printf("Erreur font: %s\n", TTF_GetError());
+    }
+
     while (run)
     {
-        while (SDL_PollEvent(&e))// lit les evenemment
+        SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
+        SDL_RenderClear(rendu);
+        while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
                 run = 0;
-
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
+        
+            if (e.type == SDL_MOUSEBUTTONDOWN)
             {
-                actif = (actif == &j1) ? &j2 : &j1;
-                actif->mouvementsRestants = 6;
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+            
+                if (boutonEstClique(&boutonDe, x, y))
+                    printf("DE LANCE\n");
+            
+                if (boutonEstClique(&boutonTour, x, y))
+                    printf("FIN TOUR\n");
             }
         }
+
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+
+        updateHover(&boutonDe, mouseX, mouseY);
+        updateHover(&boutonTour, mouseX, mouseY);
 
         const Uint8* etat = SDL_GetKeyboardState(NULL);
 
@@ -106,13 +133,27 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
-        SDL_SetRenderDrawColor(rendu,0,0,0,255);
-        SDL_RenderClear(rendu);
-
+        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+        
         dessinerTexture(rendu, plateauTexture, 0, 0, 925, 860);
 
-        dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
+        // dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
         dessinerInterfaceDroite(rendu);
+
+        dessinerBouton(rendu, &boutonDe);
+        dessinerBouton(rendu, &boutonTour);
+
+        SDL_Color blanc = {255, 255, 255, 255};
+
+        SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);
+        SDL_Texture* t2 = creerTexte(rendu, font, boutonTour.texte, blanc);
+
+        dessinerTexteCentre(rendu, t1,boutonDe.rect.x, boutonDe.rect.y,boutonDe.rect.w, boutonDe.rect.h);
+            
+        dessinerTexteCentre(rendu, t2,boutonTour.rect.x, boutonTour.rect.y,boutonTour.rect.w, boutonTour.rect.h);
+        
+        SDL_DestroyTexture(t1);
+        SDL_DestroyTexture(t2);
 
         dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
         dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
@@ -120,10 +161,11 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
     }
+    TTF_CloseFont(font);
 }
 // a supp
 
-void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX, int tailleCaseY)
+/*void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX, int tailleCaseY)
 {
     SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
 
@@ -150,4 +192,4 @@ void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX, int tailleCaseY)
             OFFSET_Y + y * tailleCaseY
         );
     }
-}
+}*/
