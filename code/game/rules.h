@@ -10,10 +10,20 @@ typedef enum
 
 } EtatJeu;
 
+typedef enum
+{
+    UI_PRINCIPALE,
+
+    UI_SUSPICION,
+
+    UI_ACCUSATION
+
+} EtatInterface;
+
 void faireSuspicion(Joueur* joueur,Joueur* autre,int salle);
 
 void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle);
 
-void faireAccusation(Joueur* joueur);
+int verifierAccusation(int suspect,int arme,int salle);
 
 #endif

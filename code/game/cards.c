@@ -47,13 +47,13 @@ void genererSolution()
     solution.piece = cartesPieces[rand()%NB_PIECES];
 
 
-    printf("\n=== SOLUTION ===\n");
+    /*printf("\n=== SOLUTION ===\n");
 
     printf("Suspect : %s\n",solution.suspect.nom);
     printf("Arme : %s\n",solution.arme.nom);
     printf("Salle : %s\n",solution.piece.nom);
     
-    printf("================\n");
+    printf("================\n");*/
 }
 
 void ajouterCarte(Joueur* j,Carte c)

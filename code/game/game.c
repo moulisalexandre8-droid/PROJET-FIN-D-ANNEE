@@ -82,9 +82,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     int valeurDe = 0;
 
     EtatJeu etatJeu = ETAT_ATTENTE_DE;
+    EtatInterface etatUI = UI_PRINCIPALE;
 
-    SDL_Texture* textureRose =chargerTexture(rendu,"code/assets/icons/Joueur1.png");
-    SDL_Texture* textureMoutarde =chargerTexture(rendu,"code/assets/icons/Joueur2.png");
     SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
 
     SDL_Texture* diceTextures[6];
@@ -96,12 +95,6 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     diceTextures[4] = chargerTexture(rendu, "code/assets/de/de5.png");
     diceTextures[5] = chargerTexture(rendu, "code/assets/de/de6.png");
 
-    SDL_Surface* surfaceFond =IMG_Load("code/assets/board/cluedo_board.png");
-
-    SDL_Texture* textureFond =SDL_CreateTextureFromSurface(rendu, surfaceFond);
-
-    SDL_FreeSurface(surfaceFond);
-
     Joueur* actif = &j1;
     int derniereSalle = -1;
 
@@ -111,7 +104,9 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
-    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");;
+    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");
+    Bouton boutonAccuser = creerBouton(1000,300,300,60,"Accuser");
+    Bouton boutonSoupcon = creerBouton(1000,380,300,60,"Soupcon");
 
     TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
 
@@ -124,6 +119,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     {
         SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
         SDL_RenderClear(rendu);
+        SDL_Color blanc = {255, 255, 255, 255};
+
         while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
@@ -144,28 +141,56 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                         etatJeu = ETAT_DEPLACEMENT;
                     }
                 }
+                if(boutonEstClique(&boutonAccuser,x,y))
+                {
+                    int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+                    if(estUneSalle(caseActuelle))
+                    {
+                        etatUI = UI_ACCUSATION;
+                    }
+                }
+                if(boutonEstClique(&boutonSoupcon,x,y))
+                {
+                    int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+                    if(estUneSalle(caseActuelle))
+                    {
+                        etatUI = UI_SUSPICION;
+                    }
+                }
             }
         }
 
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
 
+        int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+        int dansSalle = estUneSalle(caseActuelle);
+
         updateHover(&boutonDe, mouseX, mouseY);
+        if(dansSalle)
+        {
+            updateHover(&boutonAccuser,mouseX,mouseY);
+            updateHover(&boutonSoupcon,mouseX,mouseY);
+        }
+        else
+        {
+            boutonAccuser.hover = 0;
+            boutonSoupcon.hover = 0;
+        }
 
         const Uint8* etat = SDL_GetKeyboardState(NULL);
         if (etatJeu == ETAT_DEPLACEMENT)
         {
             bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
         }
-
-        bougerJoueur(etat,actif,tailleCaseX,tailleCaseY);
-        int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
-
+        
         if(estUneSalle(caseActuelle))
         {
             if(caseActuelle != derniereSalle)
             {
-                printf("%s entre dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
                 derniereSalle = caseActuelle;
             }
         }
@@ -174,26 +199,11 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             derniereSalle = -1;
         }
 
-        if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
-            {
-                int caseActuelle =
-                obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
-            
-                if(estUneSalle(caseActuelle))
-                {
-                    printf("\n%s fait une suspicion dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
-                    Joueur* autre;
-                
-                    if(actif == &j1)
-                        autre = &j2;
-                    else
-                        autre = &j1;
+        if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
+        {
+            changerTour(&actif,&j1,&j2,&etatJeu);
+        }
 
-                    faireSuspicion(actif,autre,caseActuelle-2);
-                }
-            
-                changerTour(&actif,&j1,&j2,&etatJeu);
-            }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
         SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
@@ -203,13 +213,43 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         // dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
         dessinerInterfaceDroite(rendu);
 
-        dessinerBouton(rendu, &boutonDe);
+        SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);;
+        SDL_Texture* txtAccuser = creerTexte(rendu,font,boutonAccuser.texte,blanc);
+        SDL_Texture* txtSoupcon = creerTexte(rendu,font,boutonSoupcon.texte,blanc);
 
-        SDL_Color blanc = {255, 255, 255, 255};
+        if(etatUI == UI_PRINCIPALE)
+        {
+            dessinerBouton(rendu,&boutonDe);
+            dessinerBouton(rendu,&boutonAccuser);
+            dessinerBouton(rendu,&boutonSoupcon);
 
-        SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);
+            dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
+            dessinerTexteCentre(rendu,txtAccuser,boutonAccuser.rect.x,boutonAccuser.rect.y,boutonAccuser.rect.w,boutonAccuser.rect.h);
+            dessinerTexteCentre(rendu,txtSoupcon,boutonSoupcon.rect.x,boutonSoupcon.rect.y,boutonSoupcon.rect.w,boutonSoupcon.rect.h);
+        }
 
-        dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
+        if(etatUI == UI_ACCUSATION)
+        {
+            SDL_Texture* txt = creerTexte(rendu,font,"MENU ACCUSATION",blanc);
+        
+            dessinerTexteCentre(rendu,txt,1000,250,300,50);
+            SDL_DestroyTexture(txt);
+        }
+
+        if(etatUI == UI_SUSPICION)
+        {
+            SDL_Texture* txt = creerTexte(rendu,font,"MENU SOUPCON",blanc);
+        
+            dessinerTexteCentre(rendu,txt,1000,250,300,50);
+            SDL_DestroyTexture(txt);
+        }
+
+        if(!dansSalle)
+        {
+            boutonAccuser.hover = 0;
+            boutonSoupcon.hover = 0;
+        }
+
 
         if (valeurDe >= 1 && valeurDe <= 6)
         {
@@ -221,6 +261,10 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
+
+        SDL_DestroyTexture(t1);
+        SDL_DestroyTexture(txtAccuser);
+        SDL_DestroyTexture(txtSoupcon);
     }
     for (int i = 0; i < 6; i++)
     {
