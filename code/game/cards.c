@@ -126,35 +126,3 @@ void distribuerCartes(Joueur* j1,Joueur* j2)
     for(int i=0;i<j2->nbCartes;i++)
         printf("%s\n",j2->cartes[i].nom);
 }
-
-#include <stdio.h>
-
-void faireSuspicion(Joueur* joueur,int salleActuelle)
-{
-    int suspectChoisi;
-    int armeChoisie;
-
-    printf("\n%s fait une suspicion\n",joueur->nom);
-
-
-    printf("\nSuspects\n");
-
-    for(int i=0;i<NB_SUSPECTS;i++)
-    {
-        printf("%d : %s\n",i,cartesSuspects[i].nom);
-    }
-
-    scanf("%d",&suspectChoisi);
-
-
-
-    printf("\nArmes\n");
-
-    for(int i=0;i<NB_ARMES;i++)
-    {
-        printf("%d : %s\n",i,cartesArmes[i].nom);
-    }
-
-    scanf("%d",&armeChoisie);
-    printf("\nSuspicion : %s / %s / %s\n",cartesSuspects[suspectChoisi].nom,cartesArmes[armeChoisie].nom,cartesPieces[salleActuelle].nom);
-}

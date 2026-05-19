@@ -103,6 +103,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_FreeSurface(surfaceFond);
 
     Joueur* actif = &j1;
+    int derniereSalle = -1;
 
     placerJoueurCase(&j1, 9, 0, tailleCaseX, tailleCaseY);
     placerJoueurCase(&j2, 0, 7, tailleCaseX, tailleCaseY);
@@ -162,7 +163,15 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         if(estUneSalle(caseActuelle))
         {
-            printf("%s est dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
+            if(caseActuelle != derniereSalle)
+            {
+                printf("%s entre dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
+                derniereSalle = caseActuelle;
+            }
+        }
+        else
+        {
+            derniereSalle = -1;
         }
 
         if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
@@ -173,8 +182,14 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 if(estUneSalle(caseActuelle))
                 {
                     printf("\n%s fait une suspicion dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
+                    Joueur* autre;
                 
-                    faireSuspicion(actif,caseActuelle-2);
+                    if(actif == &j1)
+                        autre = &j2;
+                    else
+                        autre = &j1;
+
+                    faireSuspicion(actif,autre,caseActuelle-2);
                 }
             
                 changerTour(&actif,&j1,&j2,&etatJeu);

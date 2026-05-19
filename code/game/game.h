@@ -4,10 +4,9 @@
 #include <SDL2/SDL.h>
 #include "../utils/constants.h"
 #include <SDL2/SDL_image.h>
-#include "rules.h"
 #include "../entities/card.h"
 
-typedef struct
+typedef struct Joueur
 {
     int x;
     int y;
@@ -18,9 +17,7 @@ typedef struct
 
     int mouvementsRestants;
 
-
-    Carte cartes[20];
-
+    Carte cartes[10];
     int nbCartes;
 
 } Joueur;

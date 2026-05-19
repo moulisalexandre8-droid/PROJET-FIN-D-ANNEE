@@ -12,6 +12,7 @@ SRC = code/main.c \
       code/game/turn_manager.c \
       code/entities/room.c \
       code/game/cards.c \
+      code/game/rules.c \
       code/utils/loader.c
 
 LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
