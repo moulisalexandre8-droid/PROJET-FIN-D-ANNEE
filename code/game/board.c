@@ -1,4 +1,5 @@
 #include "game.h"
+#include "board.h"
 #include "../utils/constants.h"
 #include "../ui/renderer.h"
 #include "../utils/loader.h"
@@ -110,4 +111,19 @@ void placerJoueurCase(Joueur* j,int col,int lig,int tailleCaseX,int tailleCaseY)
 {
     j->x = OFFSET_X + col * tailleCaseX;
     j->y = OFFSET_Y + lig * tailleCaseY;
+}
+
+int obtenirCasePlateau(int x,int y,int tailleCaseX,int tailleCaseY)
+{
+    int col =
+    (x - OFFSET_X)/tailleCaseX;
+
+    int lig =
+    (y - OFFSET_Y)/tailleCaseY;
+
+    if(lig<0 || lig>=25 ||
+       col<0 || col>=26)
+        return -1;
+
+    return plateau[lig][col];
 }

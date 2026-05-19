@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "../utils/constants.h"
 #include <SDL2/SDL_image.h>
+#include "rules.h"
 
 typedef struct
 {
@@ -17,11 +18,6 @@ typedef struct
     int mouvementsRestants;
 
 } Joueur;
-
-typedef enum {
-    ETAT_ATTENTE_DE,
-    ETAT_DEPLACEMENT
-} EtatJeu;
 
 // init SDL
 int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu);

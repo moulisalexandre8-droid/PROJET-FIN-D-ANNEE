@@ -5,8 +5,13 @@
 #include "../ui/window.h"
 #include "../ui/buttons.h"
 #include "../ui/text.h"
+#include "turn_manager.h"
+#include "../entities/room.h"
+#include "cards.h"
+#include "rules.h"
 #include <time.h>
 #include "de.h"
+#include "board.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -61,6 +66,9 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
 
 void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
+    initialiserCartes();
+    genererSolution();
+    
     int tailleCaseX = 33;
     int tailleCaseY = 31;
 
@@ -146,14 +154,23 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         }
 
         bougerJoueur(etat,actif,tailleCaseX,tailleCaseY);
+        int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+        if(caseActuelle >=2 &&caseActuelle <=11 &&caseActuelle !=6)
+        {
+            printf(
+              "%s est dans : %s\n",
+            
+              actif->nom,
+            
+              obtenirNomPiece(
+                   caseActuelle
+              )
+            );
+        }
         if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
         {
-            if (actif == &j1)
-                actif = &j2;
-            else
-                actif = &j1;
-        
-            etatJeu = ETAT_ATTENTE_DE;
+            changerTour(&actif,&j1,&j2,&etatJeu);
         }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
