@@ -5,6 +5,8 @@
 #include "../ui/window.h"
 #include "../ui/buttons.h"
 #include "../ui/text.h"
+#include <time.h>
+#include "de.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -39,6 +41,8 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
 
     *rendu = SDL_CreateRenderer(*fenetre, -1, SDL_RENDERER_ACCELERATED);
 
+    srand(time(NULL));
+
     return (*fenetre && *rendu);
 }
 
@@ -60,9 +64,20 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     int tailleCaseX = 33;
     int tailleCaseY = 31;
 
+    int valeurDe = 0;
+
     SDL_Texture* textureRose =chargerTexture(rendu,"code/assets/icons/Joueur1.png");
     SDL_Texture* textureMoutarde =chargerTexture(rendu,"code/assets/icons/Joueur2.png");
     SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
+
+    SDL_Texture* diceTextures[6];
+
+    diceTextures[0] = chargerTexture(rendu, "code/assets/de/de1.png");
+    diceTextures[1] = chargerTexture(rendu, "code/assets/de/de2.png");
+    diceTextures[2] = chargerTexture(rendu, "code/assets/de/de3.png");
+    diceTextures[3] = chargerTexture(rendu, "code/assets/de/de4.png");
+    diceTextures[4] = chargerTexture(rendu, "code/assets/de/de5.png");
+    diceTextures[5] = chargerTexture(rendu, "code/assets/de/de6.png");
 
     Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
     Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
@@ -106,7 +121,13 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 SDL_GetMouseState(&x, &y);
             
                 if (boutonEstClique(&boutonDe, x, y))
-                    printf("DE LANCE\n");
+                {
+                    valeurDe = lancerDe();
+                
+                    actif->mouvementsRestants = valeurDe;
+                
+                    printf("Dé : %d\n", valeurDe);
+                }
             
                 if (boutonEstClique(&boutonTour, x, y))
                     printf("FIN TOUR\n");
@@ -128,8 +149,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 actif = &j2;
             else
                 actif = &j1;
-        
-            actif->mouvementsRestants = 6;
+                actif->mouvementsRestants = 0;
         }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
@@ -148,18 +168,23 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);
         SDL_Texture* t2 = creerTexte(rendu, font, boutonTour.texte, blanc);
 
-        dessinerTexteCentre(rendu, t1,boutonDe.rect.x, boutonDe.rect.y,boutonDe.rect.w, boutonDe.rect.h);
-            
-        dessinerTexteCentre(rendu, t2,boutonTour.rect.x, boutonTour.rect.y,boutonTour.rect.w, boutonTour.rect.h);
-        
-        SDL_DestroyTexture(t1);
-        SDL_DestroyTexture(t2);
+        dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
+        dessinerTexteCentre(rendu,t2,boutonTour.rect.x,boutonTour.rect.y,boutonTour.rect.w,boutonTour.rect.h);
+
+        if (valeurDe >= 1 && valeurDe <= 6)
+        {
+            dessinerTexture(rendu,diceTextures[valeurDe - 1],1020,50,120,120);
+        }
 
         dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
         dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
 
         SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
+    }
+    for (int i = 0; i < 6; i++)
+    {
+        SDL_DestroyTexture(diceTextures[i]);
     }
     TTF_CloseFont(font);
 }
