@@ -7,7 +7,7 @@ Carte cartesSuspects[NB_SUSPECTS];
 Carte cartesArmes[NB_ARMES];
 Carte cartesPieces[NB_PIECES];
 
-Solution solutionJeu;
+Solution solution;
 
 void initialiserCartes()
 {
@@ -40,18 +40,18 @@ void initialiserCartes()
 
 void genererSolution()
 {
-    solutionJeu.suspect = cartesSuspects[rand()%NB_SUSPECTS];
+    solution.suspect = cartesSuspects[rand()%NB_SUSPECTS];
 
-    solutionJeu.arme = cartesArmes[rand()%NB_ARMES];
+    solution.arme = cartesArmes[rand()%NB_ARMES];
 
-    solutionJeu.piece = cartesPieces[rand()%NB_PIECES];
+    solution.piece = cartesPieces[rand()%NB_PIECES];
 
 
     printf("\n=== SOLUTION ===\n");
 
-    printf("Suspect : %s\n",solutionJeu.suspect.nom);
-    printf("Arme : %s\n",solutionJeu.arme.nom);
-    printf("Salle : %s\n",solutionJeu.piece.nom);
+    printf("Suspect : %s\n",solution.suspect.nom);
+    printf("Arme : %s\n",solution.arme.nom);
+    printf("Salle : %s\n",solution.piece.nom);
     
     printf("================\n");
 }
@@ -71,7 +71,7 @@ void distribuerCartes(Joueur* j1,Joueur* j2)
 
     for(int i=0;i<NB_SUSPECTS;i++)
     {
-        if(strcmp(cartesSuspects[i].nom,solutionJeu.suspect.nom)!=0)
+        if(strcmp(cartesSuspects[i].nom,solution.suspect.nom)!=0)
         {
             if(tour%2==0)
                 ajouterCarte(j1,cartesSuspects[i]);
@@ -85,7 +85,7 @@ void distribuerCartes(Joueur* j1,Joueur* j2)
 
     for(int i=0;i<NB_ARMES;i++)
     {
-        if(strcmp(cartesArmes[i].nom,solutionJeu.arme.nom)!=0)
+        if(strcmp(cartesArmes[i].nom,solution.arme.nom)!=0)
         {
             if(tour%2==0)
                 ajouterCarte(j1,cartesArmes[i]);
@@ -101,7 +101,7 @@ void distribuerCartes(Joueur* j1,Joueur* j2)
 
     for(int i=0;i<NB_PIECES;i++)
     {
-        if(strcmp(cartesPieces[i].nom,solutionJeu.piece.nom)!=0)
+        if(strcmp(cartesPieces[i].nom,solution.piece.nom)!=0)
         {
             if(tour%2==0)
                 ajouterCarte(j1,cartesPieces[i]);

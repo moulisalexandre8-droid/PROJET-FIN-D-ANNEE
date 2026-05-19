@@ -14,4 +14,6 @@ void faireSuspicion(Joueur* joueur,Joueur* autre,int salle);
 
 void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle);
 
+void faireAccusation(Joueur* joueur);
+
 #endif

@@ -104,3 +104,34 @@ void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle)
 
     printf("\n%s montre une carte.\n",accuse->nom);
 }
+
+void faireAccusation(Joueur* joueur)
+{
+    int suspect;
+    int arme;
+    int salle;
+
+    printf("\n%s fait une ACCUSATION\n",joueur->nom);
+
+
+    printf("\nChoisir suspect : ");
+    scanf("%d",&suspect);
+
+    printf("\nChoisir arme : ");
+    scanf("%d",&arme);
+
+    printf("\nChoisir salle : ");
+    scanf("%d",&salle);
+
+
+    if(suspect == solution.suspect.id && arme == solution.arme.id && salle == solution.piece.id)
+    {
+        printf("\n%s gagne la partie !\n",joueur->nom);
+    }
+    else
+    {
+        printf("\nMauvaise accusation.\n");
+
+        printf("%s est éliminé.\n",joueur->nom);
+    }
+}

@@ -23,7 +23,7 @@ typedef struct
 } Solution;
 
 
-extern Solution solutionJeu;
+extern Solution solution;
 
 void genererSolution();
 
