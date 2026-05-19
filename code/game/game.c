@@ -165,23 +165,20 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             printf("%s est dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
         }
 
-        if(estUneSalle(caseActuelle))
-        {
-            faireSuspicion(
-                actif,
-                caseActuelle-2);
-        }
-
         if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
-        {
-            int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
-
-            if(estUneSalle(caseActuelle))
             {
-                printf("\n%s fait une suspicion dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
+                int caseActuelle =
+                obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+            
+                if(estUneSalle(caseActuelle))
+                {
+                    printf("\n%s fait une suspicion dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
+                
+                    faireSuspicion(actif,caseActuelle-2);
+                }
+            
+                changerTour(&actif,&j1,&j2,&etatJeu);
             }
-            changerTour(&actif,&j1,&j2,&etatJeu);
-        }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
         SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
