@@ -29,4 +29,6 @@ void genererSolution();
 
 void distribuerCartes(Joueur* j1,Joueur* j2);
 
+void faireSuspicion(Joueur* joueur,int salleActuelle);
+
 #endif

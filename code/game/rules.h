@@ -7,11 +7,7 @@ typedef enum
 
     ETAT_DEPLACEMENT,
 
-    ETAT_SUSPICION,
-
-    ETAT_ACCUSATION,
-
-    ETAT_FIN_PARTIE
+    ETAT_SUSPICION
 
 } EtatJeu;
 

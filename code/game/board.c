@@ -102,7 +102,7 @@ int peutAller(int ancienneX,int ancienneY,
 
     // pieces 
     if (caseArrivee >= 2 && caseArrivee <= 11)
-        return 0;
+        return 1;
 
     return 0;
 }

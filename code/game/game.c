@@ -1,4 +1,6 @@
 #include "game.h"
+#include "../entities/room.h"
+#include "cards.h"
 #include "../utils/constants.h"
 #include "../ui/renderer.h"
 #include "../utils/loader.h"
@@ -158,20 +160,26 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         bougerJoueur(etat,actif,tailleCaseX,tailleCaseY);
         int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
 
-        if(caseActuelle >=2 &&caseActuelle <=11 &&caseActuelle !=6)
+        if(estUneSalle(caseActuelle))
         {
-            printf(
-              "%s est dans : %s\n",
-            
-              actif->nom,
-            
-              obtenirNomPiece(
-                   caseActuelle
-              )
-            );
+            printf("%s est dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
         }
+
+        if(estUneSalle(caseActuelle))
+        {
+            faireSuspicion(
+                actif,
+                caseActuelle-2);
+        }
+
         if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
         {
+            int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+            if(estUneSalle(caseActuelle))
+            {
+                printf("\n%s fait une suspicion dans %s\n",actif->nom,obtenirNomSalle(caseActuelle));
+            }
             changerTour(&actif,&j1,&j2,&etatJeu);
         }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);

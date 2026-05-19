@@ -56,40 +56,27 @@ void genererSolution()
     printf("================\n");
 }
 
-void ajouterCarte(
-        Joueur* j,
-        Carte c)
+void ajouterCarte(Joueur* j,Carte c)
 {
     j->cartes[j->nbCartes]=c;
-
     j->nbCartes++;
 }
 
 
 
-void distribuerCartes(
-        Joueur* j1,
-        Joueur* j2)
+void distribuerCartes(Joueur* j1,Joueur* j2)
 {
     int tour=0;
 
 
     for(int i=0;i<NB_SUSPECTS;i++)
     {
-        if(strcmp(
-            cartesSuspects[i].nom,
-            solutionJeu.suspect.nom)!=0)
+        if(strcmp(cartesSuspects[i].nom,solutionJeu.suspect.nom)!=0)
         {
             if(tour%2==0)
-                ajouterCarte(
-                    j1,
-                    cartesSuspects[i]);
-
+                ajouterCarte(j1,cartesSuspects[i]);
             else
-                ajouterCarte(
-                    j2,
-                    cartesSuspects[i]);
-
+                ajouterCarte(j2,cartesSuspects[i]);
             tour++;
         }
     }
@@ -98,19 +85,13 @@ void distribuerCartes(
 
     for(int i=0;i<NB_ARMES;i++)
     {
-        if(strcmp(
-            cartesArmes[i].nom,
-            solutionJeu.arme.nom)!=0)
+        if(strcmp(cartesArmes[i].nom,solutionJeu.arme.nom)!=0)
         {
             if(tour%2==0)
-                ajouterCarte(
-                    j1,
-                    cartesArmes[i]);
+                ajouterCarte(j1,cartesArmes[i]);
 
             else
-                ajouterCarte(
-                    j2,
-                    cartesArmes[i]);
+                ajouterCarte(j2,cartesArmes[i]);
 
             tour++;
         }
@@ -120,19 +101,13 @@ void distribuerCartes(
 
     for(int i=0;i<NB_PIECES;i++)
     {
-        if(strcmp(
-            cartesPieces[i].nom,
-            solutionJeu.piece.nom)!=0)
+        if(strcmp(cartesPieces[i].nom,solutionJeu.piece.nom)!=0)
         {
             if(tour%2==0)
-                ajouterCarte(
-                    j1,
-                    cartesPieces[i]);
+                ajouterCarte(j1,cartesPieces[i]);
 
             else
-                ajouterCarte(
-                    j2,
-                    cartesPieces[i]);
+                ajouterCarte(j2,cartesPieces[i]);
 
             tour++;
         }
@@ -142,14 +117,44 @@ void distribuerCartes(
     printf("\nCartes J1\n");
 
     for(int i=0;i<j1->nbCartes;i++)
-        printf("%s\n",
-               j1->cartes[i].nom);
+        printf("%s\n",j1->cartes[i].nom);
 
 
 
     printf("\nCartes J2\n");
 
     for(int i=0;i<j2->nbCartes;i++)
-        printf("%s\n",
-               j2->cartes[i].nom);
+        printf("%s\n",j2->cartes[i].nom);
+}
+
+#include <stdio.h>
+
+void faireSuspicion(Joueur* joueur,int salleActuelle)
+{
+    int suspectChoisi;
+    int armeChoisie;
+
+    printf("\n%s fait une suspicion\n",joueur->nom);
+
+
+    printf("\nSuspects\n");
+
+    for(int i=0;i<NB_SUSPECTS;i++)
+    {
+        printf("%d : %s\n",i,cartesSuspects[i].nom);
+    }
+
+    scanf("%d",&suspectChoisi);
+
+
+
+    printf("\nArmes\n");
+
+    for(int i=0;i<NB_ARMES;i++)
+    {
+        printf("%d : %s\n",i,cartesArmes[i].nom);
+    }
+
+    scanf("%d",&armeChoisie);
+    printf("\nSuspicion : %s / %s / %s\n",cartesSuspects[suspectChoisi].nom,cartesArmes[armeChoisie].nom,cartesPieces[salleActuelle].nom);
 }

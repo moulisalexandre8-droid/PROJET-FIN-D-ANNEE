@@ -23,3 +23,19 @@ char* obtenirNomPiece(int id)
 
     return "Couloir";
 }
+
+int estUneSalle(int id)
+{
+    return id >= 2 && id <= 11;
+}
+
+const char* obtenirNomSalle(int id)
+{
+    for(int i=0;i<9;i++)
+    {
+        if(pieces[i].id == id)
+            return pieces[i].nom;
+    }
+
+    return "Inconnue";
+}
