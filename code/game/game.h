@@ -5,6 +5,7 @@
 #include "../utils/constants.h"
 #include <SDL2/SDL_image.h>
 #include "rules.h"
+#include "../entities/card.h"
 
 typedef struct
 {
@@ -16,6 +17,11 @@ typedef struct
     char nom[30];
 
     int mouvementsRestants;
+
+
+    Carte cartes[20];
+
+    int nbCartes;
 
 } Joueur;
 

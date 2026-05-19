@@ -15,7 +15,9 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
     strcpy(j.nom, nom);
 
-    j.mouvementsRestants = 6;
+    j.mouvementsRestants = 0;
+
+    j.nbCartes = 0;
 
     SDL_Surface* surface = IMG_Load(cheminImage);
 

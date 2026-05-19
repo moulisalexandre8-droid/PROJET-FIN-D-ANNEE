@@ -2,6 +2,7 @@
 #define CARDS_H
 
 #include "../entities/card.h"
+#include "../game/game.h"
 
 #define NB_SUSPECTS 6
 #define NB_ARMES 6
@@ -25,5 +26,7 @@ typedef struct
 extern Solution solutionJeu;
 
 void genererSolution();
+
+void distribuerCartes(Joueur* j1,Joueur* j2);
 
 #endif

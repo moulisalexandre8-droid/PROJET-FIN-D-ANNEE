@@ -68,6 +68,11 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
     initialiserCartes();
     genererSolution();
+
+    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
+    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
+
+    distribuerCartes(&j1,&j2);
     
     int tailleCaseX = 33;
     int tailleCaseY = 31;
@@ -88,9 +93,6 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     diceTextures[3] = chargerTexture(rendu, "code/assets/de/de4.png");
     diceTextures[4] = chargerTexture(rendu, "code/assets/de/de5.png");
     diceTextures[5] = chargerTexture(rendu, "code/assets/de/de6.png");
-
-    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
-    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
 
     SDL_Surface* surfaceFond =IMG_Load("code/assets/board/cluedo_board.png");
 
