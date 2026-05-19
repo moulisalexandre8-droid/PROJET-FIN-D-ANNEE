@@ -18,6 +18,11 @@ typedef struct
 
 } Joueur;
 
+typedef enum {
+    ETAT_ATTENTE_DE,
+    ETAT_DEPLACEMENT
+} EtatJeu;
+
 // init SDL
 int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu);
 

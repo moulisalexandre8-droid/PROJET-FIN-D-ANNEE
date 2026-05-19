@@ -66,6 +66,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
     int valeurDe = 0;
 
+    EtatJeu etatJeu = ETAT_ATTENTE_DE;
+
     SDL_Texture* textureRose =chargerTexture(rendu,"code/assets/icons/Joueur1.png");
     SDL_Texture* textureMoutarde =chargerTexture(rendu,"code/assets/icons/Joueur2.png");
     SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
@@ -96,8 +98,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
-    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");
-    Bouton boutonTour = creerBouton(1000, 300, 300, 60, "Fin du tour");
+    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");;
 
     TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
 
@@ -122,15 +123,14 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             
                 if (boutonEstClique(&boutonDe, x, y))
                 {
-                    valeurDe = lancerDe();
-                
-                    actif->mouvementsRestants = valeurDe;
-                
-                    printf("Dé : %d\n", valeurDe);
+                    if (etatJeu == ETAT_ATTENTE_DE)
+                    {
+                        valeurDe = lancerDe();
+                        actif->mouvementsRestants = valeurDe;
+                    
+                        etatJeu = ETAT_DEPLACEMENT;
+                    }
                 }
-            
-                if (boutonEstClique(&boutonTour, x, y))
-                    printf("FIN TOUR\n");
             }
         }
 
@@ -138,18 +138,22 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_GetMouseState(&mouseX, &mouseY);
 
         updateHover(&boutonDe, mouseX, mouseY);
-        updateHover(&boutonTour, mouseX, mouseY);
 
         const Uint8* etat = SDL_GetKeyboardState(NULL);
+        if (etatJeu == ETAT_DEPLACEMENT)
+        {
+            bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
+        }
 
         bougerJoueur(etat,actif,tailleCaseX,tailleCaseY);
-        if (actif->mouvementsRestants <= 0)
+        if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
         {
             if (actif == &j1)
                 actif = &j2;
             else
                 actif = &j1;
-                actif->mouvementsRestants = 0;
+        
+            etatJeu = ETAT_ATTENTE_DE;
         }
         appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
@@ -161,15 +165,12 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         dessinerInterfaceDroite(rendu);
 
         dessinerBouton(rendu, &boutonDe);
-        dessinerBouton(rendu, &boutonTour);
 
         SDL_Color blanc = {255, 255, 255, 255};
 
         SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);
-        SDL_Texture* t2 = creerTexte(rendu, font, boutonTour.texte, blanc);
 
         dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
-        dessinerTexteCentre(rendu,t2,boutonTour.rect.x,boutonTour.rect.y,boutonTour.rect.w,boutonTour.rect.h);
 
         if (valeurDe >= 1 && valeurDe <= 6)
         {
