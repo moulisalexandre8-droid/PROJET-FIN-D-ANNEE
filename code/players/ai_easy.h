@@ -20,10 +20,8 @@ typedef struct {
     int cartesVues[MAX_CARTES]; // 0 = inconnu, 1 = vu
 } MemoireIA;
 
-// Initialisation mémoire
 void initMemoireIA(MemoireIA *memoire);
 
-// Tour de l'IA
 void tourIA(Joueur *ia, Joueur joueurs[], int nbJoueurs,
             Carte suspects[], int nbSuspects,
             Carte armes[], int nbArmes,
@@ -31,7 +29,6 @@ void tourIA(Joueur *ia, Joueur joueurs[], int nbJoueurs,
             int salleActuelle,
             MemoireIA *memoire);
 
-// Trouver carte chez un joueur
 Carte* trouver_carte(Joueur j, Carte suspect, Carte arme, Carte lieu);
 
 #endif
