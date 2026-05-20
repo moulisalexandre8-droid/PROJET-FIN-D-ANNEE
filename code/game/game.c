@@ -104,9 +104,11 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
-    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");
-    Bouton boutonAccuser = creerBouton(1000,300,300,60,"Accuser");
-    Bouton boutonSoupcon = creerBouton(1000,380,300,60,"Soupcon");
+Bouton boutonDe = creerBouton(1000, 280, 300, 60, "Lancer le de");
+
+Bouton boutonAccuser = creerBouton(1000, 370, 300, 60, "Accuser");
+
+Bouton boutonSoupcon = creerBouton(1000, 450, 300, 60, "Soupcon");
 
     TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
 
@@ -213,6 +215,21 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         // dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
         dessinerInterfaceDroite(rendu);
 
+        SDL_Texture* txtTour = creerTexte(rendu,font,"Tour :",blanc);
+
+        dessinerTexteCentre(rendu,txtTour,980,25,120,40);
+
+        SDL_Texture* txtNom = creerTexte(rendu,font,actif->nom,blanc);
+
+        dessinerTexteCentre(rendu,txtNom,1100,25,120,40);
+
+        /* icône joueur */
+
+        dessinerTexture(rendu,actif->texture,1230,15,60,60);
+
+        SDL_DestroyTexture(txtTour);
+        SDL_DestroyTexture(txtNom);
+
         SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);;
         SDL_Texture* txtAccuser = creerTexte(rendu,font,boutonAccuser.texte,blanc);
         SDL_Texture* txtSoupcon = creerTexte(rendu,font,boutonSoupcon.texte,blanc);
@@ -253,7 +270,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         if (valeurDe >= 1 && valeurDe <= 6)
         {
-            dessinerTexture(rendu,diceTextures[valeurDe - 1],1020,50,120,120);
+            dessinerTexture(rendu,diceTextures[valeurDe - 1],1090,110,120,120);
         }
 
         dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
