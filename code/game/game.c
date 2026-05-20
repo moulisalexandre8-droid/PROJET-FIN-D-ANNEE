@@ -1,39 +1,24 @@
 #include "game.h"
+#include "../entities/room.h"
+#include "cards.h"
+#include "../utils/constants.h"
 #include "../ui/renderer.h"
+#include "../utils/loader.h"
+#include "../ui/window.h"
+#include "../ui/buttons.h"
+#include "../ui/text.h"
+#include "turn_manager.h"
+#include "../entities/room.h"
+#include "cards.h"
+#include "rules.h"
+#include <time.h>
+#include "de.h"
+#include "board.h"
+
+#include <SDL2/SDL_image.h>
+
 #include <stdio.h>
 #include <string.h>
-
-// Plateau de jeu : 0 = sol, 1 = mur, 2-10 = pièces, 11 = porte
-
-int plateau[26][28] =
-{
-    {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1},
-    {1,2,2,2,2,2,1,0,1,3,3,3,3,3,3,3,3,3,3,3,1,0,1,4,4,4,4,1},
-    {1,2,2,2,2,2,1,0,1,3,3,3,3,3,3,3,3,3,3,3,1,0,1,4,4,4,4,1},
-    {1,2,2,2,2,2,1,0,1,3,3,3,3,3,3,3,3,3,3,3,1,0,1,4,4,4,4,1},
-    {1,2,2,2,2,2,1,0,1,3,3,3,3,3,3,3,3,3,3,3,1,0,1,4,4,4,4,1},
-    {1,2,2,2,2,2,11,0,1,3,3,3,3,3,3,3,3,3,3,3,1,0,11,4,4,4,4,1},
-    {1,1,1,1,1,1,1,0,1,1,1,3,3,3,3,3,3,3,1,1,1,0,1,1,1,1,1,1},
-    {0,0,0,0,0,0,0,0,0,0,0,1,1,1,11,1,1,1,0,0,0,0,0,0,0,0,0,0},
-    {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1},
-    {1,5,5,5,5,5,5,5,1,0,0,0,1,1,1,1,1,0,0,0,1,6,6,6,6,6,6,1},
-    {1,5,5,5,5,5,5,5,1,0,0,0,1,10,10,10,1,0,0,0,1,6,6,6,6,6,6,1},
-    {1,5,5,5,5,5,5,5,11,0,0,0,1,10,10,10,1,0,0,0,11,6,6,6,6,6,6,1},
-    {1,5,5,5,5,5,5,5,1,0,0,0,1,10,10,10,1,0,0,0,1,6,6,6,6,6,6,1},
-    {1,5,5,5,5,5,5,5,1,0,0,0,1,10,10,10,1,0,0,0,1,6,6,6,6,6,6,1},
-    {1,5,5,5,5,5,5,5,1,0,0,0,1,10,10,10,1,0,0,0,1,6,6,6,6,6,6,1},
-    {1,1,1,1,1,1,1,1,1,0,0,0,1,1,11,1,1,0,0,0,1,1,1,1,1,1,1,1},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {1,1,1,1,1,1,1,0,0,0,0,1,1,1,11,1,1,1,0,0,0,1,1,1,1,1,1,1},
-    {1,7,7,7,7,7,1,0,0,1,1,8,8,8,8,8,8,1,1,0,0,1,9,9,9,9,9,1},
-    {1,7,7,7,7,7,1,0,0,1,8,8,8,8,8,8,8,8,1,0,0,1,9,9,9,9,9,1},
-    {1,7,7,7,7,7,1,0,0,1,8,8,8,8,8,8,8,8,1,0,0,1,9,9,9,9,9,1},
-    {1,7,7,7,7,7,1,0,0,1,8,8,8,8,8,8,8,8,1,0,0,1,9,9,9,9,9,1},
-    {1,7,7,7,7,7,11,0,0,1,8,8,8,8,8,8,8,8,1,0,0,11,9,9,9,9,9,1},
-    {1,7,7,7,7,7,1,0,0,1,8,8,8,8,8,8,8,8,1,0,0,1,9,9,9,9,9,1},
-    {1,7,7,7,7,7,1,0,0,1,8,8,8,8,8,8,8,8,1,0,0,1,9,9,9,9,9,1},
-    {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1}
-};
 
 // Sdl et initialisation
 
@@ -50,108 +35,22 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
         printf("Erreur TTF : %s\n", TTF_GetError());
         return 0;
     }
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
+    {
+        printf("Erreur SDL_image : %s\n", IMG_GetError());
+        return 0;
+    }
 
     *fenetre = SDL_CreateWindow("Cluelau",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        925, 860, 0);
+        1400, 860, 0);
 
     *rendu = SDL_CreateRenderer(*fenetre, -1, SDL_RENDERER_ACCELERATED);
 
+    srand(time(NULL));
+
     return (*fenetre && *rendu);
-}
-
-// joueur
-
-Joueur initialiserJoueur(int x, int y, SDL_Color couleur, const char* nom)
-{
-    Joueur j;
-
-    j.x = x;
-    j.y = y;
-    j.couleur = couleur;
-
-    strcpy(j.nom, nom);
-    j.mouvementsRestants = 6;
-
-    return j;
-}
-
-// colisions et limites
-
-int estUnMur(int ligne, int colonne)
-{
-    return plateau[ligne][colonne] == 1;
-}
-
-int peutAller(int x, int y, int tailleCase)
-{
-    int col = x / tailleCase;
-    int lig = y / tailleCase;
-
-    if (lig < 0 || lig >= 26 || col < 0 || col >= 28)
-        return 0;
-
-    return !estUnMur(lig, col);
-}
-
-// deplacement
-
-void bougerJoueur(const Uint8* etat, Joueur* j, int tailleCase)
-{
-    if (j->mouvementsRestants <= 0)
-        return;
-
-    static int lock = 0; // empeche de se teleporter en maintenant une touche
-
-    if (lock)
-    {
-        if (!etat[SDL_SCANCODE_UP] &&
-            !etat[SDL_SCANCODE_DOWN] &&
-            !etat[SDL_SCANCODE_LEFT] &&
-            !etat[SDL_SCANCODE_RIGHT])
-        {
-            lock = 0;
-        }
-        return;
-    }
-        int dx = 0, dy = 0;
-
-    if (etat[SDL_SCANCODE_UP]) dy = -tailleCase;
-    else if (etat[SDL_SCANCODE_DOWN]) dy = tailleCase;
-    else if (etat[SDL_SCANCODE_LEFT]) dx = -tailleCase;
-    else if (etat[SDL_SCANCODE_RIGHT]) dx = tailleCase;
-
-    if (dx == 0 && dy == 0)
-        return;
-        int nx = j->x + dx;
-        int ny = j->y + dy;
-
-    if (peutAller(nx, ny, tailleCase))
-    {
-        j->x = nx;
-        j->y = ny;
-        j->mouvementsRestants--;
-
-        lock = 1;
-    }
-}
-
-void deplacerJoueur(Joueur* j, int nx, int ny)
-{
-    j->x = nx;
-    j->y = ny;
-}
-
-//limites du plateau
-
-void appliquerLimites(Joueur* j, int tailleCase, int w, int h)
-{
-    if (j->x < 0) j->x = 0;
-    if (j->y < 0) j->y = 0;
-
-    if (j->x > w - tailleCase) j->x = w - tailleCase;
-    if (j->y > h - tailleCase) j->y = h - tailleCase;
 }
 
 // cleanup
@@ -161,6 +60,7 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
     SDL_DestroyRenderer(r);
     SDL_DestroyWindow(f);
     TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
 }
 
@@ -168,56 +68,237 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
 
 void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 {
-    int tailleCase = 33;
+    initialiserCartes();
+    genererSolution();
 
-    SDL_Color rouge = {255,0,0,255};
-    SDL_Color bleu = {0,0,255,255};
+    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
+    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
 
-    Joueur j1 = initialiserJoueur(231,0,rouge,"J1");
-    Joueur j2 = initialiserJoueur(0,231,bleu,"J2");
+    distribuerCartes(&j1,&j2);
+    
+    int tailleCaseX = 33;
+    int tailleCaseY = 31;
+
+    int valeurDe = 0;
+
+    EtatJeu etatJeu = ETAT_ATTENTE_DE;
+    EtatInterface etatUI = UI_PRINCIPALE;
+
+    SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
+
+    SDL_Texture* diceTextures[6];
+
+    diceTextures[0] = chargerTexture(rendu, "code/assets/de/de1.png");
+    diceTextures[1] = chargerTexture(rendu, "code/assets/de/de2.png");
+    diceTextures[2] = chargerTexture(rendu, "code/assets/de/de3.png");
+    diceTextures[3] = chargerTexture(rendu, "code/assets/de/de4.png");
+    diceTextures[4] = chargerTexture(rendu, "code/assets/de/de5.png");
+    diceTextures[5] = chargerTexture(rendu, "code/assets/de/de6.png");
 
     Joueur* actif = &j1;
+    int derniereSalle = -1;
+
+    placerJoueurCase(&j1, 9, 0, tailleCaseX, tailleCaseY);
+    placerJoueurCase(&j2, 0, 7, tailleCaseX, tailleCaseY);
 
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
+    Bouton boutonDe = creerBouton(1000, 200, 300, 60, "Lancer le de");
+    Bouton boutonAccuser = creerBouton(1000,300,300,60,"Accuser");
+    Bouton boutonSoupcon = creerBouton(1000,380,300,60,"Soupcon");
+
+    TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
+
+    if (!font)
+    {
+        printf("Erreur font: %s\n", TTF_GetError());
+    }
+
     while (run)
     {
-        while (SDL_PollEvent(&e))// lit les evenemment
+        SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
+        SDL_RenderClear(rendu);
+        SDL_Color blanc = {255, 255, 255, 255};
+
+        while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
                 run = 0;
-
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
+        
+            if (e.type == SDL_MOUSEBUTTONDOWN)
             {
-                actif = (actif == &j1) ? &j2 : &j1;
-                actif->mouvementsRestants = 6;
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+            
+                if (boutonEstClique(&boutonDe, x, y))
+                {
+                    if (etatJeu == ETAT_ATTENTE_DE)
+                    {
+                        valeurDe = lancerDe();
+                        actif->mouvementsRestants = valeurDe;
+                    
+                        etatJeu = ETAT_DEPLACEMENT;
+                    }
+                }
+                if(boutonEstClique(&boutonAccuser,x,y))
+                {
+                    int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+                    if(estUneSalle(caseActuelle))
+                    {
+                        etatUI = UI_ACCUSATION;
+                    }
+                }
+                if(boutonEstClique(&boutonSoupcon,x,y))
+                {
+                    int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+                    if(estUneSalle(caseActuelle))
+                    {
+                        etatUI = UI_SUSPICION;
+                    }
+                }
             }
         }
 
-        const Uint8* etat = SDL_GetKeyboardState(NULL);
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
 
-        bougerJoueur(etat, actif, tailleCase);
-        if (actif->mouvementsRestants <= 0)
+        int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+        int dansSalle = estUneSalle(caseActuelle);
+
+        updateHover(&boutonDe, mouseX, mouseY);
+        if(dansSalle)
         {
-            if (actif == &j1)
-                actif = &j2;
-            else
-                actif = &j1;
-        
-            actif->mouvementsRestants = 6;
+            updateHover(&boutonAccuser,mouseX,mouseY);
+            updateHover(&boutonSoupcon,mouseX,mouseY);
         }
-        appliquerLimites(actif, tailleCase, 925, 860);
+        else
+        {
+            boutonAccuser.hover = 0;
+            boutonSoupcon.hover = 0;
+        }
 
-        SDL_SetRenderDrawColor(rendu,0,0,0,255);
-        SDL_RenderClear(rendu);
+        const Uint8* etat = SDL_GetKeyboardState(NULL);
+        if (etatJeu == ETAT_DEPLACEMENT)
+        {
+            bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
+        }
+        
+        if(estUneSalle(caseActuelle))
+        {
+            if(caseActuelle != derniereSalle)
+            {
+                derniereSalle = caseActuelle;
+            }
+        }
+        else
+        {
+            derniereSalle = -1;
+        }
 
-        dessinerGrille(rendu, plateau, tailleCase);
+        if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
+        {
+            changerTour(&actif,&j1,&j2,&etatJeu);
+        }
 
-        dessinerJoueur(rendu, j1.x, j1.y, tailleCase, j1.couleur);
-        dessinerJoueur(rendu, j2.x, j2.y, tailleCase, j2.couleur);
+        appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
+
+        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+        
+        dessinerTexture(rendu, plateauTexture, 0, 0, 925, 860);
+
+        // dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
+        dessinerInterfaceDroite(rendu);
+
+        SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);;
+        SDL_Texture* txtAccuser = creerTexte(rendu,font,boutonAccuser.texte,blanc);
+        SDL_Texture* txtSoupcon = creerTexte(rendu,font,boutonSoupcon.texte,blanc);
+
+        if(etatUI == UI_PRINCIPALE)
+        {
+            dessinerBouton(rendu,&boutonDe);
+            dessinerBouton(rendu,&boutonAccuser);
+            dessinerBouton(rendu,&boutonSoupcon);
+
+            dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
+            dessinerTexteCentre(rendu,txtAccuser,boutonAccuser.rect.x,boutonAccuser.rect.y,boutonAccuser.rect.w,boutonAccuser.rect.h);
+            dessinerTexteCentre(rendu,txtSoupcon,boutonSoupcon.rect.x,boutonSoupcon.rect.y,boutonSoupcon.rect.w,boutonSoupcon.rect.h);
+        }
+
+        if(etatUI == UI_ACCUSATION)
+        {
+            SDL_Texture* txt = creerTexte(rendu,font,"MENU ACCUSATION",blanc);
+        
+            dessinerTexteCentre(rendu,txt,1000,250,300,50);
+            SDL_DestroyTexture(txt);
+        }
+
+        if(etatUI == UI_SUSPICION)
+        {
+            SDL_Texture* txt = creerTexte(rendu,font,"MENU SOUPCON",blanc);
+        
+            dessinerTexteCentre(rendu,txt,1000,250,300,50);
+            SDL_DestroyTexture(txt);
+        }
+
+        if(!dansSalle)
+        {
+            boutonAccuser.hover = 0;
+            boutonSoupcon.hover = 0;
+        }
+
+
+        if (valeurDe >= 1 && valeurDe <= 6)
+        {
+            dessinerTexture(rendu,diceTextures[valeurDe - 1],1020,50,120,120);
+        }
+
+        dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
+        dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
 
         SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
+
+        SDL_DestroyTexture(t1);
+        SDL_DestroyTexture(txtAccuser);
+        SDL_DestroyTexture(txtSoupcon);
     }
+    for (int i = 0; i < 6; i++)
+    {
+        SDL_DestroyTexture(diceTextures[i]);
+    }
+    TTF_CloseFont(font);
 }
+// a supp
+
+/*void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX, int tailleCaseY)
+{
+    SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+
+    // lignes verticales
+    for (int x = 0; x <= 26; x++)
+    {
+        SDL_RenderDrawLine(
+            rendu,
+            OFFSET_X + x * tailleCaseX,
+            OFFSET_Y,
+            OFFSET_X + x * tailleCaseX,
+            OFFSET_Y + 25 * tailleCaseY
+        );
+    }
+
+    // lignes horizontales
+    for (int y = 0; y <= 25; y++)
+    {
+        SDL_RenderDrawLine(
+            rendu,
+            OFFSET_X,
+            OFFSET_Y + y * tailleCaseY,
+            OFFSET_X + 26 * tailleCaseX,
+            OFFSET_Y + y * tailleCaseY
+        );
+    }
+}*/

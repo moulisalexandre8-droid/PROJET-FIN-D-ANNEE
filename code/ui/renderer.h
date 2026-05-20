@@ -3,21 +3,14 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include "../utils/constants.h"
 
-int estUnePiece(int valeur);
+void dessinerTexture(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int largeur,int hauteur);
 
-SDL_Color obtenirCouleurCase(int valeur);
+void dessinerJoueur(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int tailleCaseX,int tailleCaseY);
 
-void afficherTexte(SDL_Renderer* rendu,TTF_Font* police,const char* texte,int x,int y);
+void dessinerGrilleDebug(SDL_Renderer* rendu,int tailleCaseX,int tailleCaseY);
 
-void afficherNomsPieces(SDL_Renderer* rendu,TTF_Font* police);
-
-void dessinerCase(SDL_Renderer* rendu,int valeur,int x,int y,int tailleCase);
-
-void dessinerPlateau(SDL_Renderer* rendu,int plateau[26][28],int tailleCase);
-
-void dessinerJoueur(SDL_Renderer* rendu,int x,int y,int tailleCase,SDL_Color couleur);
-
-void dessinerGrille(SDL_Renderer* rendu,int plateau[26][28],int tailleCase);
+void dessinerInterfaceDroite(SDL_Renderer* rendu);
 
 #endif

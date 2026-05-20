@@ -2,9 +2,20 @@ CC = gcc
 
 SRC = code/main.c \
       code/game/game.c \
-      code/ui/renderer.c
+      code/game/board.c \
+      code/players/player.c \
+      code/ui/renderer.c \
+      code/ui/window.c \
+	code/ui/buttons.c \
+	code/ui/text.c \
+      code/game/de.c \
+      code/game/turn_manager.c \
+      code/entities/room.c \
+      code/game/cards.c \
+      code/game/rules.c \
+      code/utils/loader.c
 
-LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
 
 EXEC = cluelau.exe
 

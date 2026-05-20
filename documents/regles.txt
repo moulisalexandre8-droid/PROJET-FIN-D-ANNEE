@@ -3,7 +3,7 @@ Ici sont décrites les règles du jeu :
 21 cartes en tout :
 -6 cartes suspect
 -6 cartes arme
--6 cartes lieu
+-9 cartes lieu
 
 Max 6 joueurs
 
