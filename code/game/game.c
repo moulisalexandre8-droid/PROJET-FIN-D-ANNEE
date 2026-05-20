@@ -83,6 +83,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
     EtatJeu etatJeu = ETAT_ATTENTE_DE;
     EtatInterface etatUI = UI_PRINCIPALE;
+    int suspectChoisi = 0;
+    int armeChoisie = 0;
 
     SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
 
@@ -104,11 +106,11 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
-Bouton boutonDe = creerBouton(1000, 280, 300, 60, "Lancer le de");
+    Bouton boutonDe = creerBouton(1000, 280, 300, 60, "Lancer le de");
 
-Bouton boutonAccuser = creerBouton(1000, 370, 300, 60, "Accuser");
+    Bouton boutonAccuser = creerBouton(1000, 370, 300, 60, "Accuser");
 
-Bouton boutonSoupcon = creerBouton(1000, 450, 300, 60, "Soupcon");
+    Bouton boutonSoupcon = creerBouton(1000, 450, 300, 60, "Soupcon");
 
     TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
 
@@ -162,126 +164,189 @@ Bouton boutonSoupcon = creerBouton(1000, 450, 300, 60, "Soupcon");
                     }
                 }
             }
-        }
-
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-
-        int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
-
-        int dansSalle = estUneSalle(caseActuelle);
-
-        updateHover(&boutonDe, mouseX, mouseY);
-        if(dansSalle)
-        {
-            updateHover(&boutonAccuser,mouseX,mouseY);
-            updateHover(&boutonSoupcon,mouseX,mouseY);
-        }
-        else
-        {
-            boutonAccuser.hover = 0;
-            boutonSoupcon.hover = 0;
-        }
-
-        const Uint8* etat = SDL_GetKeyboardState(NULL);
-        if (etatJeu == ETAT_DEPLACEMENT)
-        {
-            bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
-        }
-        
-        if(estUneSalle(caseActuelle))
-        {
-            if(caseActuelle != derniereSalle)
+            if(etatUI == UI_SUSPICION &&e.type == SDL_KEYDOWN)
             {
-                derniereSalle = caseActuelle;
+            int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+            if(e.key.keysym.sym == SDLK_UP)
+                suspectChoisi--;
+
+            if(e.key.keysym.sym == SDLK_DOWN)
+                suspectChoisi++;
+
+            if(e.key.keysym.sym == SDLK_LEFT)
+                armeChoisie--;
+
+            if(e.key.keysym.sym == SDLK_RIGHT)
+                armeChoisie++;
+
+
+            if(suspectChoisi < 0)
+                suspectChoisi = NB_SUSPECTS - 1;
+
+            if(suspectChoisi >= NB_SUSPECTS)
+                suspectChoisi = 0;
+
+
+            if(armeChoisie < 0)
+                armeChoisie = NB_ARMES - 1;
+
+            if(armeChoisie >= NB_ARMES)
+                armeChoisie = 0;
+
+
+            if(e.key.keysym.sym == SDLK_RETURN)
+            {
+                Joueur* autre =(actif == &j1)? &j2: &j1;
+                faireSuspicion(actif,autre,caseActuelle - 2);
+
+                etatUI = UI_PRINCIPALE;
+            }
+
+
+            if(e.key.keysym.sym == SDLK_ESCAPE)
+            {
+                etatUI =UI_PRINCIPALE;
             }
         }
-        else
+    }
+
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+    int caseActuelle = obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
+
+    int dansSalle = estUneSalle(caseActuelle);
+
+    updateHover(&boutonDe, mouseX, mouseY);
+    if(dansSalle)
+    {
+        updateHover(&boutonAccuser,mouseX,mouseY);
+        updateHover(&boutonSoupcon,mouseX,mouseY);
+    }
+    else
+    {
+        boutonAccuser.hover = 0;
+        boutonSoupcon.hover = 0;
+    }
+
+    const Uint8* etat = SDL_GetKeyboardState(NULL);
+    if(etatJeu == ETAT_DEPLACEMENT &&etatUI == UI_PRINCIPALE)
+    {
+        bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
+    }
+     
+    if(estUneSalle(caseActuelle))
+    {
+        if(caseActuelle != derniereSalle)
         {
-            derniereSalle = -1;
+            derniereSalle = caseActuelle;
         }
+    }
+    else
+    {
+        derniereSalle = -1;
+    }
 
-        if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
-        {
-            changerTour(&actif,&j1,&j2,&etatJeu);
-        }
+    if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
+    {
+        changerTour(&actif,&j1,&j2,&etatJeu);
+    }
 
-        appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
+    appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
 
-        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+
+    dessinerTexture(rendu, plateauTexture, 0, 0, 925, 860);
+
+    // dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
+    dessinerInterfaceDroite(rendu);
+
+    SDL_Texture* txtTour = creerTexte(rendu,font,"Tour :",blanc);
+
+    dessinerTexteCentre(rendu,txtTour,980,25,120,40);
+
+    SDL_Texture* txtNom = creerTexte(rendu,font,actif->nom,blanc);
+
+    dessinerTexteCentre(rendu,txtNom,1100,25,120,40);
+
+    /* icône joueur */
+
+    dessinerTexture(rendu,actif->texture,1230,15,60,60);
+
+    SDL_DestroyTexture(txtTour);
+    SDL_DestroyTexture(txtNom);
+
+    SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);;
+    SDL_Texture* txtAccuser = creerTexte(rendu,font,boutonAccuser.texte,blanc);
+    SDL_Texture* txtSoupcon = creerTexte(rendu,font,boutonSoupcon.texte,blanc);
+
+    if(etatUI == UI_PRINCIPALE)
+    {
+        dessinerBouton(rendu,&boutonDe);
+        dessinerBouton(rendu,&boutonAccuser);
+        dessinerBouton(rendu,&boutonSoupcon);
+
+        dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
+        dessinerTexteCentre(rendu,txtAccuser,boutonAccuser.rect.x,boutonAccuser.rect.y,boutonAccuser.rect.w,boutonAccuser.rect.h);
+        dessinerTexteCentre(rendu,txtSoupcon,boutonSoupcon.rect.x,boutonSoupcon.rect.y,boutonSoupcon.rect.w,boutonSoupcon.rect.h);
+    }
+
+    if(etatUI == UI_ACCUSATION)
+    {
+        SDL_Texture* txt = creerTexte(rendu,font,"MENU ACCUSATION",blanc);
         
-        dessinerTexture(rendu, plateauTexture, 0, 0, 925, 860);
+        dessinerTexteCentre(rendu,txt,1000,250,300,50);
+        SDL_DestroyTexture(txt);
+    }
 
-        // dessinerGrilleDebug(rendu, tailleCaseX, tailleCaseY);
-        dessinerInterfaceDroite(rendu);
-
-        SDL_Texture* txtTour = creerTexte(rendu,font,"Tour :",blanc);
-
-        dessinerTexteCentre(rendu,txtTour,980,25,120,40);
-
-        SDL_Texture* txtNom = creerTexte(rendu,font,actif->nom,blanc);
-
-        dessinerTexteCentre(rendu,txtNom,1100,25,120,40);
-
-        /* icône joueur */
-
-        dessinerTexture(rendu,actif->texture,1230,15,60,60);
-
-        SDL_DestroyTexture(txtTour);
-        SDL_DestroyTexture(txtNom);
-
-        SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);;
-        SDL_Texture* txtAccuser = creerTexte(rendu,font,boutonAccuser.texte,blanc);
-        SDL_Texture* txtSoupcon = creerTexte(rendu,font,boutonSoupcon.texte,blanc);
-
-        if(etatUI == UI_PRINCIPALE)
-        {
-            dessinerBouton(rendu,&boutonDe);
-            dessinerBouton(rendu,&boutonAccuser);
-            dessinerBouton(rendu,&boutonSoupcon);
-
-            dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
-            dessinerTexteCentre(rendu,txtAccuser,boutonAccuser.rect.x,boutonAccuser.rect.y,boutonAccuser.rect.w,boutonAccuser.rect.h);
-            dessinerTexteCentre(rendu,txtSoupcon,boutonSoupcon.rect.x,boutonSoupcon.rect.y,boutonSoupcon.rect.w,boutonSoupcon.rect.h);
-        }
-
-        if(etatUI == UI_ACCUSATION)
-        {
-            SDL_Texture* txt = creerTexte(rendu,font,"MENU ACCUSATION",blanc);
+    if(etatUI == UI_SUSPICION)
+    {
+        char buffer[200];
+    
+        sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
+    
+        SDL_Texture* txt1 = creerTexte(rendu,font,buffer,blanc);
+    
+        dessinerTexteCentre(rendu,txt1,1000,250,300,40);
         
-            dessinerTexteCentre(rendu,txt,1000,250,300,50);
-            SDL_DestroyTexture(txt);
-        }
-
-        if(etatUI == UI_SUSPICION)
-        {
-            SDL_Texture* txt = creerTexte(rendu,font,"MENU SOUPCON",blanc);
         
-            dessinerTexteCentre(rendu,txt,1000,250,300,50);
-            SDL_DestroyTexture(txt);
-        }
+        sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
+    
+        SDL_Texture* txt2 = creerTexte(rendu,font,buffer,blanc);
+    
+        dessinerTexteCentre(rendu,txt2,1000,320,300,40);
+    
+        SDL_Texture* aide = creerTexte(rendu,font,"Entrer=Valider ESC=Retour",blanc);
+    
+        dessinerTexteCentre(rendu,aide,980,430,350,40);
+    
+        SDL_DestroyTexture(txt1);
+        SDL_DestroyTexture(txt2);
+        SDL_DestroyTexture(aide);
+    }
 
-        if(!dansSalle)
-        {
-            boutonAccuser.hover = 0;
-            boutonSoupcon.hover = 0;
-        }
+    if(!dansSalle)
+    {
+        boutonAccuser.hover = 0;
+        boutonSoupcon.hover = 0;
+    }
 
 
-        if (valeurDe >= 1 && valeurDe <= 6)
-        {
-            dessinerTexture(rendu,diceTextures[valeurDe - 1],1090,110,120,120);
-        }
+    if (valeurDe >= 1 && valeurDe <= 6)
+    {
+        dessinerTexture(rendu,diceTextures[valeurDe - 1],1090,110,120,120);
+    }
 
-        dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
-        dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
+    dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
+    dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
 
-        SDL_RenderPresent(rendu);// afiche le tout à l'écran
-        SDL_Delay(16);
+    SDL_RenderPresent(rendu);// afiche le tout à l'écran
+    SDL_Delay(16);
 
-        SDL_DestroyTexture(t1);
-        SDL_DestroyTexture(txtAccuser);
-        SDL_DestroyTexture(txtSoupcon);
+    SDL_DestroyTexture(t1);
+    SDL_DestroyTexture(txtAccuser);
+    SDL_DestroyTexture(txtSoupcon);
     }
     for (int i = 0; i < 6; i++)
     {
