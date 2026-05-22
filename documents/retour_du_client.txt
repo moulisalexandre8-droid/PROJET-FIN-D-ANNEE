@@ -4,3 +4,15 @@ piece avec mur moins épais, trop lourd visuellement
 
 passage secret potentiel a la fin ?
 
+
+
+Soutenance :
+
+20min de présentations + 10min de questions
+
+→ présentation du besoin ( personnes ext potentiellement présentes)
+→présentation de l'architecture
+→présentation du code et des tests
+→démo
+
+ATTENTION : tous le monde doit parler !!!! (équitablement)
