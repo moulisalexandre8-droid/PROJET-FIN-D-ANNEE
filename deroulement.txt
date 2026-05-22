@@ -19,7 +19,9 @@ Nous nous sommes permis d'utiliser l'IA
 
 
 
-
+JALON 3 :
+Troisième jalon consacré au code de l'IA. Nous avons codé l'IA facile qui aura la capacité de garder en mémoire les cartes quelle demande et quelle voit.
+Partie complexe, surtout dans la gestion des choix, on a utilisé l'IA pour gérer le code.
 
 
 
