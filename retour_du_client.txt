@@ -4,4 +4,6 @@ piece avec mur moins épais, trop lourd visuellement
 
 passage secret potentiel a la fin ?
 
+seulement deux niveaux d'IA, l'ia simple deja codé a ce jour le 22/05 sera le niveau modéré, il ne faudra rajouter que le niveau avancé
+
 important d'avoir un powerpoint + une documentation précise de l'organisation et du déroulement du projet
