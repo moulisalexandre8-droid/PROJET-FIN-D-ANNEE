@@ -2,31 +2,8 @@
 #include "cards.h"
 #include <stdio.h>
 
-void faireSuspicion(Joueur* joueur,Joueur* autre,int salle)
+void faireSuspicion(Joueur* joueur,Joueur* autre,int salle,int suspectChoisi,int armeChoisie)
 {
-    int suspectChoisi;
-    int armeChoisie;
-
-    printf("\nSuspects :\n");
-
-    for(int i=0;i<NB_SUSPECTS;i++)
-    {
-        printf("%d : %s\n",i,cartesSuspects[i].nom);
-    }
-
-    scanf("%d",&suspectChoisi);
-
-
-    printf("\nArmes :\n");
-
-    for(int i=0;i<NB_ARMES;i++)
-    {
-        printf("%d : %s\n",i,cartesArmes[i].nom);
-    }
-
-    scanf("%d",&armeChoisie);
-
-
     printf("\nSuspicion : %s / %s / %s\n",cartesSuspects[suspectChoisi].nom,cartesArmes[armeChoisie].nom,cartesPieces[salle].nom);
 
     verifierSuspicion(autre,suspectChoisi,armeChoisie,salle);
@@ -90,14 +67,9 @@ void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle)
             printf("%d : %s\n",i,cartesPieces[c.id].nom);
     }
 
+    Carte montre = accuse->cartes[choixPossibles[0]];
 
-    int choix;
-
-    printf("\nChoisir carte à montrer : ");
-    scanf("%d",&choix);
-
-
-    Carte montre =accuse->cartes[choixPossibles[choix]];
+    printf("\n%s montre : %s\n",accuse->nom,montre.nom);
 
 
     printf("\n%s montre une carte.\n",accuse->nom);
