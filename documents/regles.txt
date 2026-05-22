@@ -18,5 +18,4 @@ Déroulement d'un tour :
 
 Chaque joueur devra trouver un moyen pour noter ses investigations, aucune grille ne sera supporter in game.
 
-Quand un joueur pense avoir guess il peut se rendre au centre pour faire sa proposition finale,
-l'ordinateur verifiera alors si sa proposition est bonne, si oui il gagne la partie, si non il a perdu et la partie continue.
+Quand un joueur pense avoir guess il doit se rendre dans la salle qu'il pense être la bonne et faire son accusation, l'ordinateur verifiera si l'accusation correspond. Si oui le joueur a gagné sinon il perd mais reste en jeu simplement pour permettre aux autres de guess. Il pourra juste montrer une des cartes qu'il a mais ne pourra plus se déplacer etc etc.
