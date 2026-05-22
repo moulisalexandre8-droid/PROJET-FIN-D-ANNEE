@@ -1,18 +1,6 @@
-modifier couleur porte → évité confusion, potentiel rajout vrai image joueur
-
-piece avec mur moins épais, trop lourd visuellement 
-
 passage secret potentiel a la fin ?
 
+seulement 2 niveaux d'IA nécessaire. L'IA codé pour ce jour, 22/05, sera le niveau moyen
+→rajout de stratégie pour l'IA avancé qui sera le niveau difficile
 
 
-Soutenance :
-
-20min de présentations + 10min de questions
-
-→ présentation du besoin ( personnes ext potentiellement présentes)
-→présentation de l'architecture
-→présentation du code et des tests
-→démo
-
-ATTENTION : tous le monde doit parler !!!! (équitablement)
