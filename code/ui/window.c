@@ -17,10 +17,4 @@ void dessinerInterfaceDroite(SDL_Renderer* rendu)
     SDL_SetRenderDrawColor(rendu,220,220,220,255);
     SDL_RenderFillRect(rendu,&zoneDe);
 
-    /* carnet */
-
-    SDL_Rect carnet = {980,540,340,250};
-
-    SDL_SetRenderDrawColor(rendu,60,60,60,255);
-    SDL_RenderFillRect(rendu,&carnet);
 }
