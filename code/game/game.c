@@ -87,12 +87,6 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     int armeChoisie = 0;
     int salleChoisie = 0;
 
-    int notesSuspects[NB_SUSPECTS]={0};
-    int notesArmes[NB_ARMES]={0};
-    int notesPieces[NB_PIECES]={0};
-
-    int ligneCarnet=0;
-
     SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
     SDL_Texture* grilleTexture = chargerTexture(rendu,"code/assets/grille/grille.png");
 
@@ -132,6 +126,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
         SDL_RenderClear(rendu);
         SDL_Color blanc = {255, 255, 255, 255};
+        SDL_Color noir = {0,0,0,255};
 
         while (SDL_PollEvent(&e))
         {
@@ -268,37 +263,37 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             {
         
                 if(e.key.keysym.sym == SDLK_w)
-                    ligneCarnet--;
+                    actif->ligneCarnet--;
                 
                 if(e.key.keysym.sym == SDLK_s)
-                    ligneCarnet++;
+                    actif->ligneCarnet++;
                 
                 
-                if(ligneCarnet < 0)
-                    ligneCarnet = 0;
+                if(actif->ligneCarnet < 0)
+                    actif->ligneCarnet = 0;
                 
-                if(ligneCarnet > NB_SUSPECTS + NB_ARMES + NB_PIECES - 1)
+                if(actif->ligneCarnet > NB_SUSPECTS + NB_ARMES + NB_PIECES - 1)
                 {
-                    ligneCarnet = NB_SUSPECTS + NB_ARMES + NB_PIECES - 1;
+                    actif->ligneCarnet = NB_SUSPECTS + NB_ARMES + NB_PIECES - 1;
                 }
             
             
                 if(e.key.keysym.sym == SDLK_SPACE)
                 {
                 
-                    if(ligneCarnet < NB_SUSPECTS)
+                    if(actif->ligneCarnet < NB_SUSPECTS)
                     {
-                        notesSuspects[ligneCarnet] ^= 1;
+                        actif->notesSuspects[actif->ligneCarnet] ^=1;
                     }
                 
-                    else if(ligneCarnet < NB_SUSPECTS + NB_ARMES)
+                    else if(actif->ligneCarnet < NB_SUSPECTS + NB_ARMES)
                     {
-                        notesArmes[ligneCarnet -NB_SUSPECTS] ^= 1;
+                        actif->notesArmes[actif->ligneCarnet-NB_SUSPECTS] ^=1;
                     }
                 
                     else
                     {
-                        notesPieces[ ligneCarnet - NB_SUSPECTS - NB_ARMES] ^= 1;
+                        actif->notesPieces[actif->ligneCarnet-NB_SUSPECTS-NB_ARMES] ^=1;
                     }
                 
                 }
@@ -360,26 +355,25 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         int curseurX;
         int curseurY;
 
-        if(ligneCarnet < NB_SUSPECTS)
+        if(actif->ligneCarnet < NB_SUSPECTS)
         {
-            curseurX = 1125;
-            curseurY = 545 + ligneCarnet * 19;
+            curseurX = 1073;
+            curseurY = 566 + actif->ligneCarnet * 19;
         }
 
-        else if(ligneCarnet <NB_SUSPECTS + NB_ARMES)
+        else if(actif->ligneCarnet <NB_SUSPECTS + NB_ARMES)
         {
-            curseurX = 1125;
-            curseurY =660 +(ligneCarnet-NB_SUSPECTS)* 19;
+            curseurX = 1073;
+            curseurY = 716 +(actif->ligneCarnet-NB_SUSPECTS)* 19;
         }
 
         else
         {
-            curseurX = 1310;
-            curseurY =545 +(ligneCarnet- NB_SUSPECTS- NB_ARMES) * 18;
-        }
+            curseurX = 1270;
+            curseurY =590 +(actif->ligneCarnet- NB_SUSPECTS- NB_ARMES) * 24;
+        }  
 
-
-        SDL_Texture* curseur = creerTexte(rendu,font,">",blanc);
+        SDL_Texture* curseur = creerTexte(rendu,font,"<",noir);
 
         dessinerTexteCentre(rendu,curseur,curseurX,curseurY,20,20);
 
@@ -389,29 +383,38 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         for(int i=0;i<NB_SUSPECTS;i++)
         {
-            if(notesSuspects[i])
+            if(actif->notesSuspects[i])
             {
-                SDL_Rect r = {1065,570 + i*19.5,15,15};
-                SDL_RenderFillRect(rendu,&r);
+                SDL_Color noir = {0,0,0,255};
+                SDL_Texture* tic = creerTexte(rendu,font,"X",noir);
+            
+                dessinerTexteCentre(rendu,tic,1058,566 + i*19,20,20);
+                SDL_DestroyTexture(tic);
             }
         }
 
 
         for(int i=0;i<NB_ARMES;i++)
         {
-            if(notesArmes[i])
+            if(actif->notesArmes[i])
             {
-                SDL_Rect r ={1065,720 + i*19.5,15,15};
-                SDL_RenderFillRect(rendu,&r);
+                SDL_Color noir = {0,0,0,255};
+                SDL_Texture* tic = creerTexte(rendu,font,"X",noir);
+                
+                dessinerTexteCentre(rendu,tic,1058,717 + i*19,20,20);
+                SDL_DestroyTexture(tic);
             }
         }
 
         for(int i=0;i<NB_PIECES;i++)
         {
-            if(notesPieces[i])
+            if(actif->notesPieces[i])
             {
-                SDL_Rect r = {1256,575 + i*23,15,15};
-                SDL_RenderFillRect(rendu,&r);
+                SDL_Color noir = {0,0,0,255};
+                SDL_Texture* tic = creerTexte(rendu,font,"X",noir);
+            
+                dessinerTexteCentre( rendu, tic, 1253, 589 + i*24, 20, 20);
+                SDL_DestroyTexture(tic);
             }
         }
 

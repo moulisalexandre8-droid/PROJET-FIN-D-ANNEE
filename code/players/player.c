@@ -9,6 +9,14 @@
 Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage,const char* nom)
 {
     Joueur j;
+    for(int i=0;i<6;i++)
+        j.notesSuspects[i]=0;
+    
+    for(int i=0;i<6;i++)
+        j.notesArmes[i]=0;
+    
+    for(int i=0;i<9;i++)
+        j.notesPieces[i]=0;
 
     j.x = x;
     j.y = y;
@@ -18,6 +26,8 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
     j.mouvementsRestants = 0;
 
     j.nbCartes = 0;
+
+    j.ligneCarnet = 0;
 
     SDL_Surface* surface = IMG_Load(cheminImage);
 

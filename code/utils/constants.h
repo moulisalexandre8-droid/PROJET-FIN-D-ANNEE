@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define FENETRE_LARGEUR 1400
+#define FENETRE_LARGEUR 1650
 #define FENETRE_HAUTEUR 860
 
 #define PLATEAU_X 0
