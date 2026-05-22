@@ -20,5 +20,6 @@ Chaque joueur devra trouver un moyen pour noter ses investigations, aucune grill
 
 Quand un joueur pense avoir guess il doit se rendre dans la salle qu'il pense être la bonne et faire son accusation, 
 l'ordinateur verifiera si l'accusation correspond. 
+Au moment de l'accusation le joueur ne donne pas son guess, il vérifie juste si ce qu'il a noté est similaire au contenu de la pochette secrète.
 Si oui le joueur a gagné sinon il perd mais reste en jeu simplement pour permettre aux autres de guess. 
 Il pourra juste montrer une des cartes qu'il a mais ne pourra plus se déplacer etc etc.
