@@ -9,7 +9,7 @@ void dessinerTexture(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int la
 
 void dessinerJoueur(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int tailleCaseX,int tailleCaseY);
 
-void dessinerGrilleDebug(SDL_Renderer* rendu,int tailleCaseX,int tailleCaseY);
+void dessinerGrilleDebug(SDL_Renderer* rendu);
 
 void dessinerInterfaceDroite(SDL_Renderer* rendu);
 

@@ -40,7 +40,7 @@ void bougerJoueur(const Uint8* etat,Joueur* j,int tailleCaseX,int tailleCaseY);
 void appliquerLimites(Joueur* j,int tailleCaseX,int tailleCaseY,int largeur,int hauteur);
 
 int estUnMur(int ligne, int colonne);
-int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,int tailleCaseX,int tailleCaseY);
+int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,float tailleCaseX,float tailleCaseY);
 
 void deplacerJoueur(Joueur* j, int nouvelleX, int nouvelleY);
 
@@ -50,9 +50,9 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu);
 // nettoyage
 void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu);
 
-void placerJoueurCase(Joueur* j,int col,int lig,int tailleCaseX,int tailleCaseY);
+void placerJoueurCase(Joueur* j,int col,int lig,float tailleCaseX,float tailleCaseY);
 
 //temporaire pour afficher la grille de debug
-void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX,int tailleCaseY);
+void dessinerGrilleDebug(SDL_Renderer* rendu);
 
 #endif

@@ -10,7 +10,7 @@ void dessinerTexture(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int la
 
 void dessinerJoueur(SDL_Renderer* rendu,SDL_Texture* texture,int x,int y,int tailleCaseX,int tailleCaseY)
 {
-    SDL_Rect dest ={x,y,tailleCaseX,tailleCaseY};
+    SDL_Rect dest ={x - tailleCaseX/2,y - tailleCaseY/2,tailleCaseX,tailleCaseY};
 
     SDL_RenderCopy(rendu, texture, NULL, &dest);
 }

@@ -5,10 +5,10 @@
 
 int estUnMur(int ligne,int colonne);
 
-int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,int tailleCaseX,int tailleCaseY);
+int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,float tailleCaseX,float tailleCaseY);
 
-void placerJoueurCase(Joueur* j,int col,int lig,int tailleCaseX,int tailleCaseY);
+void placerJoueurCase(Joueur* j,int col,int lig,float tailleCaseX,float tailleCaseY);
 
-int obtenirCasePlateau(int x,int y,int tailleCaseX,int tailleCaseY);
+int obtenirCasePlateau(int x,int y,float tailleCaseX,float tailleCaseY);
 
 #endif

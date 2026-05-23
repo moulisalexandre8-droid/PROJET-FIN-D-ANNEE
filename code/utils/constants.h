@@ -1,10 +1,12 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define FENETRE_LARGEUR 1650
+#define FENETRE_LARGEUR 1500
 #define FENETRE_HAUTEUR 860
 
-#define PLATEAU_X 0
+#define ZONE_CARTES_LARGEUR 220
+
+#define PLATEAU_X 220
 #define PLATEAU_Y 0
 
 #define PLATEAU_LARGEUR 900
@@ -13,10 +15,10 @@
 #define NB_COLONNES 26
 #define NB_LIGNES 25
 
-#define CASE_LARGEUR 34
-#define CASE_HAUTEUR 34
+#define CASE_LARGEUR 32.5
+#define CASE_HAUTEUR 31
 
-#define OFFSET_X 60
+#define OFFSET_X 55
 #define OFFSET_Y 41
 
 #endif

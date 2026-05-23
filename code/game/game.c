@@ -41,10 +41,7 @@ int initialiserSDL(SDL_Window** fenetre, SDL_Renderer** rendu)
         return 0;
     }
 
-    *fenetre = SDL_CreateWindow("Cluelau",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        1400, 860, 0);
+    *fenetre = SDL_CreateWindow("Cluelau",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,FENETRE_LARGEUR,FENETRE_HAUTEUR,0);
 
     *rendu = SDL_CreateRenderer(*fenetre, -1, SDL_RENDERER_ACCELERATED);
 
@@ -76,8 +73,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
     distribuerCartes(&j1,&j2);
     
-    int tailleCaseX = 33;
-    int tailleCaseY = 31;
+    float tailleCaseX = 32.5;
+    float tailleCaseY = 31;
 
     int valeurDe = 0;
 
@@ -108,11 +105,11 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
 
-    Bouton boutonDe = creerBouton(1000, 280, 300, 60, "Lancer le de");
+    Bouton boutonDe = creerBouton(1170, 280, 300, 60, "Lancer le de");
 
-    Bouton boutonAccuser = creerBouton(1000, 370, 300, 60, "Accuser");
+    Bouton boutonAccuser = creerBouton(1170, 370, 300, 60, "Accuser");
 
-    Bouton boutonSoupcon = creerBouton(1000, 450, 300, 60, "Soupcon");
+    Bouton boutonSoupcon = creerBouton(1170, 450, 300, 60, "Soupcon");
 
     TTF_Font* font = TTF_OpenFont("code/assets/fonts/Roboto-Regular.ttf", 20);
 
@@ -342,34 +339,40 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             changerTour(&actif,&j1,&j2,&etatJeu);
         }
 
-        appliquerLimites(actif,tailleCaseX,tailleCaseY,925,860);
+        appliquerLimites(actif,tailleCaseX,tailleCaseY,220 + 925,860);
 
         SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
 
-        dessinerTexture(rendu, plateauTexture, 0, 0, 925, 860);
+        dessinerTexture(rendu,plateauTexture,PLATEAU_X,0,PLATEAU_LARGEUR,PLATEAU_HAUTEUR);
 
         dessinerInterfaceDroite(rendu);
 
-        dessinerTexture(rendu,grilleTexture,965,540,390,300);
+        SDL_Rect zoneCartes = {0,0,220,860};
+
+        SDL_SetRenderDrawColor(rendu,50,50,50,255);
+
+        SDL_RenderFillRect(rendu,&zoneCartes);
+
+        dessinerTexture(rendu,grilleTexture,1135,540,390,300);
 
         int curseurX;
         int curseurY;
 
         if(actif->ligneCarnet < NB_SUSPECTS)
         {
-            curseurX = 1073;
+            curseurX = 1243;
             curseurY = 566 + actif->ligneCarnet * 19;
         }
 
         else if(actif->ligneCarnet <NB_SUSPECTS + NB_ARMES)
         {
-            curseurX = 1073;
+            curseurX = 1243;
             curseurY = 716 +(actif->ligneCarnet-NB_SUSPECTS)* 19;
         }
 
         else
         {
-            curseurX = 1270;
+            curseurX = 1440;
             curseurY =590 +(actif->ligneCarnet- NB_SUSPECTS- NB_ARMES) * 24;
         }  
 
@@ -388,7 +391,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 SDL_Color noir = {0,0,0,255};
                 SDL_Texture* tic = creerTexte(rendu,font,"X",noir);
             
-                dessinerTexteCentre(rendu,tic,1058,566 + i*19,20,20);
+                dessinerTexteCentre(rendu,tic,1228,566 + i*19,20,20);
                 SDL_DestroyTexture(tic);
             }
         }
@@ -401,7 +404,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 SDL_Color noir = {0,0,0,255};
                 SDL_Texture* tic = creerTexte(rendu,font,"X",noir);
                 
-                dessinerTexteCentre(rendu,tic,1058,717 + i*19,20,20);
+                dessinerTexteCentre(rendu,tic,1228,717 + i*19,20,20);
                 SDL_DestroyTexture(tic);
             }
         }
@@ -413,22 +416,22 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 SDL_Color noir = {0,0,0,255};
                 SDL_Texture* tic = creerTexte(rendu,font,"X",noir);
             
-                dessinerTexteCentre( rendu, tic, 1253, 589 + i*24, 20, 20);
+                dessinerTexteCentre( rendu, tic, 1423, 589 + i*24, 20, 20);
                 SDL_DestroyTexture(tic);
             }
         }
 
         SDL_Texture* txtTour = creerTexte(rendu,font,"Tour :",blanc);
 
-        dessinerTexteCentre(rendu,txtTour,980,25,120,40);
+        dessinerTexteCentre(rendu,txtTour,1150,25,120,40);
 
         SDL_Texture* txtNom = creerTexte(rendu,font,actif->nom,blanc);
 
-        dessinerTexteCentre(rendu,txtNom,1100,25,120,40);
+        dessinerTexteCentre(rendu,txtNom,1270,25,120,40);
 
         /* icône joueur */
 
-        dessinerTexture(rendu,actif->texture,1230,15,60,60);
+        dessinerTexture(rendu,actif->texture,1400,15,60,60);
 
         SDL_DestroyTexture(txtTour);
         SDL_DestroyTexture(txtNom);
@@ -475,7 +478,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         SDL_Texture* aide= creerTexte(rendu,font,"ENTRER=Valider ESC=Retour",blanc);
 
-        dessinerTexteCentre(rendu,aide,980,470,350,40);
+        dessinerTexteCentre(rendu,aide,1150,470,350,40);
 
 
         SDL_DestroyTexture(txt1);
@@ -488,7 +491,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     {
         SDL_Texture* txt= creerTexte(rendu,font,"VOUS AVEZ GAGNE",blanc);
 
-        dessinerTexteCentre(rendu,txt,980,300,350,60);
+        dessinerTexteCentre(rendu,txt,1150,300,350,60);
 
         SDL_DestroyTexture(txt);
     }
@@ -497,7 +500,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     {
         SDL_Texture* txt= creerTexte(rendu,font,"MAUVAISE ACCUSATION",blanc);
         
-        dessinerTexteCentre(rendu,txt,980,300,350,60);
+        dessinerTexteCentre(rendu,txt,1150,300,350,60);
         
         SDL_DestroyTexture(txt);
     }
@@ -521,7 +524,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     
         SDL_Texture* aide = creerTexte(rendu,font,"Entrer=Valider ESC=Retour",blanc);
     
-        dessinerTexteCentre(rendu,aide,980,430,350,40);
+        dessinerTexteCentre(rendu,aide,1150,430,350,40);
     
         SDL_DestroyTexture(txt1);
         SDL_DestroyTexture(txt2);
@@ -537,11 +540,47 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         if (valeurDe >= 1 && valeurDe <= 6)
         {
-            dessinerTexture(rendu,diceTextures[valeurDe - 1],1090,110,120,120);
+            dessinerTexture(rendu,diceTextures[valeurDe - 1],1260,110,120,120);
         }
 
         dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
         dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
+
+        for(int i=0;i<actif->nbCartes;i++)
+        {
+            char chemin[200];
+            Carte c = actif->cartes[i];
+        
+            if(c.type == CARTE_SUSPECT)
+            {
+                sprintf(chemin,"code/assets/cards/suspects/%s.png",c.nom);
+            }
+        
+            else if(c.type == CARTE_ARME)
+            {
+                sprintf(chemin,"code/assets/cards/weapons/%s.png",c.nom);
+            }
+        
+            else if(c.type == CARTE_PIECE)
+            {
+                sprintf(chemin,"code/assets/cards/rooms/%s.png",c.nom);
+            }
+
+            SDL_Texture* carte = chargerTexture(rendu, chemin);
+        
+            if(carte != NULL)
+            {
+                int colonne = i % 2;
+                int ligne = i / 2;
+                            
+                int x = 10 + colonne*100;
+                int y = 30 + ligne*140;
+                            
+                dessinerTexture(rendu,carte,x,y,90,130);
+                SDL_DestroyTexture(carte);
+            }
+        }
+        dessinerGrilleDebug(rendu);
 
         SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
@@ -559,93 +598,16 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 }
 // a supp
 
-/*void dessinerGrilleDebug(SDL_Renderer* rendu, int tailleCaseX, int tailleCaseY)
+void dessinerGrilleDebug(SDL_Renderer* rendu)
 {
-    SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(rendu,255,0,0,255);
 
-    // lignes verticales
-    for (int x = 0; x <= 26; x++)
+    for(int x=0;x<=26;x++)
     {
-        SDL_RenderDrawLine(
-            rendu,
-            OFFSET_X + x * tailleCaseX,
-            OFFSET_Y,
-            OFFSET_X + x * tailleCaseX,
-            OFFSET_Y + 25 * tailleCaseY
-        );
-    }
+        SDL_RenderDrawLine(rendu,PLATEAU_X + OFFSET_X + x*CASE_LARGEUR,OFFSET_Y,PLATEAU_X + OFFSET_X + x*CASE_LARGEUR,OFFSET_Y + 25*CASE_HAUTEUR);}
 
-    // lignes horizontales
-    for (int y = 0; y <= 25; y++)
+    for(int y=0;y<=25;y++)
     {
-        SDL_RenderDrawLine(
-            rendu,
-            OFFSET_X,
-            OFFSET_Y + y * tailleCaseY,
-            OFFSET_X + 26 * tailleCaseX,
-            OFFSET_Y + y * tailleCaseY
-        );
+        SDL_RenderDrawLine(rendu,PLATEAU_X + OFFSET_X,OFFSET_Y + y*CASE_HAUTEUR,PLATEAU_X + OFFSET_X + 26*CASE_LARGEUR,OFFSET_Y + y*CASE_HAUTEUR);
     }
-}*/
-
-/*char buffer[100];
-
-        int xSuspects = 990;
-        int xArmes    = 1100;
-        int xPieces   = 1210;
-
-        int yDepart = 570;
-        int espace = 22;
-
-        SDL_Texture* titre1 = creerTexte(rendu,font,"Suspects",blanc);
-
-        dessinerTexteCentre(rendu,titre1,xSuspects,540,100,20);
-
-        SDL_DestroyTexture(titre1);
-
-        for(int i=0;i<NB_SUSPECTS;i++)
-        {
-        
-            sprintf(buffer,"%c %s",notesSuspects[i]? 'X': 'O',cartesSuspects[i].nom);
-        
-            SDL_Texture* txt = creerTexte(rendu,font,buffer,blanc);
-        
-            dessinerTexteCentre(rendu,txt,xSuspects,yDepart+i*espace,120,20);
-        
-            SDL_DestroyTexture(txt);
-        }
-
-        SDL_Texture* titre2 = creerTexte(rendu,font,"Armes",blanc);
-
-        dessinerTexteCentre(rendu,titre2,xArmes,540,100,20);
-
-        SDL_DestroyTexture(titre2);
-
-        for(int i=0;i<NB_ARMES;i++)
-        {
-            sprintf(buffer,"%c %s",notesArmes[i]? 'X': 'O',cartesArmes[i].nom);
-        
-            SDL_Texture* txt = creerTexte(rendu,font,buffer,blanc);
-        
-            dessinerTexteCentre(rendu,txt,xArmes,yDepart+i*espace,120,20);
-        
-            SDL_DestroyTexture(txt);
-        }
-
-        SDL_Texture* titre3 =creerTexte(rendu,font,"Salles",blanc);
-
-        dessinerTexteCentre(rendu,titre3,xPieces,540,100,20);
-
-        SDL_DestroyTexture(titre3);
-
-        for(int i=0;i<NB_PIECES;i++)
-        {
-        
-            sprintf(buffer,"%c %s",notesPieces[i]? 'X': 'O',cartesPieces[i].nom);
-        
-            SDL_Texture* txt = creerTexte(rendu,font,buffer,blanc);
-        
-            dessinerTexteCentre(rendu,txt,xPieces,yDepart+i*espace,120,20);
-        
-            SDL_DestroyTexture(txt);
-        }*/
+}

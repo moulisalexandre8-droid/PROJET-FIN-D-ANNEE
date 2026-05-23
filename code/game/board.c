@@ -43,86 +43,56 @@ int estUnMur(int ligne, int colonne)
     return plateau[ligne][colonne] == 1;
 }
 
-int peutAller(int ancienneX,int ancienneY,
-              int x,int y,
-              int tailleCaseX,int tailleCaseY)
+int peutAller(int ancienneX,int ancienneY,int x,int y,float tailleCaseX,float tailleCaseY)
 {
-    int col = (x - OFFSET_X) / tailleCaseX;
+    int col = (x - PLATEAU_X - OFFSET_X) / tailleCaseX;
     int lig = (y - OFFSET_Y) / tailleCaseY;
 
-    int ancienneCol = (ancienneX - OFFSET_X) / tailleCaseX;
+    int ancienneCol = (ancienneX - PLATEAU_X - OFFSET_X) / tailleCaseX;
+
     int ancienneLig = (ancienneY - OFFSET_Y) / tailleCaseY;
 
-    // limites tableau
-    if (lig < 0 || lig >= 25 || col < 0 || col >= 26)
+    if(col < 0 || col >= 26 || lig < 0 || lig >= 25)
         return 0;
 
     int caseArrivee = plateau[lig][col];
 
-    //chemainement de base : on peut aller sur les cases vides et la piscine
+    if(caseArrivee == 0) return 1;
+    if(caseArrivee == 1) return 0;
+    if(caseArrivee == 6) return 1;
 
-    if (caseArrivee == 0)
-        return 1;
-
-    //mur
-
-    if (caseArrivee == 1)
-        return 0;
-
-    // piscine
-
-    if (caseArrivee == 6)
-        return 1;
-
-    // portes : on doit venir d'une direction précise pour pouvoir les traverser
-
-    // porte haut
-    if (caseArrivee == 12)
-    {
+    if(caseArrivee == 12)
         return lig > ancienneLig;
-    }
 
-    // porte bas
-    if (caseArrivee == 13)
-    {
+    if(caseArrivee == 13)
         return lig < ancienneLig;
-    }
 
-    // porte gauche
-    if (caseArrivee == 14)
-    {
+    if(caseArrivee == 14)
         return col > ancienneCol;
-    }
 
-    // porte droite
-    if (caseArrivee == 15)
-    {
+    if(caseArrivee == 15)
         return col < ancienneCol;
-    }
 
-    // pieces 
-    if (caseArrivee >= 2 && caseArrivee <= 11)
+    if(caseArrivee >= 2 && caseArrivee <= 11)
         return 1;
 
     return 0;
 }
 
-void placerJoueurCase(Joueur* j,int col,int lig,int tailleCaseX,int tailleCaseY)
+void placerJoueurCase(Joueur* j,int col,int lig,float tailleCaseX,float tailleCaseY)
 {
-    j->x = OFFSET_X + col * tailleCaseX;
-    j->y = OFFSET_Y + lig * tailleCaseY;
+    j->x =PLATEAU_X+ OFFSET_X+ col * tailleCaseX+ tailleCaseX/2;
+
+    j->y =OFFSET_Y+ lig * tailleCaseY+ tailleCaseY/2;
 }
 
-int obtenirCasePlateau(int x,int y,int tailleCaseX,int tailleCaseY)
+int obtenirCasePlateau(int x,int y,float tailleCaseX,float tailleCaseY)
 {
-    int col =
-    (x - OFFSET_X)/tailleCaseX;
+    int col = (x-PLATEAU_X-OFFSET_X)/tailleCaseX;
 
-    int lig =
-    (y - OFFSET_Y)/tailleCaseY;
+    int lig = (y - OFFSET_Y)/tailleCaseY;
 
-    if(lig<0 || lig>=25 ||
-       col<0 || col>=26)
+    if(lig<0 || lig>=25 || col<0 || col>=26)
         return -1;
 
     return plateau[lig][col];
