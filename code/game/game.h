@@ -20,6 +20,7 @@ typedef struct Joueur
 
     Carte cartes[10];
     int nbCartes;
+    int personnage;
 
     int notesSuspects[6];
     int notesArmes[6];

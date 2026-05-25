@@ -1,45 +1,32 @@
 #include "rules.h"
 #include "cards.h"
+#include "../players/player.h"
+#include "../entities/room.h"
 #include <stdio.h>
 
-#include "rules.h"
-#include <string.h>
-#include <stdio.h>
-
-Carte faireSuspicion(Joueur* actif,Joueur* autre,int salle,int suspect,int arme)
+Carte faireSuspicion(Joueur* accusateur,Joueur* autre,int salle,int suspect,int arme)
 {
-    Carte vide;
-    strcpy(vide.nom, "Aucune");
-    vide.type = -1;
+    // téléporte le personnage soupçonné
+    Joueur* cible =obtenirJoueurParSuspect(suspect,accusateur,autre);
 
-    for(int i = 0; i < autre->nbCartes; i++)
+    if(cible != NULL)
+    {
+        teleporterDansSalle(cible,salle,32.5,31);
+    }
+
+    // cherche une carte à montrer
+    for(int i=0;i<autre->nbCartes;i++)
     {
         Carte c = autre->cartes[i];
 
-        // vérifie suspect
-        if(c.type == CARTE_SUSPECT && strcmp(c.nom,cartesSuspects[suspect].nom) == 0)
+        if((c.type==CARTE_SUSPECT && strcmp(c.nom,cartesSuspects[suspect].nom)==0) || (c.type==CARTE_ARME && strcmp(c.nom,cartesArmes[arme].nom)==0) || (c.type==CARTE_PIECE &&strcmp(c.nom,cartesPieces[salle].nom)==0))
         {
-            printf("Carte montree : %s\n", c.nom);
-            return c;
-        }
-
-        // vérifie arme
-        if(c.type == CARTE_ARME && strcmp(c.nom,cartesArmes[arme].nom) == 0)
-        {
-            printf("Carte montree : %s\n", c.nom);
-            return c;
-        }
-
-        // vérifie salle
-        if(c.type == CARTE_PIECE && strcmp(c.nom,cartesPieces[salle].nom) == 0)
-        {
-            printf("Carte montree : %s\n", c.nom);
             return c;
         }
     }
 
-    printf("Aucune carte a montrer\n");
-
+    Carte vide;
+    strcpy(vide.nom,"Aucune");
     return vide;
 }
 

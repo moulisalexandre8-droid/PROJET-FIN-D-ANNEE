@@ -71,6 +71,9 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
     Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
 
+    j1.personnage = 0; // Mme Rose
+    j2.personnage = 1; // Moutarde
+
     distribuerCartes(&j1,&j2);
     
     float tailleCaseX = 32.5;
@@ -202,7 +205,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                     carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
 
                     actif->aFaitSoupcon = 1;
-                    
+
                     afficherCarte = 1;
                     etatUI = UI_REVELATION;;
                 }

@@ -3,6 +3,7 @@
 #include "../ui/renderer.h"
 #include "../utils/loader.h"
 #include <SDL2/SDL_image.h>
+#include "../entities/room.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -116,4 +117,20 @@ void bougerJoueur(const Uint8* etat,Joueur* j,int tailleCaseX,int tailleCaseY){
 
         lock = 1;
     }
+}
+
+void teleporterDansSalle(Joueur* j,int salle,float tailleX,float tailleY)
+{
+    placerJoueurCase(j,salleX[salle],salleY[salle],tailleX,tailleY);
+}
+
+Joueur* obtenirJoueurParSuspect(int suspect,Joueur* j1,Joueur* j2)
+{
+    if(j1->personnage == suspect)
+        return j1;
+
+    if(j2->personnage == suspect)
+        return j2;
+
+    return NULL;
 }
