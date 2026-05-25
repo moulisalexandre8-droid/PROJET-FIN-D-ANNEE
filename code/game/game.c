@@ -161,8 +161,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 if(boutonEstClique(&boutonSoupcon,x,y))
                 {
                     int caseActuelle =obtenirCasePlateau(actif->x,actif->y,tailleCaseX,tailleCaseY);
-
-                    if(estUneSalle(caseActuelle))
+                
+                    if(estUneSalle(caseActuelle) && !actif->aFaitSoupcon)
                     {
                         etatUI = UI_SUSPICION;
                     }
@@ -201,6 +201,8 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                     Joueur* autre =(actif == &j1)? &j2: &j1;
                     carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
 
+                    actif->aFaitSoupcon = 1;
+                    
                     afficherCarte = 1;
                     etatUI = UI_REVELATION;;
                 }

@@ -26,6 +26,7 @@ typedef struct Joueur
     int notesPieces[9];
 
     int ligneCarnet;
+    int aFaitSoupcon;
 
 } Joueur;
 

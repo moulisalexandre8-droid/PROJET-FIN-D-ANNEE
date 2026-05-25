@@ -29,6 +29,8 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
     j.ligneCarnet = 0;
 
+    j.aFaitSoupcon = 0;
+
     SDL_Surface* surface = IMG_Load(cheminImage);
 
     if (surface == NULL)
