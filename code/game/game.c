@@ -80,6 +80,10 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
     EtatJeu etatJeu = ETAT_ATTENTE_DE;
     EtatInterface etatUI = UI_PRINCIPALE;
+
+    Carte carteMontree;
+    int afficherCarte = 0;
+
     int suspectChoisi = 0;
     int armeChoisie = 0;
     int salleChoisie = 0;
@@ -195,12 +199,14 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
                     Joueur* autre =(actif == &j1)? &j2: &j1;
-                    faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
-                    etatUI = UI_PRINCIPALE;
+                    carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
+
+                    afficherCarte = 1;
+                    etatUI = UI_REVELATION;;
                 }
                 if(e.key.keysym.sym == SDLK_ESCAPE)
                 {
-                    etatUI =UI_PRINCIPALE;
+                    etatUI = UI_PRINCIPALE;
                 }
             }
             if(etatUI == UI_ACCUSATION && e.type == SDL_KEYDOWN)
@@ -441,95 +447,123 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         SDL_Texture* txtSoupcon = creerTexte(rendu,font,boutonSoupcon.texte,blanc);
 
         if(etatUI == UI_PRINCIPALE)
-    {
-        dessinerBouton(rendu,&boutonDe);
-        dessinerBouton(rendu,&boutonAccuser);
-        dessinerBouton(rendu,&boutonSoupcon);
-
-        dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
-        dessinerTexteCentre(rendu,txtAccuser,boutonAccuser.rect.x,boutonAccuser.rect.y,boutonAccuser.rect.w,boutonAccuser.rect.h);
-        dessinerTexteCentre(rendu,txtSoupcon,boutonSoupcon.rect.x,boutonSoupcon.rect.y,boutonSoupcon.rect.w,boutonSoupcon.rect.h);
-    }
+        {
+            dessinerBouton(rendu,&boutonDe);
+            dessinerBouton(rendu,&boutonAccuser);
+            dessinerBouton(rendu,&boutonSoupcon);
+        
+            dessinerTexteCentre(rendu,t1,boutonDe.rect.x,boutonDe.rect.y,boutonDe.rect.w,boutonDe.rect.h);
+            dessinerTexteCentre(rendu,txtAccuser,boutonAccuser.rect.x,boutonAccuser.rect.y,boutonAccuser.rect.w,boutonAccuser.rect.h);
+            dessinerTexteCentre(rendu,txtSoupcon,boutonSoupcon.rect.x,boutonSoupcon.rect.y,boutonSoupcon.rect.w,boutonSoupcon.rect.h);
+        }
 
         if(etatUI == UI_ACCUSATION)
-    {
-        char buffer[200];
+        {
+            char buffer[200];
 
-        sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
+            sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
 
-        SDL_Texture* txt1= creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt1= creerTexte(rendu,font,buffer,blanc);
 
-        dessinerTexteCentre(rendu,txt1,1000,260,300,40);
-
-
-        sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
-
-        SDL_Texture* txt2= creerTexte(rendu,font,buffer,blanc);
-
-        dessinerTexteCentre(rendu,txt2,1000,320,300,40);
+            dessinerTexteCentre(rendu,txt1,1175,260,300,40);
 
 
-        sprintf(buffer,"Salle : %s",cartesPieces[salleChoisie].nom);
+            sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
 
-        SDL_Texture* txt3= creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt2= creerTexte(rendu,font,buffer,blanc);
 
-        dessinerTexteCentre(rendu,txt3,1000,380,300,40);
-
-
-        SDL_Texture* aide= creerTexte(rendu,font,"ENTRER=Valider ESC=Retour",blanc);
-
-        dessinerTexteCentre(rendu,aide,1150,470,350,40);
+            dessinerTexteCentre(rendu,txt2,1175,320,300,40);
 
 
-        SDL_DestroyTexture(txt1);
-        SDL_DestroyTexture(txt2);
-        SDL_DestroyTexture(txt3);
-        SDL_DestroyTexture(aide);
-    }
+            sprintf(buffer,"Salle : %s",cartesPieces[salleChoisie].nom);
+
+            SDL_Texture* txt3= creerTexte(rendu,font,buffer,blanc);
+
+            dessinerTexteCentre(rendu,txt3,1175,380,300,40);
+
+
+            SDL_Texture* aide= creerTexte(rendu,font,"ENTRER=Valider ESC=Retour",blanc);
+
+            dessinerTexteCentre(rendu,aide,1150,470,350,40);
+
+
+            SDL_DestroyTexture(txt1);
+            SDL_DestroyTexture(txt2);
+            SDL_DestroyTexture(txt3);
+            SDL_DestroyTexture(aide);
+        }
 
         if(etatUI == UI_VICTOIRE)
-    {
-        SDL_Texture* txt= creerTexte(rendu,font,"VOUS AVEZ GAGNE",blanc);
+        {
+            SDL_Texture* txt= creerTexte(rendu,font,"VOUS AVEZ GAGNE",blanc);
 
-        dessinerTexteCentre(rendu,txt,1150,300,350,60);
+            dessinerTexteCentre(rendu,txt,1175,300,350,60);
 
-        SDL_DestroyTexture(txt);
-    }
+            SDL_DestroyTexture(txt);
+        }
 
         if(etatUI == UI_DEFAITE)
-    {
-        SDL_Texture* txt= creerTexte(rendu,font,"MAUVAISE ACCUSATION",blanc);
-        
-        dessinerTexteCentre(rendu,txt,1150,300,350,60);
-        
-        SDL_DestroyTexture(txt);
-    }
+        {
+            SDL_Texture* txt= creerTexte(rendu,font,"MAUVAISE ACCUSATION",blanc);
+
+            dessinerTexteCentre(rendu,txt,1175,300,350,60);
+
+            SDL_DestroyTexture(txt);
+        }
 
         if(etatUI == UI_SUSPICION)
-    {
-        char buffer[200];
-    
-        sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
-    
-        SDL_Texture* txt1 = creerTexte(rendu,font,buffer,blanc);
-    
-        dessinerTexteCentre(rendu,txt1,1000,250,300,40);
+        {
+            char buffer[200];
         
+            sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
         
-        sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
-    
-        SDL_Texture* txt2 = creerTexte(rendu,font,buffer,blanc);
-    
-        dessinerTexteCentre(rendu,txt2,1000,320,300,40);
-    
-        SDL_Texture* aide = creerTexte(rendu,font,"Entrer=Valider ESC=Retour",blanc);
-    
-        dessinerTexteCentre(rendu,aide,1150,430,350,40);
-    
-        SDL_DestroyTexture(txt1);
-        SDL_DestroyTexture(txt2);
-        SDL_DestroyTexture(aide);
-    }
+            SDL_Texture* txt1 = creerTexte(rendu,font,buffer,blanc);
+        
+            dessinerTexteCentre(rendu,txt1,1175,250,300,40);
+
+
+            sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
+        
+            SDL_Texture* txt2 = creerTexte(rendu,font,buffer,blanc);
+        
+            dessinerTexteCentre(rendu,txt2,1175,320,300,40);
+        
+            SDL_Texture* aide = creerTexte(rendu,font,"Entrer=Valider ESC=Retour",blanc);
+        
+            dessinerTexteCentre(rendu,aide,1150,430,350,40);
+        
+            SDL_DestroyTexture(txt1);
+            SDL_DestroyTexture(txt2);
+            SDL_DestroyTexture(aide);
+        }
+
+        if(etatUI == UI_REVELATION)
+        {
+            char chemin[200];
+        
+            if(carteMontree.type == CARTE_SUSPECT)
+            {
+                sprintf(chemin,"code/assets/cards/suspects/%s.png",carteMontree.nom);
+            }
+        
+            else if(carteMontree.type == CARTE_ARME)
+            {
+                sprintf(chemin,"code/assets/cards/weapons/%s.png",carteMontree.nom);
+            }
+        
+            else if(carteMontree.type == CARTE_PIECE)
+            {
+                sprintf(chemin,"code/assets/cards/rooms/%s.png",carteMontree.nom);
+            }
+        
+            SDL_Texture* img = chargerTexture(rendu, chemin);
+        
+            if(img)
+            {
+                dessinerTexture(rendu,img,1230,250,180,260);
+                SDL_DestroyTexture(img);
+            }
+        }
 
         if(!dansSalle)
         {
@@ -580,7 +614,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 SDL_DestroyTexture(carte);
             }
         }
-        dessinerGrilleDebug(rendu);
+        // dessinerGrilleDebug(rendu);
 
         SDL_RenderPresent(rendu);// afiche le tout à l'écran
         SDL_Delay(16);
@@ -598,7 +632,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 }
 // a supp
 
-void dessinerGrilleDebug(SDL_Renderer* rendu)
+/*void dessinerGrilleDebug(SDL_Renderer* rendu)
 {
     SDL_SetRenderDrawColor(rendu,255,0,0,255);
 
@@ -610,4 +644,4 @@ void dessinerGrilleDebug(SDL_Renderer* rendu)
     {
         SDL_RenderDrawLine(rendu,PLATEAU_X + OFFSET_X,OFFSET_Y + y*CASE_HAUTEUR,PLATEAU_X + OFFSET_X + 26*CASE_LARGEUR,OFFSET_Y + y*CASE_HAUTEUR);
     }
-}
+}*/

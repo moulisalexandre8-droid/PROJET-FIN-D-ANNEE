@@ -16,11 +16,12 @@ typedef enum
     UI_SUSPICION,
     UI_ACCUSATION,
     UI_VICTOIRE,
-    UI_DEFAITE
+    UI_DEFAITE,
+    UI_REVELATION
 
 } EtatInterface;
 
-void faireSuspicion(Joueur* joueur,Joueur* autre,int salle,int suspect,int arme);
+Carte faireSuspicion(Joueur* actif,Joueur* autre,int salle,int suspect,int arme);
 
 void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle);
 

@@ -2,11 +2,45 @@
 #include "cards.h"
 #include <stdio.h>
 
-void faireSuspicion(Joueur* joueur,Joueur* autre,int salle,int suspectChoisi,int armeChoisie)
-{
-    printf("\nSuspicion : %s / %s / %s\n",cartesSuspects[suspectChoisi].nom,cartesArmes[armeChoisie].nom,cartesPieces[salle].nom);
+#include "rules.h"
+#include <string.h>
+#include <stdio.h>
 
-    verifierSuspicion(autre,suspectChoisi,armeChoisie,salle);
+Carte faireSuspicion(Joueur* actif,Joueur* autre,int salle,int suspect,int arme)
+{
+    Carte vide;
+    strcpy(vide.nom, "Aucune");
+    vide.type = -1;
+
+    for(int i = 0; i < autre->nbCartes; i++)
+    {
+        Carte c = autre->cartes[i];
+
+        // vérifie suspect
+        if(c.type == CARTE_SUSPECT && strcmp(c.nom,cartesSuspects[suspect].nom) == 0)
+        {
+            printf("Carte montree : %s\n", c.nom);
+            return c;
+        }
+
+        // vérifie arme
+        if(c.type == CARTE_ARME && strcmp(c.nom,cartesArmes[arme].nom) == 0)
+        {
+            printf("Carte montree : %s\n", c.nom);
+            return c;
+        }
+
+        // vérifie salle
+        if(c.type == CARTE_PIECE && strcmp(c.nom,cartesPieces[salle].nom) == 0)
+        {
+            printf("Carte montree : %s\n", c.nom);
+            return c;
+        }
+    }
+
+    printf("Aucune carte a montrer\n");
+
+    return vide;
 }
 
 void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle)
@@ -68,9 +102,6 @@ void verifierSuspicion(Joueur* accuse,int suspect,int arme,int salle)
     }
 
     Carte montre = accuse->cartes[choixPossibles[0]];
-
-    printf("\n%s montre : %s\n",accuse->nom,montre.nom);
-
 
     printf("\n%s montre une carte.\n",accuse->nom);
 }

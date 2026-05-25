@@ -18,7 +18,7 @@
 #define CASE_LARGEUR 32.5
 #define CASE_HAUTEUR 31
 
-#define OFFSET_X 55
+#define OFFSET_X 56
 #define OFFSET_Y 41
 
 #endif
