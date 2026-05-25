@@ -86,6 +86,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
     Carte carteMontree;
     int afficherCarte = 0;
+    int attenteValidation = 0;
 
     int suspectChoisi = 0;
     int armeChoisie = 0;
@@ -207,13 +208,36 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                     actif->aFaitSoupcon = 1;
 
                     afficherCarte = 1;
-                    etatUI = UI_REVELATION;;
+                    attenteValidation = 1;
+                    etatUI = UI_REVELATION;
                 }
                 if(e.key.keysym.sym == SDLK_ESCAPE)
                 {
                     etatUI = UI_PRINCIPALE;
                 }
             }
+
+            if(etatUI == UI_REVELATION && e.type == SDL_KEYDOWN)
+            {
+                if(e.key.keysym.sym == SDLK_RETURN)
+                {
+                    if(attenteValidation)
+                    {
+                        attenteValidation = 0;
+                    }
+                    else
+                    {
+                        afficherCarte = 0;
+                        actif->aFaitSoupcon = 0;
+                    
+                        changerTour(&actif,&j1,&j2,&etatJeu);
+                    
+                        etatUI = UI_PRINCIPALE;
+                        etatJeu = ETAT_ATTENTE_DE;
+                    }
+                }
+            }
+
             if(etatUI == UI_ACCUSATION && e.type == SDL_KEYDOWN)
             {
             
@@ -303,7 +327,6 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                     {
                         actif->notesPieces[actif->ligneCarnet-NB_SUSPECTS-NB_ARMES] ^=1;
                     }
-                
                 }
             }
         }
@@ -544,24 +567,23 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         if(etatUI == UI_REVELATION)
         {
+            SDL_Texture* txt = creerTexte(rendu,font,"Carte revelee - ENTREE pour continuer",blanc);
+            dessinerTexteCentre(rendu,txt,1140,502,350,40);
+        
+            SDL_DestroyTexture(txt);
+        
             char chemin[200];
         
             if(carteMontree.type == CARTE_SUSPECT)
-            {
                 sprintf(chemin,"code/assets/cards/suspects/%s.png",carteMontree.nom);
-            }
         
             else if(carteMontree.type == CARTE_ARME)
-            {
                 sprintf(chemin,"code/assets/cards/weapons/%s.png",carteMontree.nom);
-            }
         
-            else if(carteMontree.type == CARTE_PIECE)
-            {
+            else
                 sprintf(chemin,"code/assets/cards/rooms/%s.png",carteMontree.nom);
-            }
         
-            SDL_Texture* img = chargerTexture(rendu, chemin);
+            SDL_Texture* img = chargerTexture(rendu,chemin);
         
             if(img)
             {
