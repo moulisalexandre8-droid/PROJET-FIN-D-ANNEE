@@ -10,6 +10,7 @@
 #include "turn_manager.h"
 #include "../entities/room.h"
 #include "cards.h"
+#include "mode.h"
 #include "rules.h"
 #include <time.h>
 #include "de.h"
@@ -63,18 +64,20 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
 
 // boucle principale
 
-void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
+void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 {
-    initialiserCartes();
-    genererSolution();
+    ModeJeu modeActuel = mode;
 
-    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur1.png","J1");
-    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/Joueur2.png","J2");
+    initialiserCartes(&modeActuel);
+    genererSolution(&modeActuel);
+
+    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/classique/Joueur1.png","J1");
+    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/classique/Joueur2.png","J2");
 
     j1.personnage = 0; // Mme Rose
     j2.personnage = 1; // Moutarde
 
-    distribuerCartes(&j1,&j2);
+    distribuerCartes(&j1,&j2,&modeActuel);
     
     float tailleCaseX = 32.5;
     float tailleCaseY = 31;
@@ -92,7 +95,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
     int armeChoisie = 0;
     int salleChoisie = 0;
 
-    SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/cluedo_board.png");
+    SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/classique/cluedo_board.png");
     SDL_Texture* grilleTexture = chargerTexture(rendu,"code/assets/grille/grille.png");
 
     SDL_Texture* diceTextures[6];
@@ -189,15 +192,15 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                     armeChoisie++;
 
                 if(suspectChoisi < 0)
-                    suspectChoisi = NB_SUSPECTS - 1;
+                    suspectChoisi = modeActuel.nbSuspects - 1;
 
-                if(suspectChoisi >= NB_SUSPECTS)
+                if(suspectChoisi >= modeActuel.nbSuspects)
                     suspectChoisi = 0;
 
                 if(armeChoisie < 0)
-                    armeChoisie = NB_ARMES - 1;
+                    armeChoisie = modeActuel.nbArmes - 1;
 
-                if(armeChoisie >= NB_ARMES)
+                if(armeChoisie >= modeActuel.nbArmes)
                     armeChoisie = 0;
 
                 if(e.key.keysym.sym == SDLK_RETURN)
@@ -260,21 +263,21 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                     salleChoisie++;
 
                 if(suspectChoisi<0)
-                    suspectChoisi=NB_SUSPECTS-1;
+                    suspectChoisi=modeActuel.nbSuspects-1;
 
-                if(suspectChoisi>=NB_SUSPECTS)
+                if(suspectChoisi>=modeActuel.nbSuspects)
                     suspectChoisi=0;
 
                 if(armeChoisie<0)
-                    armeChoisie=NB_ARMES-1;
+                    armeChoisie=modeActuel.nbArmes-1;
 
-                if(armeChoisie>=NB_ARMES)
+                if(armeChoisie>=modeActuel.nbArmes)
                     armeChoisie=0;
 
                 if(salleChoisie<0)
-                    salleChoisie=NB_PIECES-1;
+                    salleChoisie=modeActuel.nbPieces-1;
 
-                if(salleChoisie>=NB_PIECES)
+                if(salleChoisie>=modeActuel.nbPieces)
                     salleChoisie=0;
 
                 if(e.key.keysym.sym == SDLK_RETURN)
@@ -304,29 +307,49 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
                 if(actif->ligneCarnet < 0)
                     actif->ligneCarnet = 0;
                 
-                if(actif->ligneCarnet > NB_SUSPECTS + NB_ARMES + NB_PIECES - 1)
+                if(actif->ligneCarnet > modeActuel.nbSuspects + modeActuel.nbArmes + modeActuel.nbPieces - 1)
                 {
-                    actif->ligneCarnet = NB_SUSPECTS + NB_ARMES + NB_PIECES - 1;
+                    actif->ligneCarnet = modeActuel.nbSuspects + modeActuel.nbArmes + modeActuel.nbPieces - 1;
                 }
             
             
                 if(e.key.keysym.sym == SDLK_SPACE)
                 {
                 
-                    if(actif->ligneCarnet < NB_SUSPECTS)
+                    if(actif->ligneCarnet < modeActuel.nbSuspects)
                     {
                         actif->notesSuspects[actif->ligneCarnet] ^=1;
                     }
                 
-                    else if(actif->ligneCarnet < NB_SUSPECTS + NB_ARMES)
+                    else if(actif->ligneCarnet < modeActuel.nbSuspects + modeActuel.nbArmes)
                     {
-                        actif->notesArmes[actif->ligneCarnet-NB_SUSPECTS] ^=1;
+                        actif->notesArmes[actif->ligneCarnet-modeActuel.nbSuspects] ^=1;
                     }
                 
                     else
                     {
-                        actif->notesPieces[actif->ligneCarnet-NB_SUSPECTS-NB_ARMES] ^=1;
+                        actif->notesPieces[actif->ligneCarnet-modeActuel.nbSuspects-modeActuel.nbArmes] ^=1;
                     }
+                }
+            }
+            if(etatUI == UI_DEFAITE && e.type == SDL_KEYDOWN)
+            {
+                if(e.key.keysym.sym == SDLK_RETURN)
+                {
+                    actif->elimine = 1;
+                    changerTour(&actif,&j1,&j2,&etatJeu);
+                
+                    if(j1.elimine && j2.elimine)
+                    {
+                        etatUI = UI_VICTOIRE;
+                    }
+                    else
+                    {
+                        etatUI = UI_PRINCIPALE;
+                    }
+
+                    etatUI = UI_PRINCIPALE;
+                    etatJeu = ETAT_ATTENTE_DE;
                 }
             }
         }
@@ -392,22 +415,22 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         int curseurX;
         int curseurY;
 
-        if(actif->ligneCarnet < NB_SUSPECTS)
+        if(actif->ligneCarnet < modeActuel.nbSuspects)
         {
             curseurX = 1243;
             curseurY = 566 + actif->ligneCarnet * 19;
         }
 
-        else if(actif->ligneCarnet <NB_SUSPECTS + NB_ARMES)
+        else if(actif->ligneCarnet <modeActuel.nbSuspects + modeActuel.nbArmes)
         {
             curseurX = 1243;
-            curseurY = 716 +(actif->ligneCarnet-NB_SUSPECTS)* 19;
+            curseurY = 716 +(actif->ligneCarnet-modeActuel.nbSuspects)* 19;
         }
 
         else
         {
             curseurX = 1440;
-            curseurY =590 +(actif->ligneCarnet- NB_SUSPECTS- NB_ARMES) * 24;
+            curseurY =590 +(actif->ligneCarnet- modeActuel.nbSuspects- modeActuel.nbArmes) * 24;
         }  
 
         SDL_Texture* curseur = creerTexte(rendu,font,"<",noir);
@@ -418,7 +441,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         SDL_SetRenderDrawColor(rendu,255,0,0,255);
 
-        for(int i=0;i<NB_SUSPECTS;i++)
+        for(int i=0;i<modeActuel.nbSuspects;i++)
         {
             if(actif->notesSuspects[i])
             {
@@ -431,7 +454,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         }
 
 
-        for(int i=0;i<NB_ARMES;i++)
+        for(int i=0;i<modeActuel.nbArmes;i++)
         {
             if(actif->notesArmes[i])
             {
@@ -443,7 +466,7 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             }
         }
 
-        for(int i=0;i<NB_PIECES;i++)
+        for(int i=0;i<modeActuel.nbPieces;i++)
         {
             if(actif->notesPieces[i])
             {
@@ -487,25 +510,25 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         if(etatUI == UI_ACCUSATION)
         {
-            char buffer[200];
+            char espace[200];
 
-            sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
+            sprintf(espace,"Suspect : %s",modeActuel.suspects[suspectChoisi].nom);
 
-            SDL_Texture* txt1= creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt1= creerTexte(rendu,font,espace,blanc);
 
             dessinerTexteCentre(rendu,txt1,1175,260,300,40);
 
 
-            sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
+            sprintf(espace,"Arme : %s",modeActuel.armes[armeChoisie].nom);
 
-            SDL_Texture* txt2= creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt2= creerTexte(rendu,font,espace,blanc);
 
             dessinerTexteCentre(rendu,txt2,1175,320,300,40);
 
 
-            sprintf(buffer,"Salle : %s",cartesPieces[salleChoisie].nom);
+            sprintf(espace,"Salle : %s",modeActuel.pieces[salleChoisie].nom);
 
-            SDL_Texture* txt3= creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt3= creerTexte(rendu,font,espace,blanc);
 
             dessinerTexteCentre(rendu,txt3,1175,380,300,40);
 
@@ -532,27 +555,52 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
 
         if(etatUI == UI_DEFAITE)
         {
-            SDL_Texture* txt= creerTexte(rendu,font,"MAUVAISE ACCUSATION",blanc);
-
-            dessinerTexteCentre(rendu,txt,1175,300,350,60);
-
+            SDL_Texture* txt = creerTexte(rendu,font,"ENTREE pour continuer la partie",blanc);
+            dessinerTexteCentre(rendu,txt,1140,502,350,40);
             SDL_DestroyTexture(txt);
+
+            SDL_Texture* titre = creerTexte(rendu,font,"MAUVAISE ACCUSATION",blanc);
+            dessinerTexteCentre(rendu,titre,1150,250,350,60);
+            SDL_DestroyTexture(titre);
+        
+            char espace[200];
+        
+            sprintf(espace,"Suspect : %s",solution.suspect.nom);
+        
+            SDL_Texture* txt1 =creerTexte(rendu,font,espace,blanc);
+        
+            dessinerTexteCentre(rendu,txt1,1150,340,350,40);
+            SDL_DestroyTexture(txt1);
+        
+            sprintf(espace,"Arme : %s",solution.arme.nom);
+        
+            SDL_Texture* txt2 = creerTexte(rendu,font,espace,blanc);
+            dessinerTexteCentre(rendu,txt2,1150,390,350,40);
+            SDL_DestroyTexture(txt2);
+        
+        
+        
+            sprintf(espace,"Piece : %s",solution.piece.nom);
+        
+            SDL_Texture* txt3 =creerTexte(rendu,font,espace,blanc);
+            dessinerTexteCentre(rendu,txt3,1150,440,350,40);
+            SDL_DestroyTexture(txt3);
         }
 
         if(etatUI == UI_SUSPICION)
         {
-            char buffer[200];
+            char espace[200];
         
-            sprintf(buffer,"Suspect : %s",cartesSuspects[suspectChoisi].nom);
+            sprintf(espace,"Suspect : %s",mode.suspects[suspectChoisi].nom);
         
-            SDL_Texture* txt1 = creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt1 = creerTexte(rendu,font,espace,blanc);
         
             dessinerTexteCentre(rendu,txt1,1175,250,300,40);
 
 
-            sprintf(buffer,"Arme : %s",cartesArmes[armeChoisie].nom);
+            sprintf(espace,"Arme : %s",mode.armes[armeChoisie].nom);
         
-            SDL_Texture* txt2 = creerTexte(rendu,font,buffer,blanc);
+            SDL_Texture* txt2 = creerTexte(rendu,font,espace,blanc);
         
             dessinerTexteCentre(rendu,txt2,1175,320,300,40);
         
@@ -575,13 +623,13 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
             char chemin[200];
         
             if(carteMontree.type == CARTE_SUSPECT)
-                sprintf(chemin,"code/assets/cards/suspects/%s.png",carteMontree.nom);
+                sprintf(chemin,"code/assets/cards/%s/suspects/%s.png",mode.nomDossier,carteMontree.nom);
         
             else if(carteMontree.type == CARTE_ARME)
-                sprintf(chemin,"code/assets/cards/weapons/%s.png",carteMontree.nom);
+                sprintf(chemin,"code/assets/cards/%s/weapons/%s.png",mode.nomDossier,carteMontree.nom);
         
             else
-                sprintf(chemin,"code/assets/cards/rooms/%s.png",carteMontree.nom);
+                sprintf(chemin,"code/assets/cards/%s/rooms/%s.png",mode.nomDossier,carteMontree.nom);
         
             SDL_Texture* img = chargerTexture(rendu,chemin);
         
@@ -614,17 +662,17 @@ void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu)
         
             if(c.type == CARTE_SUSPECT)
             {
-                sprintf(chemin,"code/assets/cards/suspects/%s.png",c.nom);
+                sprintf(chemin,"code/assets/cards/classique/suspects/%s.png",c.nom);
             }
         
             else if(c.type == CARTE_ARME)
             {
-                sprintf(chemin,"code/assets/cards/weapons/%s.png",c.nom);
+                sprintf(chemin,"code/assets/cards/classique/weapons/%s.png",c.nom);
             }
         
             else if(c.type == CARTE_PIECE)
             {
-                sprintf(chemin,"code/assets/cards/rooms/%s.png",c.nom);
+                sprintf(chemin,"code/assets/cards/classique/rooms/%s.png",c.nom);
             }
 
             SDL_Texture* carte = chargerTexture(rendu, chemin);

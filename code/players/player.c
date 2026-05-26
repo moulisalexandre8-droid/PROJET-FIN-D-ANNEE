@@ -28,6 +28,8 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
     j.nbCartes = 0;
 
+    j.elimine = 0;
+
     j.ligneCarnet = 0;
 
     j.aFaitSoupcon = 0;

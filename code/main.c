@@ -1,4 +1,6 @@
 #include "game/game.h"
+#include "game/mode.h"
+#include "ui/menu.h"
 
 int main(int argc, char* argv[])
 {
@@ -8,7 +10,9 @@ int main(int argc, char* argv[])
     if (!initialiserSDL(&fenetre, &rendu))
         return 1;
 
-    boucleJeu(fenetre, rendu);
+    ModeJeu mode = afficherMenu(rendu);
+
+    boucleJeu(fenetre,rendu,mode);
 
     nettoyer(fenetre, rendu);
 

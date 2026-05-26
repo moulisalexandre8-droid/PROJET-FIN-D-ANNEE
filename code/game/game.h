@@ -6,6 +6,7 @@
 #include <SDL2/SDL_image.h>
 #include "../entities/card.h"
 #include "../utils/constants.h"
+#include "mode.h"
 
 typedef struct Joueur
 {
@@ -25,6 +26,7 @@ typedef struct Joueur
     int notesSuspects[6];
     int notesArmes[6];
     int notesPieces[9];
+    int elimine;
 
     int ligneCarnet;
     int aFaitSoupcon;
@@ -47,7 +49,8 @@ int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,float tail
 void deplacerJoueur(Joueur* j, int nouvelleX, int nouvelleY);
 
 // boucle principale
-void boucleJeu(SDL_Window* fenetre, SDL_Renderer* rendu);
+
+void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode);
 
 // nettoyage
 void nettoyer(SDL_Window* fenetre, SDL_Renderer* rendu);
