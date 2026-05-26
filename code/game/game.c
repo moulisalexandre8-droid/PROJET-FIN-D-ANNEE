@@ -62,6 +62,50 @@ void nettoyer(SDL_Window* f, SDL_Renderer* r)
     SDL_Quit();
 }
 
+void dessinerPortes(SDL_Renderer* rendu, float tailleCaseX, float tailleCaseY)
+{
+    for(int ligne = 0; ligne < 25; ligne++)
+    {
+        for(int col = 0; col < 26; col++)
+        {
+            int val = plateau[ligne][col];
+
+            int x = PLATEAU_X + OFFSET_X + col * tailleCaseX;
+            int y = OFFSET_Y + ligne * tailleCaseY;
+
+            SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+
+            // porte haut (entrée depuis le haut)
+            if(val == 12)
+            {
+                SDL_Rect r = {x,y,tailleCaseX,4};
+                SDL_RenderFillRect(rendu, &r);
+            }
+
+            // porte bas (entrée depuis le bas)
+            if(val == 13)
+            {
+                SDL_Rect r = {x,y + tailleCaseY - 4,tailleCaseX,4};
+                SDL_RenderFillRect(rendu, &r);
+            }
+
+            // porte gauche (entrée depuis la gauche)
+            if(val == 14)
+            {
+                SDL_Rect r = {x,y,4,tailleCaseY};
+                SDL_RenderFillRect(rendu, &r);
+            }
+
+            // porte droite (entrée depuis la droite)
+            if(val == 15)
+            {
+                SDL_Rect r = {x + tailleCaseX - 4,y,4,tailleCaseY};
+                SDL_RenderFillRect(rendu, &r);
+            }
+        }
+    }
+}
+
 // boucle principale
 
 void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
@@ -70,6 +114,21 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
     initialiserCartes(&modeActuel);
     genererSolution(&modeActuel);
+
+    /*char cheminJ1[200];
+    char cheminJ2[200];
+    
+    sprintf(
+        cheminJ1,
+        "code/assets/icons/%s/Joueur1.png",
+        modeActuel.nomDossier
+    );
+    
+    sprintf(
+        cheminJ2,
+        "code/assets/icons/%s/Joueur2.png",
+        modeActuel.nomDossier
+    );*/
 
     Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/classique/Joueur1.png","J1");
     Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/classique/Joueur2.png","J2");
@@ -95,7 +154,12 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
     int armeChoisie = 0;
     int salleChoisie = 0;
 
-    SDL_Texture* plateauTexture =chargerTexture(rendu,"code/assets/board/classique/cluedo_board.png");
+    char cheminPlateau[200];
+
+    sprintf(cheminPlateau,"code/assets/board/%s/cluedo_board.png",modeActuel.nomDossier);
+
+    SDL_Texture* plateauTexture = chargerTexture(rendu, cheminPlateau);
+
     SDL_Texture* grilleTexture = chargerTexture(rendu,"code/assets/grille/grille.png");
 
     SDL_Texture* diceTextures[6];
@@ -402,6 +466,10 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
         dessinerTexture(rendu,plateauTexture,PLATEAU_X,0,PLATEAU_LARGEUR,PLATEAU_HAUTEUR);
 
+        dessinerTexture(rendu, plateauTexture,PLATEAU_X, 0,PLATEAU_LARGEUR,PLATEAU_HAUTEUR);
+
+        dessinerPortes(rendu, tailleCaseX, tailleCaseY);
+
         dessinerInterfaceDroite(rendu);
 
         SDL_Rect zoneCartes = {0,0,220,860};
@@ -623,13 +691,13 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
             char chemin[200];
         
             if(carteMontree.type == CARTE_SUSPECT)
-                sprintf(chemin,"code/assets/cards/%s/suspects/%s.png",mode.nomDossier,carteMontree.nom);
+                sprintf(chemin,"code/assets/cards/%s/suspects/%s.png",modeActuel.nomDossier,carteMontree.nom);
         
             else if(carteMontree.type == CARTE_ARME)
-                sprintf(chemin,"code/assets/cards/%s/weapons/%s.png",mode.nomDossier,carteMontree.nom);
+                sprintf(chemin,"code/assets/cards/%s/weapons/%s.png",modeActuel.nomDossier,carteMontree.nom);
         
             else
-                sprintf(chemin,"code/assets/cards/%s/rooms/%s.png",mode.nomDossier,carteMontree.nom);
+                sprintf(chemin,"code/assets/cards/%s/rooms/%s.png",modeActuel.nomDossier,carteMontree.nom);
         
             SDL_Texture* img = chargerTexture(rendu,chemin);
         
@@ -662,17 +730,17 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
         
             if(c.type == CARTE_SUSPECT)
             {
-                sprintf(chemin,"code/assets/cards/classique/suspects/%s.png",c.nom);
+                sprintf(chemin,"code/assets/cards/%s/suspects/%s.png",modeActuel.nomDossier,c.nom);
             }
         
             else if(c.type == CARTE_ARME)
             {
-                sprintf(chemin,"code/assets/cards/classique/weapons/%s.png",c.nom);
+                sprintf(chemin,"code/assets/cards/%s/weapons/%s.png",modeActuel.nomDossier,c.nom);
             }
         
             else if(c.type == CARTE_PIECE)
             {
-                sprintf(chemin,"code/assets/cards/classique/rooms/%s.png",c.nom);
+                sprintf(chemin,"code/assets/cards/%s/rooms/%s.png",modeActuel.nomDossier,c.nom);
             }
 
             SDL_Texture* carte = chargerTexture(rendu, chemin);

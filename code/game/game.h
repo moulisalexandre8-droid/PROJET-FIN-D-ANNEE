@@ -48,6 +48,8 @@ int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,float tail
 
 void deplacerJoueur(Joueur* j, int nouvelleX, int nouvelleY);
 
+void dessinerPortes(SDL_Renderer* rendu, float tailleCaseX, float tailleCaseY);
+
 // boucle principale
 
 void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode);

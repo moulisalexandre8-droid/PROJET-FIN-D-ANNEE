@@ -3,6 +3,8 @@
 
 #include "game.h"
 
+extern int plateau[25][26];
+
 int estUnMur(int ligne,int colonne);
 
 int peutAller(int ancienneX,int ancienneY,int nouvelleX,int nouvelleY,float tailleCaseX,float tailleCaseY);
