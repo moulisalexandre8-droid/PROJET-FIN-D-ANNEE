@@ -19,7 +19,7 @@ typedef struct Joueur
 
     int mouvementsRestants;
 
-    Carte cartes[10];
+    Carte cartes[15];
     int nbCartes;
     int personnage;
 

@@ -17,7 +17,9 @@ typedef enum
     UI_ACCUSATION,
     UI_VICTOIRE,
     UI_DEFAITE,
-    UI_REVELATION
+    UI_REVELATION,
+
+    UI_GAMEOVER
 
 } EtatInterface;
 

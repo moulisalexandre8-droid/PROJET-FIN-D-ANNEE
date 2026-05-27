@@ -411,39 +411,40 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                     }
                 }
             }
-            if(etatUI == UI_DEFAITE && e.type == SDL_KEYDOWN)
+            if(etatUI == UI_DEFAITE && e.type == SDL_KEYUP)
             {
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
                     actif->elimine = 1;
-                    changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
-                    actif= &joueurs[tour];
                 
-                    int tousElimines=1;
-                    for(int i=0;i<nbJoueurs;i++)
-                    {
-                        if(!joueurs[i].elimine)
-                            tousElimines=0;
-                    }
-                    int survivants=0;
-
+                    int survivants = 0;
+                
                     for(int i=0;i<nbJoueurs;i++)
                     {
                         if(!joueurs[i].elimine)
                             survivants++;
                     }
-
-                    if(survivants==0)
+                
+                    if(survivants == 0)
                     {
-                        etatUI=UI_DEFAITE;
+                        etatUI = UI_GAMEOVER;
                     }
                     else
                     {
+                        changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
+                    
+                        actif = &joueurs[tour];
+                    
                         etatUI = UI_PRINCIPALE;
+                        etatJeu = ETAT_ATTENTE_DE;
                     }
-
-                    etatUI = UI_PRINCIPALE;
-                    etatJeu = ETAT_ATTENTE_DE;
+                }
+            }
+            if(etatUI == UI_GAMEOVER && e.type == SDL_KEYUP)
+            {
+                if(e.key.keysym.sym == SDLK_RETURN)
+                {
+                    run = 0;
                 }
             }
         }
@@ -468,9 +469,12 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
         }
 
         const Uint8* etat = SDL_GetKeyboardState(NULL);
-        if(etatJeu == ETAT_DEPLACEMENT &&etatUI == UI_PRINCIPALE)
+        if(etatUI != UI_GAMEOVER)
         {
-            bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
+            if(etatJeu == ETAT_DEPLACEMENT && etatUI == UI_PRINCIPALE)
+            {
+                bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
+            }
         }
 
         if(estUneSalle(caseActuelle))
@@ -485,10 +489,13 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
             derniereSalle = -1;
         }
 
-        if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
+        if(etatUI != UI_GAMEOVER)
         {
-            changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
-            actif= &joueurs[tour];
+            if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
+            {
+                changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
+                actif = &joueurs[tour];
+            }
         }
 
         appliquerLimites(actif,tailleCaseX,tailleCaseY,220 + 925,860);
@@ -682,6 +689,52 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
             SDL_Texture* txt3 =creerTexte(rendu,font,espace,blanc);
             dessinerTexteCentre(rendu,txt3,1150,440,350,40);
             SDL_DestroyTexture(txt3);
+        }
+
+        if(etatUI == UI_GAMEOVER)
+        {
+            SDL_Texture* titre =
+                creerTexte(rendu,font,"TOUS LES JOUEURS ONT PERDU",blanc);
+        
+            dessinerTexteCentre(rendu,titre,1050,220,500,60);
+        
+            SDL_DestroyTexture(titre);
+        
+            char espace[200];
+        
+            sprintf(espace,"Suspect : %s",solution.suspect.nom);
+        
+            SDL_Texture* txt1 =
+                creerTexte(rendu,font,espace,blanc);
+        
+            dessinerTexteCentre(rendu,txt1,1150,340,350,40);
+        
+            SDL_DestroyTexture(txt1);
+        
+            sprintf(espace,"Arme : %s",solution.arme.nom);
+        
+            SDL_Texture* txt2 =
+                creerTexte(rendu,font,espace,blanc);
+        
+            dessinerTexteCentre(rendu,txt2,1150,390,350,40);
+        
+            SDL_DestroyTexture(txt2);
+        
+            sprintf(espace,"Piece : %s",solution.piece.nom);
+        
+            SDL_Texture* txt3 =
+                creerTexte(rendu,font,espace,blanc);
+        
+            dessinerTexteCentre(rendu,txt3,1150,440,350,40);
+        
+            SDL_DestroyTexture(txt3);
+        
+            SDL_Texture* aide =
+                creerTexte(rendu,font,"ENTREE pour quitter",blanc);
+        
+            dessinerTexteCentre(rendu,aide,1120,540,400,40);
+        
+            SDL_DestroyTexture(aide);
         }
 
         if(etatUI == UI_SUSPICION)
