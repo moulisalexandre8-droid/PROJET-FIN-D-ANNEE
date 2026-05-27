@@ -15,28 +15,28 @@ Piece pieces[] =
 
 int salleX[NB_PIECES] =
 {
-    2,   // Cuisine
-    11,  // Salle de bal
-    20,  // Véranda
-    3,  // Bureau
-    20, // Bibliothèque
-    19, // Salon
-    3, // Hall
-    12, // Salle à manger
-    19 // Petit salon
+    2,  // ID 2 : Cuisine
+    11, // ID 3 : Salle de bal
+    20, // ID 4 : Véranda
+    3,  // ID 5 : Salle à manger
+    20, // ID 6 : Bibliothèque
+    19, // ID 7 : Bureau
+    3,  // ID 8 : Salon
+    12, // ID 9 : Hall
+    19  // ID 10 : Petit salon
 };
 
 int salleY[NB_PIECES] =
 {
-    4,
-    5,
-    3,
-    14,
-    10,
-    16,
-    21,
-    20,
-    22
+    4,  // ID 2 : Cuisine
+    5,  // ID 3 : Salle de bal
+    3,  // ID 4 : Véranda
+    14, // ID 5 : Salle à manger
+    10, // ID 6 : Bibliothèque
+    16, // ID 7 : Bureau
+    21, // ID 8 : Salon
+    20, // ID 9 : Hall
+    22  // ID 10 : Petit salon
 };
 
 char* obtenirNomPiece(int id)

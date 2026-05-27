@@ -130,12 +130,14 @@ void bougerJoueur(const Uint8* etat,Joueur* j,int tailleCaseX,int tailleCaseY){
     }
 }
 
-void teleporterDansSalle(Joueur* j,int salle,float tailleX,float tailleY)
+void teleporterDansSalle(Joueur* j, int salle, float tailleX, float tailleY)
 {
-    if(salle < 0 || salle >= NB_PIECES)
+    if(salle < 2 || salle > 10)
         return;
 
-    placerJoueurCase(j,salleX[salle],salleY[salle],tailleX,tailleY);
+    int index = salle - 2;
+    
+    placerJoueurCase(j, salleX[index], salleY[index], tailleX, tailleY);
 }
 
 Joueur* obtenirJoueurParSuspect(int suspect,Joueur* j1,Joueur* j2)
