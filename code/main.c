@@ -14,6 +14,8 @@ int main(int argc, char* argv[])
 
     boucleJeu(fenetre,rendu,mode);
 
+    libererMode(&mode);
+
     nettoyer(fenetre, rendu);
 
     return 0;

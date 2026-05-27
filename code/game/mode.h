@@ -17,6 +17,8 @@ typedef struct
     Carte* pieces;
     int nbPieces;
 
+    int nbJoueurs;
+    
 } ModeJeu;
 
 ModeJeu creerModeClassique();

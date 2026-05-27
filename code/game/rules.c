@@ -27,6 +27,8 @@ Carte faireSuspicion(Joueur* accusateur,Joueur* autre,int salle,int suspect,int 
 
     Carte vide;
     strcpy(vide.nom,"Aucune");
+    vide.type = -1;
+    vide.id = -1;
     return vide;
 }
 

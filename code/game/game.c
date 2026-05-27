@@ -114,32 +114,45 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
     initialiserCartes(&modeActuel);
     genererSolution(&modeActuel);
-
-    /*char cheminJ1[200];
-    char cheminJ2[200];
     
-    sprintf(
-        cheminJ1,
-        "code/assets/icons/%s/Joueur1.png",
-        modeActuel.nomDossier
-    );
+    float tailleCaseX = 32;
+    float tailleCaseY = 31.1;
+
+    int nbJoueurs = modeActuel.nbJoueurs;
+    Joueur* joueurs = malloc(sizeof(Joueur)*nbJoueurs);
+
+    char chemin[200];
+    char nom[20];
+
+    for(int i=0;i<nbJoueurs;i++)
+    {
+        sprintf(chemin,"code/assets/icons/classique/Joueur%d.png",i+1);
+        sprintf(nom,"J%d",i+1);
+
+        joueurs[i]=initialiserJoueur(rendu,0,0,chemin,nom);
+        joueurs[i].personnage=i;
+    }
+
+    placerJoueurCase(&joueurs[0],7,24,tailleCaseX,tailleCaseY);
+
+    placerJoueurCase(&joueurs[1],0,17,tailleCaseX,tailleCaseY);
+
+    if(nbJoueurs>=3)
+        placerJoueurCase(&joueurs[2],9,0,tailleCaseX,tailleCaseY);
+
+    if(nbJoueurs>=4)
+        placerJoueurCase(&joueurs[3],14,0,tailleCaseX,tailleCaseY);
+
+    if(nbJoueurs>=5)
+        placerJoueurCase(&joueurs[4],24,6,tailleCaseX,tailleCaseY);
+
+    if(nbJoueurs>=6)
+        placerJoueurCase(&joueurs[5],24,19,tailleCaseX,tailleCaseY);
     
-    sprintf(
-        cheminJ2,
-        "code/assets/icons/%s/Joueur2.png",
-        modeActuel.nomDossier
-    );*/
-
-    Joueur j1 = initialiserJoueur(rendu,0,0,"code/assets/icons/classique/Joueur1.png","J1");
-    Joueur j2 = initialiserJoueur(rendu,0,0,"code/assets/icons/classique/Joueur2.png","J2");
-
-    j1.personnage = 0; // Mme Rose
-    j2.personnage = 1; // Moutarde
-
-    distribuerCartes(&j1,&j2,&modeActuel);
-    
-    float tailleCaseX = 32.5;
-    float tailleCaseY = 31;
+    if(nbJoueurs>=2)
+    {
+        distribuerCartes(joueurs,nbJoueurs,&modeActuel);
+    }
 
     int valeurDe = 0;
 
@@ -171,11 +184,11 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
     diceTextures[4] = chargerTexture(rendu, "code/assets/de/de5.png");
     diceTextures[5] = chargerTexture(rendu, "code/assets/de/de6.png");
 
-    Joueur* actif = &j1;
-    int derniereSalle = -1;
+    int tour=0;
 
-    placerJoueurCase(&j1, 9, 0, tailleCaseX, tailleCaseY);
-    placerJoueurCase(&j2, 0, 7, tailleCaseX, tailleCaseY);
+    Joueur* actif = &joueurs[tour];
+
+    int derniereSalle = -1;
 
     SDL_Event e;// contient les événements (clavier, souris, etc.)
     int run = 1;// nombre de bucles à faire avant de quitter le jeu(pas encore parametrée pour le vrai jeu)
@@ -269,7 +282,8 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
-                    Joueur* autre =(actif == &j1)? &j2: &j1;
+                    Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
+
                     carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
 
                     actif->aFaitSoupcon = 1;
@@ -297,7 +311,8 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                         afficherCarte = 0;
                         actif->aFaitSoupcon = 0;
                     
-                        changerTour(&actif,&j1,&j2,&etatJeu);
+                        changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
+                        actif=&joueurs[tour];
                     
                         etatUI = UI_PRINCIPALE;
                         etatJeu = ETAT_ATTENTE_DE;
@@ -401,11 +416,26 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
                     actif->elimine = 1;
-                    changerTour(&actif,&j1,&j2,&etatJeu);
+                    changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
+                    actif= &joueurs[tour];
                 
-                    if(j1.elimine && j2.elimine)
+                    int tousElimines=1;
+                    for(int i=0;i<nbJoueurs;i++)
                     {
-                        etatUI = UI_VICTOIRE;
+                        if(!joueurs[i].elimine)
+                            tousElimines=0;
+                    }
+                    int survivants=0;
+
+                    for(int i=0;i<nbJoueurs;i++)
+                    {
+                        if(!joueurs[i].elimine)
+                            survivants++;
+                    }
+
+                    if(survivants==0)
+                    {
+                        etatUI=UI_DEFAITE;
                     }
                     else
                     {
@@ -457,7 +487,8 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
         if(etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
         {
-            changerTour(&actif,&j1,&j2,&etatJeu);
+            changerTour(&tour,joueurs,nbJoueurs,&etatJeu);
+            actif= &joueurs[tour];
         }
 
         appliquerLimites(actif,tailleCaseX,tailleCaseY,220 + 925,860);
@@ -465,8 +496,6 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
         SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
 
         dessinerTexture(rendu,plateauTexture,PLATEAU_X,0,PLATEAU_LARGEUR,PLATEAU_HAUTEUR);
-
-        dessinerTexture(rendu, plateauTexture,PLATEAU_X, 0,PLATEAU_LARGEUR,PLATEAU_HAUTEUR);
 
         dessinerPortes(rendu, tailleCaseX, tailleCaseY);
 
@@ -707,21 +736,14 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                 SDL_DestroyTexture(img);
             }
 
-            if(strcmp(carteMontree.nom, "Aucune") != 0)
+            if (strcmp(carteMontree.nom, "Aucune") != 0)
             {
                 SDL_Texture* img = chargerTexture(rendu, chemin);
-            
-                if(img)
-                {
-                    dessinerTexture(rendu, img, 1230, 250, 180, 260);
-                    SDL_DestroyTexture(img);
-                }
             }
             else
             {
                 SDL_Texture* txt = creerTexte(rendu,font,"Aucune carte a montrer",blanc);
                 dessinerTexteCentre(rendu, txt, 1150, 350, 350, 40);
-            
                 SDL_DestroyTexture(txt);
             }
         }
@@ -738,8 +760,10 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
             dessinerTexture(rendu,diceTextures[valeurDe - 1],1260,110,120,120);
         }
 
-        dessinerJoueur(rendu,j1.texture,j1.x,j1.y,tailleCaseX,tailleCaseY);
-        dessinerJoueur(rendu,j2.texture,j2.x,j2.y,tailleCaseX,tailleCaseY);
+        for(int i=0;i<nbJoueurs;i++)
+        {
+            dessinerJoueur(rendu,joueurs[i].texture,joueurs[i].x,joueurs[i].y,tailleCaseX,tailleCaseY);
+        }
 
         for(int i=0;i<actif->nbCartes;i++)
         {
@@ -788,7 +812,14 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
     {
         SDL_DestroyTexture(diceTextures[i]);
     }
+    SDL_DestroyTexture(plateauTexture);
     SDL_DestroyTexture(grilleTexture);
+    for(int i=0;i<nbJoueurs;i++)
+    {
+        SDL_DestroyTexture(joueurs[i].texture);
+    }
+    
+    free(joueurs);
     TTF_CloseFont(font);
 }
 // a supp

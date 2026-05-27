@@ -45,52 +45,43 @@ void ajouterCarte(Joueur* j,Carte c)
 
 
 
-void distribuerCartes(Joueur* j1,Joueur* j2,ModeJeu* mode)
+void distribuerCartes(Joueur* joueurs,int nbJoueurs,ModeJeu* mode)
 {
-    int tour=0;
-
+    Carte paquet[50];
+    int nb = 0;
 
     for(int i=0;i<mode->nbSuspects;i++)
-    {
-        if(strcmp(mode->suspects[i].nom,solution.suspect.nom)!=0)
-        {
-            if(tour%2==0)
-                ajouterCarte(j1,mode->suspects[i]);
-            else
-                ajouterCarte(j2,mode->suspects[i]);
-            tour++;
-        }
-    }
-
-
+        paquet[nb++] = mode->suspects[i];
 
     for(int i=0;i<mode->nbArmes;i++)
-    {
-        if(strcmp(mode->armes[i].nom,solution.arme.nom)!=0)
-        {
-            if(tour%2==0)
-                ajouterCarte(j1,mode->armes[i]);
-
-            else
-                ajouterCarte(j2,mode->armes[i]);
-
-            tour++;
-        }
-    }
-
-
+        paquet[nb++] = mode->armes[i];
 
     for(int i=0;i<mode->nbPieces;i++)
+        paquet[nb++] = mode->pieces[i];
+
+    melanger(paquet,nb);
+    int joueurActuel=0;
+
+    for(int i=0;i<nb;i++)
     {
-        if(strcmp(mode->pieces[i].nom,solution.piece.nom)!=0)
-        {
-            if(tour%2==0)
-                ajouterCarte(j1,mode->pieces[i]);
+        joueurs[joueurActuel].cartes[joueurs[joueurActuel].nbCartes++] = paquet[i];
+        joueurActuel++;
 
-            else
-                ajouterCarte(j2,mode->pieces[i]);
+        if(joueurActuel>=nbJoueurs)
+            joueurActuel=0;
+    }
+}
 
-            tour++;
-        }
+void melanger(Carte* paquet, int nb)
+{
+    if(nb <= 1) return;
+
+    for(int i = nb - 1; i > 0; i--)
+    {
+        int j = rand() % (i + 1);
+
+        Carte tmp = paquet[i];
+        paquet[i] = paquet[j];
+        paquet[j] = tmp;
     }
 }

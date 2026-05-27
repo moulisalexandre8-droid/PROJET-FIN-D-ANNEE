@@ -1,19 +1,29 @@
 #include "turn_manager.h"
 
-void changerTour(Joueur** actif,Joueur* j1,Joueur* j2,EtatJeu* etat)
+void changerTour(int* tour,Joueur* joueurs,int nbJoueurs,EtatJeu* etat)
 {
-    if(*actif == j1)
-        *actif = j2;
-    else
-        *actif = j1;
 
-    if((*actif)->elimine)
+    do
     {
-        if(*actif == j1)
-            *actif = j2;
-        else
-            *actif = j1;
+        *tour =(*tour+1)%nbJoueurs;
     }
 
-    *etat = ETAT_ATTENTE_DE;
+    while(joueurs[*tour].elimine);
+        *etat= ETAT_ATTENTE_DE;
+}
+
+Joueur* prochainJoueur(Joueur* joueurs,int nbJoueurs,int tour)
+{
+    int i=tour+1;
+
+    while(1)
+    {
+        if(i>=nbJoueurs)
+            i=0;
+
+        if(!joueurs[i].elimine)
+            return &joueurs[i];
+
+        i++;
+    }
 }

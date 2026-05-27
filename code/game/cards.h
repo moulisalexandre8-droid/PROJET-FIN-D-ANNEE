@@ -28,6 +28,8 @@ extern Solution solution;
 
 void genererSolution(ModeJeu* mode);
 
-void distribuerCartes(Joueur* j1,Joueur* j2,ModeJeu* mode);
+void melanger(Carte* paquet, int nb);
+
+void distribuerCartes(Joueur* joueurs,int nbJoueurs,ModeJeu* mode);
 
 #endif
