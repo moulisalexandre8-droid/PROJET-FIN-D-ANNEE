@@ -706,6 +706,24 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                 dessinerTexture(rendu,img,1230,250,180,260);
                 SDL_DestroyTexture(img);
             }
+
+            if(strcmp(carteMontree.nom, "Aucune") != 0)
+            {
+                SDL_Texture* img = chargerTexture(rendu, chemin);
+            
+                if(img)
+                {
+                    dessinerTexture(rendu, img, 1230, 250, 180, 260);
+                    SDL_DestroyTexture(img);
+                }
+            }
+            else
+            {
+                SDL_Texture* txt = creerTexte(rendu,font,"Aucune carte a montrer",blanc);
+                dessinerTexteCentre(rendu, txt, 1150, 350, 350, 40);
+            
+                SDL_DestroyTexture(txt);
+            }
         }
 
         if(!dansSalle)

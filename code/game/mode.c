@@ -59,7 +59,7 @@ ModeJeu creerModeHarryPotter()
     mode.suspects[1] = (Carte){CARTE_SUSPECT,1,"Crabbe et Goyle"};
     mode.suspects[2] = (Carte){CARTE_SUSPECT,2,"Dolores Umbrigde"};
     mode.suspects[3] = (Carte){CARTE_SUSPECT,3,"Drako Malfoy"};
-    mode.suspects[4] = (Carte){CARTE_SUSPECT,4,"Lucus Malfoy"};
+    mode.suspects[4] = (Carte){CARTE_SUSPECT,4,"Lucius Malfoy"};
     mode.suspects[5] = (Carte){CARTE_SUSPECT,5,"Peter Pettigrow"};
 
     mode.nbArmes = 6;
@@ -76,7 +76,7 @@ ModeJeu creerModeHarryPotter()
     mode.pieces[0] = (Carte){CARTE_PIECE,0,"salle Alchimie"};
     mode.pieces[1] = (Carte){CARTE_PIECE,1,"Salon Principal"};
     mode.pieces[2] = (Carte){CARTE_PIECE,2,"Salle de Cours"};
-    mode.pieces[3] = (Carte){CARTE_PIECE,3,"refectoire"};
+    mode.pieces[3] = (Carte){CARTE_PIECE,3,"Refectoire"};
     mode.pieces[4] = (Carte){CARTE_PIECE,4,"Dortoirs"};
     mode.pieces[5] = (Carte){CARTE_PIECE,5,"Bibliotheque"};
     mode.pieces[6] = (Carte){CARTE_PIECE,6,"Solarium"};
