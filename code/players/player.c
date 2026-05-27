@@ -32,6 +32,9 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
     j.ligneCarnet = 0;
 
+    j.ligneAvantSalle = -1;
+    j.colonneAvantSalle = -1;
+
     j.aFaitSoupcon = 0;
 
     SDL_Surface* surface = IMG_Load(cheminImage);
@@ -49,6 +52,9 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
 void deplacerJoueur(Joueur* j, int nx, int ny)
 {
+    j->ancienneX = j->x;
+    j->ancienneY = j->y;
+
     j->x = nx;
     j->y = ny;
 }
@@ -112,6 +118,9 @@ void bougerJoueur(const Uint8* etat,Joueur* j,int tailleCaseX,int tailleCaseY){
 
     if (peutAller(j->x,j->y,nx,ny,tailleCaseX,tailleCaseY))
     {
+        j->ancienneX = j->x;
+        j->ancienneY = j->y;
+
         j->x = nx;
         j->y = ny;
 
@@ -123,6 +132,9 @@ void bougerJoueur(const Uint8* etat,Joueur* j,int tailleCaseX,int tailleCaseY){
 
 void teleporterDansSalle(Joueur* j,int salle,float tailleX,float tailleY)
 {
+    if(salle < 0 || salle >= NB_PIECES)
+        return;
+
     placerJoueurCase(j,salleX[salle],salleY[salle],tailleX,tailleY);
 }
 

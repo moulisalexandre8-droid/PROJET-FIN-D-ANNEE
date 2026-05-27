@@ -15,6 +15,7 @@
 #include <time.h>
 #include "de.h"
 #include "board.h"
+#include "../players/player.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -130,6 +131,10 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
         sprintf(nom,"J%d",i+1);
 
         joueurs[i]=initialiserJoueur(rendu,0,0,chemin,nom);
+        joueurs[i].estDansSalle = 0;
+        joueurs[i].salleActuelle = -1;
+            
+        joueurs[i].caseAvantSalle = -1;
         joueurs[i].personnage=i;
     }
 
@@ -227,7 +232,18 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                 {
                     if (etatJeu == ETAT_ATTENTE_DE)
                     {
+                        if(actif->estDansSalle)
+                        {
+                            placerJoueurCase(actif, actif->colonneAvantSalle, actif->ligneAvantSalle, tailleCaseX, tailleCaseY);
+
+                            actif->estDansSalle = 0;
+                            actif->salleActuelle = -1;
+
+                            derniereSalle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+                        }
+                    
                         valeurDe = lancerDe();
+                    
                         actif->mouvementsRestants = valeurDe;
                     
                         etatJeu = ETAT_DEPLACEMENT;
@@ -477,14 +493,30 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
             }
         }
 
-        if(estUneSalle(caseActuelle))
+        if(estUnePorte(caseActuelle))
         {
             if(caseActuelle != derniereSalle)
             {
-                derniereSalle = caseActuelle;
+                int colActuelle = (actif->x - PLATEAU_X - OFFSET_X) / tailleCaseX;
+                int ligActuelle = (actif->y - OFFSET_Y) / tailleCaseY;
+            
+                actif->ligneAvantSalle = ligActuelle;
+                actif->colonneAvantSalle = colActuelle;
+            
+                int salle = obtenirSalleDepuisPorte(ligActuelle, colActuelle);
+            
+                if(salle >= 0)
+                {
+                    actif->estDansSalle = 1;
+                    actif->salleActuelle = salle;
+                
+                    teleporterDansSalle(actif, salle, tailleCaseX, tailleCaseY);
+                
+                    derniereSalle = caseActuelle;
+                }
             }
         }
-        else
+        else if(!estUneSalle(caseActuelle))
         {
             derniereSalle = -1;
         }

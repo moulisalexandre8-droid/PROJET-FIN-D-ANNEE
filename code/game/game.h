@@ -31,6 +31,17 @@ typedef struct Joueur
     int ligneCarnet;
     int aFaitSoupcon;
 
+    int estDansSalle;
+    int salleActuelle;
+
+    int caseAvantSalle;
+
+    int ligneAvantSalle;
+    int colonneAvantSalle;
+
+    int ancienneX;
+    int ancienneY;
+
 } Joueur;
 
 // init SDL

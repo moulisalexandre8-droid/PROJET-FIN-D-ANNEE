@@ -5,12 +5,12 @@ Piece pieces[] =
     {2,"Cuisine"},
     {3,"Salle de bal"},
     {4,"Veranda"},
-    {5,"Bureau"},
-    {7,"Bibliotheque"},
+    {5,"Salle a manger"},
+    {6,"Bibliotheque"},
+    {7,"Bureau"},
     {8,"Salon"},
     {9,"Hall"},
-    {10,"Salle a manger"},
-    {11,"Petit salon"}
+    {10,"Petit salon"}
 };
 
 int salleX[NB_PIECES] =
