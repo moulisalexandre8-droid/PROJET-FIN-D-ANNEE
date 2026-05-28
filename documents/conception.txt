@@ -6,6 +6,7 @@ Organisation générale du projet :
   Le projet reposera sur une structure modulaire, où chaque partie du jeu aura un rôle précis.
 
 Structure des fichiers : 
+
 main.c :
   Le fichier main.c représentera le point d’entrée du programme.
   Il permettra :
@@ -15,13 +16,15 @@ main.c :
   d’appeler les différentes fonctions présentes dans les autres fichiers.
   Ce fichier servira principalement à coordonner les différentes parties du projet.
   Fichiers de gestion du jeu
-jeu.c / jeu.h :
+
+game.c / game.h :
   Ces fichiers contiendront les fonctions principales liées au fonctionnement du jeu :
   lancement d’une partie ;
   gestion des tours ;
   vérification des conditions de victoire ;
   gestion des règles.
   Le fichier .h contiendra les prototypes des fonctions ainsi que les structures utilisées.
+
 cartes.c / cartes.h :
   Ces fichiers géreront :
   les cartes ;
@@ -29,7 +32,7 @@ cartes.c / cartes.h :
   les indices ;
   la combinaison secrète à découvrir.
   Ils permettront également la distribution des cartes aux joueurs.
-  Gestion des joueurs
+
 joueur.c / joueur.h :
   Ces fichiers permettront de gérer :
   les joueurs humains ;
@@ -37,17 +40,29 @@ joueur.c / joueur.h :
   leurs actions pendant la partie ;
   leurs hypothèses et accusations.
   Les structures de données des joueurs seront définies dans cette partie.
-  Gestion des intelligences artificielles
-ia_simple.c / ia_simple.h :
-  Cette partie contiendra une intelligence artificielle simple avec un comportement basique et naïf.
-  L’IA prendra des décisions simples sans véritable stratégie avancée.
-  ia_avancee.c / ia_avancee.h
-  Cette partie contiendra une intelligence artificielle plus évoluée capable :
-  de mémoriser des informations ;
-  d’analyser les éléments découverts pendant la partie ;
-  d’adapter sa stratégie en fonction du déroulement du jeu.
-  Cette IA pourra parfois adopter un comportement plus subtil afin de rendre les parties plus réalistes.
-  Interface terminal
+
+ai.c /ai.h :
+  Le projet intègre une intelligence artificielle afin de permettre de jouer seul ou de compléter les parties avec des joueurs non humains. Deux niveaux de comportement sont définis afin de varier la difficulté et le réalisme des parties.
+
+IA simple
+L’IA simple possède un comportement volontairement basique. Elle ne met pas en place de stratégie de déduction avancée et agit principalement de manière aléatoire.
+Ses caractéristiques sont les suivantes :
+elle choisit ses actions sans analyse approfondie de la partie ;
+elle sélectionne ses suspects, armes ou joueurs de façon aléatoire ;
+elle ne mémorise pas ou peu les informations obtenues au cours de la partie ;
+elle réagit uniquement au contexte immédiat sans anticipation.
+Ce type d’IA permet de simuler un joueur débutant et garantit une difficulté faible, adaptée aux premières parties ou aux tests du jeu.
+
+IA difficile
+L’IA difficile est une version améliorée de l’IA, intégrant un comportement plus réfléchi et stratégique.
+Ses caractéristiques sont les suivantes :
+elle mémorise les cartes déjà vues ou révélées durant la partie ;
+elle élimine progressivement certaines possibilités en fonction des informations collectées ;
+elle adapte ses accusations et propositions en fonction de sa mémoire ;
+elle peut orienter ses choix pour maximiser les informations obtenues ;
+elle adopte un comportement plus cohérent et logique sur plusieurs tours.
+Cette IA simule un joueur expérimenté capable de déduction, rendant les parties plus compétitives et plus difficiles.
+
 interface.c / interface.h :
   Ces fichiers géreront :
   l’affichage dans le terminal ;
@@ -55,6 +70,8 @@ interface.c / interface.h :
   les messages du jeu ;
   les saisies utilisateur.
   L’objectif sera de proposer une interface claire et compréhensible pour tous les joueurs.
+
+
 Fonctionnement général du programme :
   Le fonctionnement général du programme suivra les étapes suivantes :
   Lancement du programme
