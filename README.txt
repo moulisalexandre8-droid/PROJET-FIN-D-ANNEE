@@ -1,4 +1,5 @@
-PDF d’installation du jeu
+- Notice du jeu (installation) :  
+  [Télécharger le PDF](docs/notice-projet-cluelau.pdf)
 
 Voici les différents contrôles dont vous aurez besoin pour jouer :
 
