@@ -9,17 +9,22 @@ JALON 1 :
 Ce premier jalon était consacré à l'analyse des besoins et la conception technique du projet. 
 Durant celui-ci nous avons pu prendre rendez-vous avec le client pour préciser les besoins.
 Le temps consacrait à ce jalon a permis l'écriture des deux documents textes, analyse de besoins et conception technique.
-
+Nous avons aussi créé un jira pour gérer les taches tout au long du projet et un GitHub pour pouvoir mettre en commun nos différentes avancés sur le projet.
+Le code futur et les fichiers textes seront tous disponible sur GitHub.
 
 
 JALON 2 :
 Ce deuxième jalon était réservé à la base du projet.
 Nous avons codé les fondamentaux nécessaires au lancement du jeu dont le plateau de jeu.
-Nous nous sommes permis d'utiliser l'IA 
+Nous nous sommes permis d'utiliser l'IA.
+Nous avons opté pour faire une séparation importante du code avec plusieurs .c et .h quui permet une meilleure lisibilité du code.
 
 
 
 
+JALON 3 :
+Troisième jalon consacré au code de l'IA. Nous avons codé l'IA facile qui aura la capacité de garder en mémoire les cartes quelle demande et quelle voit.
+Partie complexe, surtout dans la gestion des choix, on a utilisé l'IA pour gérer le code. Le plateau était déjà codé mais nous avons continuer à rajouter les éléments essentiels de l'interface graphique tel que le lancé de dé, le bouton pour faire une proposition et le bouton pour montrer. Les conditions principales ont été ajoutées comme le fait de ne pouvoir faire une proposition que si le joueur en question est dans un lieu.
 
 
 
