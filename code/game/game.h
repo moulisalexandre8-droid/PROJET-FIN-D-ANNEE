@@ -44,6 +44,7 @@ typedef struct Joueur
 
     int estIA;
     int difficulteIA;
+    int salleCible;
 
 } Joueur;
 

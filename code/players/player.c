@@ -28,6 +28,7 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
     j.mouvementsRestants = 0;
 
     j.nbCartes = 0;
+    j.salleCible = -1;
 
     j.elimine = 0;
 
