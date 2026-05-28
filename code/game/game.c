@@ -309,595 +309,629 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
     }
 
     while (run)
-{
-    SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
-    SDL_RenderClear(rendu);
-
-    SDL_Color blanc = {255, 255, 255, 255};
-    SDL_Color noir = {0, 0, 0, 255};
-
-    actif = &joueurs[tour];
-
-    while (SDL_PollEvent(&e))
     {
-        if (e.type == SDL_QUIT)
-            run = 0;
+        SDL_SetRenderDrawColor(rendu, 0, 0, 0, 255);
+        SDL_RenderClear(rendu);
 
-        if (!actif->estIA && e.type == SDL_MOUSEBUTTONDOWN)
+        SDL_Color blanc = {255, 255, 255, 255};
+        SDL_Color noir = {0, 0, 0, 255};
+
+        actif = &joueurs[tour];
+
+        while (SDL_PollEvent(&e))
         {
-            int x, y;
-            SDL_GetMouseState(&x, &y);
+            if (e.type == SDL_QUIT)
+                run = 0;
 
-            if (boutonEstClique(&boutonDe, x, y))
+            if (!actif->estIA && e.type == SDL_KEYDOWN)
             {
-                if (etatJeu == ETAT_ATTENTE_DE)
+                if (e.key.keysym.sym == SDLK_t && actif->estDansSalle && etatJeu == ETAT_ATTENTE_DE)
                 {
-                    if (actif->estDansSalle)
+                    int destination = obtenirDestinationTrappe(actif->salleActuelle);
+
+                    if (destination != -1)
                     {
-                        placerJoueurCase(actif, actif->colonneAvantSalle, actif->ligneAvantSalle, tailleCaseX, tailleCaseY);
-                        actif->estDansSalle = 0;
-                        actif->salleActuelle = -1;
-                        derniereSalle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+                        printf("%s prend le passage secret vers %s !\n", actif->nom, obtenirNomSalle(destination));
+
+                        teleporterDansSalle(actif, destination, tailleCaseX, tailleCaseY);
+
+                        actif->salleActuelle = destination;
+
+                        trouverPortePourSalle(destination, &actif->ligneAvantSalle, &actif->colonneAvantSalle);
+
+                        etatJeu = ETAT_DEPLACEMENT; 
+                        actif->mouvementsRestants = 0;
+                    }
+                    else
+                    {
+                        printf("Il n'y a pas de passage secret dans cette salle.\n");
+                    }
+                }
+            }
+
+
+            if (!actif->estIA && e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+
+                if (boutonEstClique(&boutonDe, x, y))
+                {
+                    if (etatJeu == ETAT_ATTENTE_DE)
+                    {
+                        if (actif->estDansSalle)
+                        {
+                            placerJoueurCase(actif, actif->colonneAvantSalle, actif->ligneAvantSalle, tailleCaseX, tailleCaseY);
+                            actif->estDansSalle = 0;
+                            actif->salleActuelle = -1;
+                            derniereSalle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+                        }
+
+                        valeurDe = lancerDe();
+                        actif->mouvementsRestants = valeurDe;
+                        etatJeu = ETAT_DEPLACEMENT;
+                    }
+                }
+
+                if (boutonEstClique(&boutonAccuser, x, y))
+                {
+                    int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+
+                    if (estUneSalle(caseActuelle))
+                        etatUI = UI_ACCUSATION;
+                }
+
+                if (boutonEstClique(&boutonSoupcon, x, y))
+                {
+                    int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+
+                    if (estUneSalle(caseActuelle) && !actif->aFaitSoupcon)
+                        etatUI = UI_SUSPICION;
+                }
+            }
+
+            if (!actif->estIA && etatUI == UI_SUSPICION && e.type == SDL_KEYDOWN)
+            {
+                int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+
+                if (e.key.keysym.sym == SDLK_UP)
+                    suspectChoisi--;
+
+                if (e.key.keysym.sym == SDLK_DOWN)
+                    suspectChoisi++;
+
+                if (e.key.keysym.sym == SDLK_LEFT)
+                    armeChoisie--;
+
+                if (e.key.keysym.sym == SDLK_RIGHT)
+                    armeChoisie++;
+
+                if (suspectChoisi < 0)
+                    suspectChoisi = modeActuel.nbSuspects - 1;
+
+                if (suspectChoisi >= modeActuel.nbSuspects)
+                    suspectChoisi = 0;
+
+                if (armeChoisie < 0)
+                    armeChoisie = modeActuel.nbArmes - 1;
+
+                if (armeChoisie >= modeActuel.nbArmes)
+                    armeChoisie = 0;
+
+                if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    Joueur* autre = prochainJoueur(joueurs, nbJoueurs, tour);
+
+                    if (autre != NULL)
+                    {
+                        carteMontree = faireSuspicion(actif, autre, caseActuelle - 2, suspectChoisi, armeChoisie);
+
+                        actif->aFaitSoupcon = 1;
+                        afficherCarte = 1;
+                        attenteValidation = 1;
+                        etatUI = UI_REVELATION;
+                    }
+                }
+
+                if (e.key.keysym.sym == SDLK_ESCAPE)
+                    etatUI = UI_PRINCIPALE;
+            }
+
+            if (etatUI == UI_REVELATION && e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    if (attenteValidation)
+                    {
+                        attenteValidation = 0;
+                    }
+                    else
+                    {
+                        afficherCarte = 0;
+                        actif->aFaitSoupcon = 0;
+
+                        changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
+                        actif = &joueurs[tour];
+
+                        etatUI = UI_PRINCIPALE;
+                        etatJeu = ETAT_ATTENTE_DE;
+                    }
+                }
+            }
+
+            if (!actif->estIA && etatUI == UI_ACCUSATION && e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_UP)
+                    suspectChoisi--;
+
+                if (e.key.keysym.sym == SDLK_DOWN)
+                    suspectChoisi++;
+
+                if (e.key.keysym.sym == SDLK_LEFT)
+                    armeChoisie--;
+
+                if (e.key.keysym.sym == SDLK_RIGHT)
+                    armeChoisie++;
+
+                if (e.key.keysym.sym == SDLK_a)
+                    salleChoisie--;
+
+                if (e.key.keysym.sym == SDLK_z)
+                    salleChoisie++;
+
+                if (suspectChoisi < 0)
+                    suspectChoisi = modeActuel.nbSuspects - 1;
+
+                if (suspectChoisi >= modeActuel.nbSuspects)
+                    suspectChoisi = 0;
+
+                if (armeChoisie < 0)
+                    armeChoisie = modeActuel.nbArmes - 1;
+
+                if (armeChoisie >= modeActuel.nbArmes)
+                    armeChoisie = 0;
+
+                if (salleChoisie < 0)
+                    salleChoisie = modeActuel.nbPieces - 1;
+
+                if (salleChoisie >= modeActuel.nbPieces)
+                    salleChoisie = 0;
+
+                if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    if (verifierAccusation(suspectChoisi, armeChoisie, salleChoisie))
+                        etatUI = UI_VICTOIRE;
+                    else
+                        etatUI = UI_DEFAITE;
+                }
+
+                if (e.key.keysym.sym == SDLK_ESCAPE)
+                    etatUI = UI_PRINCIPALE;
+            }
+
+            if (!actif->estIA && e.type == SDL_KEYDOWN && etatUI == UI_PRINCIPALE)
+            {
+                if (e.key.keysym.sym == SDLK_w)
+                    actif->ligneCarnet--;
+
+                if (e.key.keysym.sym == SDLK_s)
+                    actif->ligneCarnet++;
+
+                if (actif->ligneCarnet < 0)
+                    actif->ligneCarnet = 0;
+
+                if (actif->ligneCarnet > modeActuel.nbSuspects + modeActuel.nbArmes + modeActuel.nbPieces - 1)
+                    actif->ligneCarnet = modeActuel.nbSuspects + modeActuel.nbArmes + modeActuel.nbPieces - 1;
+
+                if (e.key.keysym.sym == SDLK_SPACE)
+                {
+                    if (actif->ligneCarnet < modeActuel.nbSuspects)
+                        actif->notesSuspects[actif->ligneCarnet] ^= 1;
+
+                    else if (actif->ligneCarnet < modeActuel.nbSuspects + modeActuel.nbArmes)
+                        actif->notesArmes[actif->ligneCarnet - modeActuel.nbSuspects] ^= 1;
+
+                    else
+                        actif->notesPieces[actif->ligneCarnet - modeActuel.nbSuspects - modeActuel.nbArmes] ^= 1;
+                }
+            }
+
+            if (etatUI == UI_DEFAITE && e.type == SDL_KEYUP)
+            {
+                if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    actif->elimine = 1;
+
+                    int survivants = 0;
+
+                    for (int i = 0; i < nbJoueurs; i++)
+                    {
+                        if (!joueurs[i].elimine)
+                            survivants++;
                     }
 
-                    valeurDe = lancerDe();
-                    actif->mouvementsRestants = valeurDe;
-                    etatJeu = ETAT_DEPLACEMENT;
+                    if (survivants == 0)
+                    {
+                        etatUI = UI_GAMEOVER;
+                    }
+                    else
+                    {
+                        changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
+                        actif = &joueurs[tour];
+
+                        etatUI = UI_PRINCIPALE;
+                        etatJeu = ETAT_ATTENTE_DE;
+                    }
                 }
             }
 
-            if (boutonEstClique(&boutonAccuser, x, y))
+            if (etatUI == UI_GAMEOVER && e.type == SDL_KEYUP)
             {
-                int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
-
-                if (estUneSalle(caseActuelle))
-                    etatUI = UI_ACCUSATION;
-            }
-
-            if (boutonEstClique(&boutonSoupcon, x, y))
-            {
-                int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
-
-                if (estUneSalle(caseActuelle) && !actif->aFaitSoupcon)
-                    etatUI = UI_SUSPICION;
+                if (e.key.keysym.sym == SDLK_RETURN)
+                    run = 0;
             }
         }
 
-        if (!actif->estIA && etatUI == UI_SUSPICION && e.type == SDL_KEYDOWN)
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+
+        int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+        int dansSalle = estUneSalle(caseActuelle);
+
+        updateHover(&boutonDe, mouseX, mouseY);
+
+        if (dansSalle && !actif->estIA)
         {
-            int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
-
-            if (e.key.keysym.sym == SDLK_UP)
-                suspectChoisi--;
-
-            if (e.key.keysym.sym == SDLK_DOWN)
-                suspectChoisi++;
-
-            if (e.key.keysym.sym == SDLK_LEFT)
-                armeChoisie--;
-
-            if (e.key.keysym.sym == SDLK_RIGHT)
-                armeChoisie++;
-
-            if (suspectChoisi < 0)
-                suspectChoisi = modeActuel.nbSuspects - 1;
-
-            if (suspectChoisi >= modeActuel.nbSuspects)
-                suspectChoisi = 0;
-
-            if (armeChoisie < 0)
-                armeChoisie = modeActuel.nbArmes - 1;
-
-            if (armeChoisie >= modeActuel.nbArmes)
-                armeChoisie = 0;
-
-            if (e.key.keysym.sym == SDLK_RETURN)
-            {
-                Joueur* autre = prochainJoueur(joueurs, nbJoueurs, tour);
-
-                if (autre != NULL)
-                {
-                    carteMontree = faireSuspicion(actif, autre, caseActuelle - 2, suspectChoisi, armeChoisie);
-
-                    actif->aFaitSoupcon = 1;
-                    afficherCarte = 1;
-                    attenteValidation = 1;
-                    etatUI = UI_REVELATION;
-                }
-            }
-
-            if (e.key.keysym.sym == SDLK_ESCAPE)
-                etatUI = UI_PRINCIPALE;
-        }
-
-        if (etatUI == UI_REVELATION && e.type == SDL_KEYDOWN)
-        {
-            if (e.key.keysym.sym == SDLK_RETURN)
-            {
-                if (attenteValidation)
-                {
-                    attenteValidation = 0;
-                }
-                else
-                {
-                    afficherCarte = 0;
-                    actif->aFaitSoupcon = 0;
-
-                    changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
-                    actif = &joueurs[tour];
-
-                    etatUI = UI_PRINCIPALE;
-                    etatJeu = ETAT_ATTENTE_DE;
-                }
-            }
-        }
-
-        if (!actif->estIA && etatUI == UI_ACCUSATION && e.type == SDL_KEYDOWN)
-        {
-            if (e.key.keysym.sym == SDLK_UP)
-                suspectChoisi--;
-
-            if (e.key.keysym.sym == SDLK_DOWN)
-                suspectChoisi++;
-
-            if (e.key.keysym.sym == SDLK_LEFT)
-                armeChoisie--;
-
-            if (e.key.keysym.sym == SDLK_RIGHT)
-                armeChoisie++;
-
-            if (e.key.keysym.sym == SDLK_a)
-                salleChoisie--;
-
-            if (e.key.keysym.sym == SDLK_z)
-                salleChoisie++;
-
-            if (suspectChoisi < 0)
-                suspectChoisi = modeActuel.nbSuspects - 1;
-
-            if (suspectChoisi >= modeActuel.nbSuspects)
-                suspectChoisi = 0;
-
-            if (armeChoisie < 0)
-                armeChoisie = modeActuel.nbArmes - 1;
-
-            if (armeChoisie >= modeActuel.nbArmes)
-                armeChoisie = 0;
-
-            if (salleChoisie < 0)
-                salleChoisie = modeActuel.nbPieces - 1;
-
-            if (salleChoisie >= modeActuel.nbPieces)
-                salleChoisie = 0;
-
-            if (e.key.keysym.sym == SDLK_RETURN)
-            {
-                if (verifierAccusation(suspectChoisi, armeChoisie, salleChoisie))
-                    etatUI = UI_VICTOIRE;
-                else
-                    etatUI = UI_DEFAITE;
-            }
-
-            if (e.key.keysym.sym == SDLK_ESCAPE)
-                etatUI = UI_PRINCIPALE;
-        }
-
-        if (!actif->estIA && e.type == SDL_KEYDOWN && etatUI == UI_PRINCIPALE)
-        {
-            if (e.key.keysym.sym == SDLK_w)
-                actif->ligneCarnet--;
-
-            if (e.key.keysym.sym == SDLK_s)
-                actif->ligneCarnet++;
-
-            if (actif->ligneCarnet < 0)
-                actif->ligneCarnet = 0;
-
-            if (actif->ligneCarnet > modeActuel.nbSuspects + modeActuel.nbArmes + modeActuel.nbPieces - 1)
-                actif->ligneCarnet = modeActuel.nbSuspects + modeActuel.nbArmes + modeActuel.nbPieces - 1;
-
-            if (e.key.keysym.sym == SDLK_SPACE)
-            {
-                if (actif->ligneCarnet < modeActuel.nbSuspects)
-                    actif->notesSuspects[actif->ligneCarnet] ^= 1;
-
-                else if (actif->ligneCarnet < modeActuel.nbSuspects + modeActuel.nbArmes)
-                    actif->notesArmes[actif->ligneCarnet - modeActuel.nbSuspects] ^= 1;
-
-                else
-                    actif->notesPieces[actif->ligneCarnet - modeActuel.nbSuspects - modeActuel.nbArmes] ^= 1;
-            }
-        }
-
-        if (etatUI == UI_DEFAITE && e.type == SDL_KEYUP)
-        {
-            if (e.key.keysym.sym == SDLK_RETURN)
-            {
-                actif->elimine = 1;
-
-                int survivants = 0;
-
-                for (int i = 0; i < nbJoueurs; i++)
-                {
-                    if (!joueurs[i].elimine)
-                        survivants++;
-                }
-
-                if (survivants == 0)
-                {
-                    etatUI = UI_GAMEOVER;
-                }
-                else
-                {
-                    changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
-                    actif = &joueurs[tour];
-
-                    etatUI = UI_PRINCIPALE;
-                    etatJeu = ETAT_ATTENTE_DE;
-                }
-            }
-        }
-
-        if (etatUI == UI_GAMEOVER && e.type == SDL_KEYUP)
-        {
-            if (e.key.keysym.sym == SDLK_RETURN)
-                run = 0;
-        }
-    }
-
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-
-    int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
-    int dansSalle = estUneSalle(caseActuelle);
-
-    updateHover(&boutonDe, mouseX, mouseY);
-
-    if (dansSalle && !actif->estIA)
-    {
-        updateHover(&boutonAccuser, mouseX, mouseY);
-        updateHover(&boutonSoupcon, mouseX, mouseY);
-    }
-    else
-    {
-        boutonAccuser.hover = 0;
-        boutonSoupcon.hover = 0;
-    }
-
-    if (actif->estIA && etatUI == UI_PRINCIPALE && etatJeu == ETAT_ATTENTE_DE)
-    {
-        jouerTourIA(actif,joueurs,nbJoueurs,&tour,&etatJeu,&etatUI,&modeActuel,tailleCaseX,tailleCaseY,&memoireIA);
-        actif = &joueurs[tour];
-    
-        SDL_Delay(500);
-    }
-
-    const Uint8* etat = SDL_GetKeyboardState(NULL);
-
-    if (etatUI != UI_GAMEOVER)
-    {
-        if (!actif->estIA && etatJeu == ETAT_DEPLACEMENT && etatUI == UI_PRINCIPALE)
-            bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
-    }
-
-    if (estUnePorte(caseActuelle))
-    {
-        if (caseActuelle != derniereSalle)
-        {
-            int colActuelle = (actif->x - PLATEAU_X - OFFSET_X) / tailleCaseX;
-            int ligActuelle = (actif->y - OFFSET_Y) / tailleCaseY;
-
-            actif->ligneAvantSalle = ligActuelle;
-            actif->colonneAvantSalle = colActuelle;
-
-            int salle = obtenirSalleDepuisPorte(ligActuelle, colActuelle);
-
-            if (salle >= 0)
-            {
-                actif->estDansSalle = 1;
-                actif->salleActuelle = salle;
-
-                teleporterDansSalle(actif, salle, tailleCaseX, tailleCaseY);
-
-                derniereSalle = caseActuelle;
-            }
-        }
-    }
-    else if (!estUneSalle(caseActuelle))
-    {
-        derniereSalle = -1;
-    }
-
-    if (etatUI != UI_GAMEOVER)
-    {
-        if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
-        {
-            changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
-            actif = &joueurs[tour];
-        }
-    }
-
-    appliquerLimites(actif, tailleCaseX, tailleCaseY, 220 + 925, 860);
-
-    SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
-
-    dessinerTexture(rendu, plateauTexture, PLATEAU_X, 0, PLATEAU_LARGEUR, PLATEAU_HAUTEUR);
-    dessinerPortes(rendu, tailleCaseX, tailleCaseY);
-    dessinerInterfaceDroite(rendu);
-
-    SDL_Rect zoneCartes = {0, 0, 220, 860};
-
-    SDL_SetRenderDrawColor(rendu, 50, 50, 50, 255);
-    SDL_RenderFillRect(rendu, &zoneCartes);
-
-    dessinerTexture(rendu, grilleTexture, 1135, 540, 390, 300);
-
-    int curseurX;
-    int curseurY;
-
-    if (actif->ligneCarnet < modeActuel.nbSuspects)
-    {
-        curseurX = 1243;
-        curseurY = 566 + actif->ligneCarnet * 19;
-    }
-    else if (actif->ligneCarnet < modeActuel.nbSuspects + modeActuel.nbArmes)
-    {
-        curseurX = 1243;
-        curseurY = 716 + (actif->ligneCarnet - modeActuel.nbSuspects) * 19;
-    }
-    else
-    {
-        curseurX = 1440;
-        curseurY = 590 + (actif->ligneCarnet - modeActuel.nbSuspects - modeActuel.nbArmes) * 24;
-    }
-
-    SDL_Texture* curseur = creerTexte(rendu, font, "<", noir);
-    dessinerTexteCentre(rendu, curseur, curseurX, curseurY, 20, 20);
-    SDL_DestroyTexture(curseur);
-
-    for (int i = 0; i < modeActuel.nbSuspects; i++)
-    {
-        if (actif->notesSuspects[i])
-        {
-            SDL_Texture* tic = creerTexte(rendu, font, "X", noir);
-            dessinerTexteCentre(rendu, tic, 1228, 566 + i * 19, 20, 20);
-            SDL_DestroyTexture(tic);
-        }
-    }
-
-    for (int i = 0; i < modeActuel.nbArmes; i++)
-    {
-        if (actif->notesArmes[i])
-        {
-            SDL_Texture* tic = creerTexte(rendu, font, "X", noir);
-            dessinerTexteCentre(rendu, tic, 1228, 717 + i * 19, 20, 20);
-            SDL_DestroyTexture(tic);
-        }
-    }
-
-    for (int i = 0; i < modeActuel.nbPieces; i++)
-    {
-        if (actif->notesPieces[i])
-        {
-            SDL_Texture* tic = creerTexte(rendu, font, "X", noir);
-            dessinerTexteCentre(rendu, tic, 1423, 589 + i * 24, 20, 20);
-            SDL_DestroyTexture(tic);
-        }
-    }
-
-    SDL_Texture* txtTour = creerTexte(rendu, font, "Tour :", blanc);
-    dessinerTexteCentre(rendu, txtTour, 1150, 25, 120, 40);
-
-    SDL_Texture* txtNom = creerTexte(rendu, font, actif->nom, blanc);
-    dessinerTexteCentre(rendu, txtNom, 1270, 25, 120, 40);
-
-    dessinerTexture(rendu, actif->texture, 1400, 15, 60, 60);
-
-    SDL_DestroyTexture(txtTour);
-    SDL_DestroyTexture(txtNom);
-
-    SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);
-    SDL_Texture* txtAccuser = creerTexte(rendu, font, boutonAccuser.texte, blanc);
-    SDL_Texture* txtSoupcon = creerTexte(rendu, font, boutonSoupcon.texte, blanc);
-
-    if (etatUI == UI_PRINCIPALE)
-    {
-        dessinerBouton(rendu, &boutonDe);
-        dessinerBouton(rendu, &boutonAccuser);
-        dessinerBouton(rendu, &boutonSoupcon);
-
-        dessinerTexteCentre(rendu, t1, boutonDe.rect.x, boutonDe.rect.y, boutonDe.rect.w, boutonDe.rect.h);
-        dessinerTexteCentre(rendu, txtAccuser, boutonAccuser.rect.x, boutonAccuser.rect.y, boutonAccuser.rect.w, boutonAccuser.rect.h);
-        dessinerTexteCentre(rendu, txtSoupcon, boutonSoupcon.rect.x, boutonSoupcon.rect.y, boutonSoupcon.rect.w, boutonSoupcon.rect.h);
-    }
-
-    if (etatUI == UI_ACCUSATION)
-    {
-        char espace[200];
-
-        sprintf(espace, "Suspect : %s", modeActuel.suspects[suspectChoisi].nom);
-        SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt1, 1175, 260, 300, 40);
-
-        sprintf(espace, "Arme : %s", modeActuel.armes[armeChoisie].nom);
-        SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt2, 1175, 320, 300, 40);
-
-        sprintf(espace, "Salle : %s", modeActuel.pieces[salleChoisie].nom);
-        SDL_Texture* txt3 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt3, 1175, 380, 300, 40);
-
-        SDL_Texture* aide = creerTexte(rendu, font, "ENTRER=Valider ESC=Retour", blanc);
-        dessinerTexteCentre(rendu, aide, 1150, 470, 350, 40);
-
-        SDL_DestroyTexture(txt1);
-        SDL_DestroyTexture(txt2);
-        SDL_DestroyTexture(txt3);
-        SDL_DestroyTexture(aide);
-    }
-
-    if (etatUI == UI_VICTOIRE)
-    {
-        SDL_Texture* txt = creerTexte(rendu, font, "VOUS AVEZ GAGNE", blanc);
-        dessinerTexteCentre(rendu, txt, 1175, 300, 350, 60);
-        SDL_DestroyTexture(txt);
-    }
-
-    if (etatUI == UI_DEFAITE)
-    {
-        SDL_Texture* txt = creerTexte(rendu, font, "ENTREE pour continuer la partie", blanc);
-        dessinerTexteCentre(rendu, txt, 1140, 502, 350, 40);
-        SDL_DestroyTexture(txt);
-
-        SDL_Texture* titre = creerTexte(rendu, font, "MAUVAISE ACCUSATION", blanc);
-        dessinerTexteCentre(rendu, titre, 1150, 250, 350, 60);
-        SDL_DestroyTexture(titre);
-
-        char espace[200];
-
-        sprintf(espace, "Suspect : %s", solution.suspect.nom);
-        SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt1, 1150, 340, 350, 40);
-        SDL_DestroyTexture(txt1);
-
-        sprintf(espace, "Arme : %s", solution.arme.nom);
-        SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt2, 1150, 390, 350, 40);
-        SDL_DestroyTexture(txt2);
-
-        sprintf(espace, "Piece : %s", solution.piece.nom);
-        SDL_Texture* txt3 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt3, 1150, 440, 350, 40);
-        SDL_DestroyTexture(txt3);
-    }
-
-    if (etatUI == UI_GAMEOVER)
-    {
-        SDL_Texture* titre = creerTexte(rendu, font, "TOUS LES JOUEURS ONT PERDU", blanc);
-        dessinerTexteCentre(rendu, titre, 1050, 220, 500, 60);
-        SDL_DestroyTexture(titre);
-
-        char espace[200];
-
-        sprintf(espace, "Suspect : %s", solution.suspect.nom);
-        SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt1, 1150, 340, 350, 40);
-        SDL_DestroyTexture(txt1);
-
-        sprintf(espace, "Arme : %s", solution.arme.nom);
-        SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt2, 1150, 390, 350, 40);
-        SDL_DestroyTexture(txt2);
-
-        sprintf(espace, "Piece : %s", solution.piece.nom);
-        SDL_Texture* txt3 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt3, 1150, 440, 350, 40);
-        SDL_DestroyTexture(txt3);
-
-        SDL_Texture* aide = creerTexte(rendu, font, "ENTREE pour quitter", blanc);
-        dessinerTexteCentre(rendu, aide, 1120, 540, 400, 40);
-        SDL_DestroyTexture(aide);
-    }
-
-    if (etatUI == UI_SUSPICION)
-    {
-        char espace[200];
-
-        sprintf(espace, "Suspect : %s", modeActuel.suspects[suspectChoisi].nom);
-        SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt1, 1175, 250, 300, 40);
-
-        sprintf(espace, "Arme : %s", modeActuel.armes[armeChoisie].nom);
-        SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
-        dessinerTexteCentre(rendu, txt2, 1175, 320, 300, 40);
-
-        SDL_Texture* aide = creerTexte(rendu, font, "Entrer=Valider ESC=Retour", blanc);
-        dessinerTexteCentre(rendu, aide, 1150, 430, 350, 40);
-
-        SDL_DestroyTexture(txt1);
-        SDL_DestroyTexture(txt2);
-        SDL_DestroyTexture(aide);
-    }
-
-    if (etatUI == UI_REVELATION)
-    {
-        SDL_Texture* txt = creerTexte(rendu, font, "Carte revelee - ENTREE pour continuer", blanc);
-        dessinerTexteCentre(rendu, txt, 1140, 502, 350, 40);
-        SDL_DestroyTexture(txt);
-
-        if (strcmp(carteMontree.nom, "Aucune") != 0)
-        {
-            char cheminCarte[200];
-
-            if (carteMontree.type == CARTE_SUSPECT)
-                sprintf(cheminCarte, "code/assets/cards/%s/suspects/%s.png", modeActuel.nomDossier, carteMontree.nom);
-
-            else if (carteMontree.type == CARTE_ARME)
-                sprintf(cheminCarte, "code/assets/cards/%s/weapons/%s.png", modeActuel.nomDossier, carteMontree.nom);
-
-            else
-                sprintf(cheminCarte, "code/assets/cards/%s/rooms/%s.png", modeActuel.nomDossier, carteMontree.nom);
-
-            SDL_Texture* img = chargerTexture(rendu, cheminCarte);
-
-            if (img)
-            {
-                dessinerTexture(rendu, img, 1230, 250, 180, 260);
-                SDL_DestroyTexture(img);
-            }
+            updateHover(&boutonAccuser, mouseX, mouseY);
+            updateHover(&boutonSoupcon, mouseX, mouseY);
         }
         else
         {
-            SDL_Texture* txtAucune = creerTexte(rendu, font, "Aucune carte a montrer", blanc);
-            dessinerTexteCentre(rendu, txtAucune, 1150, 350, 350, 40);
-            SDL_DestroyTexture(txtAucune);
+            boutonAccuser.hover = 0;
+            boutonSoupcon.hover = 0;
         }
-    }
 
-    if (valeurDe >= 1 && valeurDe <= 6)
-        dessinerTexture(rendu, diceTextures[valeurDe - 1], 1260, 110, 120, 120);
-
-    for (int i = 0; i < nbJoueurs; i++)
-    {
-        dessinerJoueur(rendu, joueurs[i].texture, joueurs[i].x, joueurs[i].y, tailleCaseX, tailleCaseY);
-    }
-
-    for (int i = 0; i < actif->nbCartes; i++)
-    {
-        char cheminCarte[200];
-        Carte c = actif->cartes[i];
-
-        if (c.type == CARTE_SUSPECT)
-            sprintf(cheminCarte, "code/assets/cards/%s/suspects/%s.png", modeActuel.nomDossier, c.nom);
-
-        else if (c.type == CARTE_ARME)
-            sprintf(cheminCarte, "code/assets/cards/%s/weapons/%s.png", modeActuel.nomDossier, c.nom);
-
-        else if (c.type == CARTE_PIECE)
-            sprintf(cheminCarte, "code/assets/cards/%s/rooms/%s.png", modeActuel.nomDossier, c.nom);
-
-        SDL_Texture* carte = chargerTexture(rendu, cheminCarte);
-
-        if (carte != NULL)
+        if (actif->estIA && etatUI == UI_PRINCIPALE && etatJeu == ETAT_ATTENTE_DE)
         {
-            int colonne = i % 2;
-            int ligne = i / 2;
-
-            int x = 10 + colonne * 100;
-            int y = 30 + ligne * 140;
-
-            dessinerTexture(rendu, carte, x, y, 90, 130);
-            SDL_DestroyTexture(carte);
+            jouerTourIA(actif,joueurs,nbJoueurs,&tour,&etatJeu,&etatUI,&modeActuel,tailleCaseX,tailleCaseY,&memoireIA);
+            actif = &joueurs[tour];
+        
+            SDL_Delay(500);
         }
+
+        const Uint8* etat = SDL_GetKeyboardState(NULL);
+
+        if (etatUI != UI_GAMEOVER)
+        {
+            if (!actif->estIA && etatJeu == ETAT_DEPLACEMENT && etatUI == UI_PRINCIPALE)
+                bougerJoueur(etat, actif, tailleCaseX, tailleCaseY);
+        }
+
+        if (estUnePorte(caseActuelle))
+        {
+            if (caseActuelle != derniereSalle)
+            {
+                int colActuelle = (actif->x - PLATEAU_X - OFFSET_X) / tailleCaseX;
+                int ligActuelle = (actif->y - OFFSET_Y) / tailleCaseY;
+
+                actif->ligneAvantSalle = ligActuelle;
+                actif->colonneAvantSalle = colActuelle;
+
+                int salle = obtenirSalleDepuisPorte(ligActuelle, colActuelle);
+
+                if (salle >= 0)
+                {
+                    actif->estDansSalle = 1;
+                    actif->salleActuelle = salle;
+
+                    teleporterDansSalle(actif, salle, tailleCaseX, tailleCaseY);
+
+                    derniereSalle = caseActuelle;
+                }
+            }
+        }
+        else if (!estUneSalle(caseActuelle))
+        {
+            derniereSalle = -1;
+        }
+
+        if (etatUI != UI_GAMEOVER)
+        {
+            if (etatJeu == ETAT_DEPLACEMENT && actif->mouvementsRestants <= 0)
+            {
+                changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
+                actif = &joueurs[tour];
+            }
+        }
+
+        appliquerLimites(actif, tailleCaseX, tailleCaseY, 220 + 925, 860);
+
+        SDL_SetRenderDrawColor(rendu, 255, 0, 0, 255);
+
+        dessinerTexture(rendu, plateauTexture, PLATEAU_X, 0, PLATEAU_LARGEUR, PLATEAU_HAUTEUR);
+        dessinerPortes(rendu, tailleCaseX, tailleCaseY);
+        dessinerInterfaceDroite(rendu);
+
+        SDL_Rect zoneCartes = {0, 0, 220, 860};
+
+        SDL_SetRenderDrawColor(rendu, 50, 50, 50, 255);
+        SDL_RenderFillRect(rendu, &zoneCartes);
+
+        dessinerTexture(rendu, grilleTexture, 1135, 540, 390, 300);
+
+        int curseurX;
+        int curseurY;
+
+        if (actif->ligneCarnet < modeActuel.nbSuspects)
+        {
+            curseurX = 1243;
+            curseurY = 566 + actif->ligneCarnet * 19;
+        }
+        else if (actif->ligneCarnet < modeActuel.nbSuspects + modeActuel.nbArmes)
+        {
+            curseurX = 1243;
+            curseurY = 716 + (actif->ligneCarnet - modeActuel.nbSuspects) * 19;
+        }
+        else
+        {
+            curseurX = 1440;
+            curseurY = 590 + (actif->ligneCarnet - modeActuel.nbSuspects - modeActuel.nbArmes) * 24;
+        }
+
+        SDL_Texture* curseur = creerTexte(rendu, font, "<", noir);
+        dessinerTexteCentre(rendu, curseur, curseurX, curseurY, 20, 20);
+        SDL_DestroyTexture(curseur);
+
+        for (int i = 0; i < modeActuel.nbSuspects; i++)
+        {
+            if (actif->notesSuspects[i])
+            {
+                SDL_Texture* tic = creerTexte(rendu, font, "X", noir);
+                dessinerTexteCentre(rendu, tic, 1228, 566 + i * 19, 20, 20);
+                SDL_DestroyTexture(tic);
+            }
+        }
+
+        for (int i = 0; i < modeActuel.nbArmes; i++)
+        {
+            if (actif->notesArmes[i])
+            {
+                SDL_Texture* tic = creerTexte(rendu, font, "X", noir);
+                dessinerTexteCentre(rendu, tic, 1228, 717 + i * 19, 20, 20);
+                SDL_DestroyTexture(tic);
+            }
+        }
+
+        for (int i = 0; i < modeActuel.nbPieces; i++)
+        {
+            if (actif->notesPieces[i])
+            {
+                SDL_Texture* tic = creerTexte(rendu, font, "X", noir);
+                dessinerTexteCentre(rendu, tic, 1423, 589 + i * 24, 20, 20);
+                SDL_DestroyTexture(tic);
+            }
+        }
+
+        SDL_Texture* txtTour = creerTexte(rendu, font, "Tour :", blanc);
+        dessinerTexteCentre(rendu, txtTour, 1150, 25, 120, 40);
+
+        SDL_Texture* txtNom = creerTexte(rendu, font, actif->nom, blanc);
+        dessinerTexteCentre(rendu, txtNom, 1270, 25, 120, 40);
+
+        dessinerTexture(rendu, actif->texture, 1400, 15, 60, 60);
+
+        SDL_DestroyTexture(txtTour);
+        SDL_DestroyTexture(txtNom);
+
+        SDL_Texture* t1 = creerTexte(rendu, font, boutonDe.texte, blanc);
+        SDL_Texture* txtAccuser = creerTexte(rendu, font, boutonAccuser.texte, blanc);
+        SDL_Texture* txtSoupcon = creerTexte(rendu, font, boutonSoupcon.texte, blanc);
+
+        if (etatUI == UI_PRINCIPALE)
+        {
+            dessinerBouton(rendu, &boutonDe);
+            dessinerBouton(rendu, &boutonAccuser);
+            dessinerBouton(rendu, &boutonSoupcon);
+
+            dessinerTexteCentre(rendu, t1, boutonDe.rect.x, boutonDe.rect.y, boutonDe.rect.w, boutonDe.rect.h);
+            dessinerTexteCentre(rendu, txtAccuser, boutonAccuser.rect.x, boutonAccuser.rect.y, boutonAccuser.rect.w, boutonAccuser.rect.h);
+            dessinerTexteCentre(rendu, txtSoupcon, boutonSoupcon.rect.x, boutonSoupcon.rect.y, boutonSoupcon.rect.w, boutonSoupcon.rect.h);
+        }
+
+        if (etatUI == UI_ACCUSATION)
+        {
+            char espace[200];
+
+            sprintf(espace, "Suspect : %s", modeActuel.suspects[suspectChoisi].nom);
+            SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt1, 1175, 260, 300, 40);
+
+            sprintf(espace, "Arme : %s", modeActuel.armes[armeChoisie].nom);
+            SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt2, 1175, 320, 300, 40);
+
+            sprintf(espace, "Salle : %s", modeActuel.pieces[salleChoisie].nom);
+            SDL_Texture* txt3 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt3, 1175, 380, 300, 40);
+
+            SDL_Texture* aide = creerTexte(rendu, font, "ENTRER=Valider ESC=Retour", blanc);
+            dessinerTexteCentre(rendu, aide, 1150, 470, 350, 40);
+
+            SDL_DestroyTexture(txt1);
+            SDL_DestroyTexture(txt2);
+            SDL_DestroyTexture(txt3);
+            SDL_DestroyTexture(aide);
+        }
+
+        if (etatUI == UI_VICTOIRE)
+        {
+            SDL_Texture* txt = creerTexte(rendu, font, "VOUS AVEZ GAGNE", blanc);
+            dessinerTexteCentre(rendu, txt, 1175, 300, 350, 60);
+            SDL_DestroyTexture(txt);
+        }
+
+        if (etatUI == UI_DEFAITE)
+        {
+            SDL_Texture* txt = creerTexte(rendu, font, "ENTREE pour continuer la partie", blanc);
+            dessinerTexteCentre(rendu, txt, 1140, 502, 350, 40);
+            SDL_DestroyTexture(txt);
+
+            SDL_Texture* titre = creerTexte(rendu, font, "MAUVAISE ACCUSATION", blanc);
+            dessinerTexteCentre(rendu, titre, 1150, 250, 350, 60);
+            SDL_DestroyTexture(titre);
+
+            char espace[200];
+
+            sprintf(espace, "Suspect : %s", solution.suspect.nom);
+            SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt1, 1150, 340, 350, 40);
+            SDL_DestroyTexture(txt1);
+
+            sprintf(espace, "Arme : %s", solution.arme.nom);
+            SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt2, 1150, 390, 350, 40);
+            SDL_DestroyTexture(txt2);
+
+            sprintf(espace, "Piece : %s", solution.piece.nom);
+            SDL_Texture* txt3 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt3, 1150, 440, 350, 40);
+            SDL_DestroyTexture(txt3);
+        }
+
+        if (etatUI == UI_GAMEOVER)
+        {
+            SDL_Texture* titre = creerTexte(rendu, font, "TOUS LES JOUEURS ONT PERDU", blanc);
+            dessinerTexteCentre(rendu, titre, 1050, 220, 500, 60);
+            SDL_DestroyTexture(titre);
+
+            char espace[200];
+
+            sprintf(espace, "Suspect : %s", solution.suspect.nom);
+            SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt1, 1150, 340, 350, 40);
+            SDL_DestroyTexture(txt1);
+
+            sprintf(espace, "Arme : %s", solution.arme.nom);
+            SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt2, 1150, 390, 350, 40);
+            SDL_DestroyTexture(txt2);
+
+            sprintf(espace, "Piece : %s", solution.piece.nom);
+            SDL_Texture* txt3 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt3, 1150, 440, 350, 40);
+            SDL_DestroyTexture(txt3);
+
+            SDL_Texture* aide = creerTexte(rendu, font, "ENTREE pour quitter", blanc);
+            dessinerTexteCentre(rendu, aide, 1120, 540, 400, 40);
+            SDL_DestroyTexture(aide);
+        }
+
+        if (etatUI == UI_SUSPICION)
+        {
+            char espace[200];
+
+            sprintf(espace, "Suspect : %s", modeActuel.suspects[suspectChoisi].nom);
+            SDL_Texture* txt1 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt1, 1175, 250, 300, 40);
+
+            sprintf(espace, "Arme : %s", modeActuel.armes[armeChoisie].nom);
+            SDL_Texture* txt2 = creerTexte(rendu, font, espace, blanc);
+            dessinerTexteCentre(rendu, txt2, 1175, 320, 300, 40);
+
+            SDL_Texture* aide = creerTexte(rendu, font, "Entrer=Valider ESC=Retour", blanc);
+            dessinerTexteCentre(rendu, aide, 1150, 430, 350, 40);
+
+            SDL_DestroyTexture(txt1);
+            SDL_DestroyTexture(txt2);
+            SDL_DestroyTexture(aide);
+        }
+
+        if (actif->estDansSalle && obtenirDestinationTrappe(actif->salleActuelle) != -1 && etatJeu == ETAT_ATTENTE_DE)
+        {
+            SDL_Texture* texteTrappe = creerTexte(rendu, font, "Appuyez sur 'T' pour la Trappe", blanc);
+            dessinerTexteCentre(rendu, texteTrappe, 1170, 505, 300, 40);
+            SDL_DestroyTexture(texteTrappe);
+        }
+
+        if (etatUI == UI_REVELATION)
+        {
+            SDL_Texture* txt = creerTexte(rendu, font, "Carte revelee - ENTREE pour continuer", blanc);
+            dessinerTexteCentre(rendu, txt, 1140, 502, 350, 40);
+            SDL_DestroyTexture(txt);
+
+            if (strcmp(carteMontree.nom, "Aucune") != 0)
+            {
+                char cheminCarte[200];
+
+                if (carteMontree.type == CARTE_SUSPECT)
+                    sprintf(cheminCarte, "code/assets/cards/%s/suspects/%s.png", modeActuel.nomDossier, carteMontree.nom);
+
+                else if (carteMontree.type == CARTE_ARME)
+                    sprintf(cheminCarte, "code/assets/cards/%s/weapons/%s.png", modeActuel.nomDossier, carteMontree.nom);
+
+                else
+                    sprintf(cheminCarte, "code/assets/cards/%s/rooms/%s.png", modeActuel.nomDossier, carteMontree.nom);
+
+                SDL_Texture* img = chargerTexture(rendu, cheminCarte);
+
+                if (img)
+                {
+                    dessinerTexture(rendu, img, 1230, 250, 180, 260);
+                    SDL_DestroyTexture(img);
+                }
+            }
+            else
+            {
+                SDL_Texture* txtAucune = creerTexte(rendu, font, "Aucune carte a montrer", blanc);
+                dessinerTexteCentre(rendu, txtAucune, 1150, 350, 350, 40);
+                SDL_DestroyTexture(txtAucune);
+            }
+        }
+
+        if (valeurDe >= 1 && valeurDe <= 6)
+            dessinerTexture(rendu, diceTextures[valeurDe - 1], 1260, 110, 120, 120);
+
+        for (int i = 0; i < nbJoueurs; i++)
+        {
+            dessinerJoueur(rendu, joueurs[i].texture, joueurs[i].x, joueurs[i].y, tailleCaseX, tailleCaseY);
+        }
+
+        for (int i = 0; i < actif->nbCartes; i++)
+        {
+            char cheminCarte[200];
+            Carte c = actif->cartes[i];
+
+            if (c.type == CARTE_SUSPECT)
+                sprintf(cheminCarte, "code/assets/cards/%s/suspects/%s.png", modeActuel.nomDossier, c.nom);
+
+            else if (c.type == CARTE_ARME)
+                sprintf(cheminCarte, "code/assets/cards/%s/weapons/%s.png", modeActuel.nomDossier, c.nom);
+
+            else if (c.type == CARTE_PIECE)
+                sprintf(cheminCarte, "code/assets/cards/%s/rooms/%s.png", modeActuel.nomDossier, c.nom);
+
+            SDL_Texture* carte = chargerTexture(rendu, cheminCarte);
+
+            if (carte != NULL)
+            {
+                int colonne = i % 2;
+                int ligne = i / 2;
+
+                int x = 10 + colonne * 100;
+                int y = 30 + ligne * 140;
+
+                dessinerTexture(rendu, carte, x, y, 90, 130);
+                SDL_DestroyTexture(carte);
+            }
+        }
+
+        SDL_RenderPresent(rendu);
+        SDL_Delay(16);
+
+        SDL_DestroyTexture(t1);
+        SDL_DestroyTexture(txtAccuser);
+        SDL_DestroyTexture(txtSoupcon);
     }
-
-    SDL_RenderPresent(rendu);
-    SDL_Delay(16);
-
-    SDL_DestroyTexture(t1);
-    SDL_DestroyTexture(txtAccuser);
-    SDL_DestroyTexture(txtSoupcon);
-}
 }
 // a supp
 

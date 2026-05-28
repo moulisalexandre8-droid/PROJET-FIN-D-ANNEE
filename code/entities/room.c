@@ -65,3 +65,13 @@ const char* obtenirNomSalle(int id)
 
     return "Inconnue";
 }
+
+int obtenirDestinationTrappe(int idSalle)
+{
+    if (idSalle == 2) return 7; // Cuisine vers Bureau
+    if (idSalle == 7) return 2; // Bureau vers Cuisine
+    if (idSalle == 4) return 8; // Véranda vers Salon
+    if (idSalle == 8) return 4; // Salon vers Véranda
+    
+    return -1; //sinon y en a pas
+}

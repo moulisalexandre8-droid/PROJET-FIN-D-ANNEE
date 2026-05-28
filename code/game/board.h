@@ -19,4 +19,6 @@ void obtenirLigneColonneDepuisCase(int valeurCase,int* ligne,int* colonne);
 
 int obtenirSalleDepuisPorte(int lig,int col);
 
+int trouverPortePourSalle(int idSalle, int* ligneSortie, int* colonneSortie);
+
 #endif

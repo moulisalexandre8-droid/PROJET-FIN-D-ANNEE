@@ -18,5 +18,6 @@ char* obtenirNomPiece(int id);
 
 int estUneSalle(int id);
 const char* obtenirNomSalle(int id);
+int obtenirDestinationTrappe(int idSalle);
 
 #endif

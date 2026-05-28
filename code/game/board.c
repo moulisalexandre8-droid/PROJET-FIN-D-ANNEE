@@ -141,3 +141,20 @@ int obtenirSalleDepuisPorte(int lig,int col)
     }
     return -1;
 }
+
+int trouverPortePourSalle(int idSalle, int* ligneSortie, int* colonneSortie)
+{
+    for(int l = 0; l < 25; l++)
+    {
+        for(int c = 0; c < 26; c++)
+        {
+            if(estUnePorte(plateau[l][c]) && obtenirSalleDepuisPorte(l, c) == idSalle)
+            {
+                *ligneSortie = l;
+                *colonneSortie = c;
+                return 1; // Porte trouvée avec succès
+            }
+        }
+    }
+    return 0; // Aucune porte trouvée (ne devrait pas arriver)
+}
