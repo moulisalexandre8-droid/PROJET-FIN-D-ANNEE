@@ -131,7 +131,6 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
         sprintf(nom,"J%d",i+1);
 
         joueurs[i]=initialiserJoueur(rendu,0,0,chemin,nom);
-        joueurs[i].estIA = (i != 0);
         joueurs[i].estDansSalle = 0;
         joueurs[i].salleActuelle = -1;
             
