@@ -100,81 +100,89 @@ void tourIASimple(Joueur *ia,
     }
 }
 
-void tourIAHard(Joueur *ia,
-                Joueur joueurs[],
-                int nbJoueurs,
-                Carte suspects[],
-                int nbSuspects,
-                Carte armes[],
-                int nbArmes,
-                int salleActuelle,
-                MemoireIA *memoire)
+void tourIAHard(Joueur *ia, Joueur joueurs[], int nbJoueurs, Carte suspects[], int nbSuspects, Carte armes[], int nbArmes, int salleActuelle, MemoireIA *memoire)
 {
-    if (ia == NULL || joueurs == NULL || memoire == NULL)
-        return;
+    printf("\n--- Reflexion IA HARD : %s ---\n", ia->nom);
 
-    if (nbJoueurs <= 1 || nbSuspects <= 0 || nbArmes <= 0)
-        return;
+    // 1. L'IA note ses propres cartes dans son carnet (si ce n'est pas déjà fait)
+    for(int i = 0; i < ia->nbCartes; i++) {
+        if(ia->cartes[i].type == CARTE_SUSPECT) ia->notesSuspects[ia->cartes[i].id] = 1;
+        if(ia->cartes[i].type == CARTE_ARME) ia->notesArmes[ia->cartes[i].id] = 1;
+        if(ia->cartes[i].type == CARTE_PIECE) ia->notesPieces[ia->cartes[i].id] = 1;
+    }
+    
+    // Elle note la salle actuelle puisqu'elle y est
+    ia->notesPieces[salleActuelle - 2] = 1;
 
-    printf("\n--- IA HARD : %s ---\n", ia->nom);
+    // 2. Faire l'inventaire des cartes Inconnues
+    int suspectsInconnus[6]; int nbS = 0;
+    int armesInconnues[6]; int nbA = 0;
+    int piecesInconnues[9]; int nbP = 0;
+    
+    for(int i = 0; i < nbSuspects; i++) if(ia->notesSuspects[i] == 0) suspectsInconnus[nbS++] = i;
+    for(int i = 0; i < nbArmes; i++) if(ia->notesArmes[i] == 0) armesInconnues[nbA++] = i;
+    for(int i = 0; i < 9; i++) if(ia->notesPieces[i] == 0) piecesInconnues[nbP++] = i;
 
-    int cibleIndex = choisirJoueurCible(ia, joueurs, nbJoueurs);
-
-    if (cibleIndex == -1)
-    {
-        printf("Erreur IA HARD : aucune cible trouvée.\n");
-        return;
+    // 3. VÉRIFICATION D'ACCUSATION (Elle a trouvé la solution !)
+    if (nbS == 1 && nbA == 1 && nbP == 1) {
+        printf("\n!!! EURÊKA ! %s A TROUVE LA SOLUTION !!!\n", ia->nom);
+        printf("C'est %s, avec %s, dans %s.\n", suspects[suspectsInconnus[0]].nom, armes[armesInconnues[0]].nom, pieces[piecesInconnues[0]].nom);
+        return; // Le jeu s'arrête ici pour l'IA (Tu pourras relier ça à UI_GAMEOVER plus tard)
     }
 
-    Joueur *cible = &joueurs[cibleIndex];
+    // 4. PRÉPARER LE SOUPÇON (Mix entre Déduction et Bluff)
+    int suspectChoisi = suspectsInconnus[rand() % nbS];
+    int armeChoisie = armesInconnues[rand() % nbA];
 
-    int bluff = rand() % 100 < 30;
-
-    Carte suspect;
-    Carte arme;
-
-    if (bluff && ia->nbCartes > 0)
-    {
-        suspect = suspects[rand() % nbSuspects];
-        arme = armes[rand() % nbArmes];
-    }
-    else
-    {
-        suspect = suspects[rand() % nbSuspects];
-        arme = armes[rand() % nbArmes];
+    // BLUFF : 30% de chance de demander une carte qu'on possède pour forcer les autres
+    // à montrer la deuxième carte qui nous intéresse vraiment !
+    if ((rand() % 100) < 30 && ia->nbCartes > 0) {
+        int indexBluff = rand() % ia->nbCartes;
+        if (ia->cartes[indexBluff].type == CARTE_SUSPECT) suspectChoisi = ia->cartes[indexBluff].id;
+        else if (ia->cartes[indexBluff].type == CARTE_ARME) armeChoisie = ia->cartes[indexBluff].id;
     }
 
-    Carte lieu = {0};
-    strcpy(lieu.nom, "Salle");
-    lieu.id = salleActuelle;
-    lieu.type = CARTE_PIECE;
+    Carte suspectDemande = suspects[suspectChoisi];
+    Carte armeDemandee = armes[armeChoisie];
+    Carte lieuDemande = {CARTE_PIECE, salleActuelle, ""};
+    
+    for(int i = 0; i < 9; i++) {
+        if(pieces[i].id == salleActuelle) strcpy(lieuDemande.nom, pieces[i].nom);
+    }
 
-    printf("%s HARD soupçonne %s avec %s\n",
-           ia->nom, suspect.nom, arme.nom);
+    printf("=> %s soupconne %s avec %s dans %s\n", ia->nom, suspectDemande.nom, armeDemandee.nom, lieuDemande.nom);
 
-    Carte *c = trouverCarte(cible, suspect, arme, lieu);
+    // 5. INTERROGER LES AUTRES JOUEURS (Véritable tour de table)
+    int iaIndex = 0;
+    for(int i = 0; i < nbJoueurs; i++) {
+        if(&joueurs[i] == ia) iaIndex = i;
+    }
 
-    if (c != NULL)
-    {
-        printf("Révélation : %s\n", c->nom);
+    int indexQuestionne = (iaIndex + 1) % nbJoueurs;
+    int carteTrouvee = 0;
 
-        if (c->id >= 0 && c->id < MAX_CARTES)
-            memoire->cartesVues[c->id] = 1;
-
-        Action *a = malloc(sizeof(Action));
-
-        if (a != NULL)
-        {
-            a->source = ia->personnage;
-            a->cible = cible->personnage;
-            a->suspect = suspect.id;
-            a->arme = arme.id;
-            a->piece = salleActuelle;
-            a->carteMontree = c->id;
-            a->aMontre = 1;
-
-            a->suiv = memoire->historique;
-            memoire->historique = a;
+    while (indexQuestionne != iaIndex) {
+        if (!joueurs[indexQuestionne].elimine) {
+            Carte* carteMontree = trouverCarte(&joueurs[indexQuestionne], suspectDemande, armeDemandee, lieuDemande);
+            if (carteMontree != NULL) {
+                printf("-> %s montre discretement une carte a %s.\n", joueurs[indexQuestionne].nom, ia->nom);
+                
+                // L'IA NOTE LA CARTE DANS SON CARNET !
+                if (carteMontree->type == CARTE_SUSPECT) ia->notesSuspects[carteMontree->id] = 1;
+                if (carteMontree->type == CARTE_ARME) ia->notesArmes[carteMontree->id] = 1;
+                if (carteMontree->type == CARTE_PIECE) ia->notesPieces[carteMontree->id] = 1;
+                
+                carteTrouvee = 1;
+                break;
+            } else {
+                printf("-> %s ne peut pas contredire la rumeur.\n", joueurs[indexQuestionne].nom);
+            }
         }
+        indexQuestionne = (indexQuestionne + 1) % nbJoueurs;
+    }
+
+    if (!carteTrouvee) {
+        printf("-> PERSONNE n'a pu contredire %s !\n", ia->nom);
+        // Si elle n'a pas bluffé, elle sait que ce sont les bonnes cartes !
     }
 }

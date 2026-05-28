@@ -126,11 +126,52 @@ void jouerTourIA(Joueur* actif, Joueur* joueurs, int nbJoueurs, int* tour, EtatJ
     int valeurDe = lancerDe();
     actif->mouvementsRestants = valeurDe;
 
+    // 2. Choisir une cible
     if (actif->salleCible < 2 || actif->salleCible > 10)
     {
-        do {
-            actif->salleCible = (rand() % 9) + 2; 
-        } while (actif->salleCible == derniereSalle);
+        if (actif->difficulteIA == 1) // --- IA EXPERTE ---
+        {
+            // L'IA coche ses propres cartes lieux dans son carnet
+            for(int i = 0; i < actif->nbCartes; i++) {
+                if(actif->cartes[i].type == CARTE_PIECE) {
+                    actif->notesPieces[actif->cartes[i].id] = 1;
+                }
+            }
+
+            int distanceMin = 999999;
+            int meilleureSalle = -1;
+
+            // Cherche la pièce INCONNUE la plus proche
+            for(int i = 0; i < 9; i++) {
+                if (actif->notesPieces[i] == 0) { // Si la pièce n'est pas barrée
+                    int salleId = i + 2;
+                    if (salleId == derniereSalle) continue; // Ne pas retourner d'où on vient
+
+                    // Distance de Manhattan par rapport à la position de la salle
+                    int cibleX = PLATEAU_X + OFFSET_X + salleX[i] * tailleCaseX;
+                    int cibleY = OFFSET_Y + salleY[i] * tailleCaseY;
+                    int dist = abs(actif->x - cibleX) + abs(actif->y - cibleY);
+
+                    if (dist < distanceMin) {
+                        distanceMin = dist;
+                        meilleureSalle = salleId;
+                    }
+                }
+            }
+
+            // Assigner la cible ou errer s'il n'y a plus de pièce inconnue (cas rare avant accusation)
+            if (meilleureSalle != -1) {
+                actif->salleCible = meilleureSalle;
+            } else {
+                do { actif->salleCible = (rand() % 9) + 2; } while (actif->salleCible == derniereSalle);
+            }
+        }
+        else // --- IA FACILE ---
+        {
+            do {
+                actif->salleCible = (rand() % 9) + 2; 
+            } while (actif->salleCible == derniereSalle);
+        }
         
         printf("%s decide d'aller vers : %s\n", actif->nom, obtenirNomSalle(actif->salleCible));
     }
