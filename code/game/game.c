@@ -113,111 +113,55 @@ void jouerTourIA(Joueur* actif, Joueur* joueurs, int nbJoueurs, int* tour, EtatJ
 {
     printf("\n--- Tour de l'IA : %s ---\n", actif->nom);
 
+    int derniereSalle = -1;
+
     if (actif->estDansSalle)
     {
+        derniereSalle = actif->salleActuelle;
         placerJoueurCase(actif, actif->colonneAvantSalle, actif->ligneAvantSalle, tailleCaseX, tailleCaseY);
         actif->estDansSalle = 0;
         actif->salleActuelle = -1;
-        printf("%s sort de la salle et se place devant la porte.\n", actif->nom);
     }
 
     int valeurDe = lancerDe();
     actif->mouvementsRestants = valeurDe;
-    printf("%s lance le dé : %d\n", actif->nom, valeurDe);
 
     if (actif->salleCible < 2 || actif->salleCible > 10)
     {
-        actif->salleCible = (rand() % 9) + 2; 
+        do {
+            actif->salleCible = (rand() % 9) + 2; 
+        } while (actif->salleCible == derniereSalle);
+        
         printf("%s decide d'aller vers : %s\n", actif->nom, obtenirNomSalle(actif->salleCible));
     }
 
-    int indexSalle = actif->salleCible - 2; 
-    int cibleX = PLATEAU_X + OFFSET_X + salleX[indexSalle] * tailleCaseX;
-    int cibleY = OFFSET_Y + salleY[indexSalle] * tailleCaseY;
-
-    int visites[25][26] = {0}; 
-    int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-
-    // 3. DÉPLACEMENT
     while (actif->mouvementsRestants > 0)
     {
         int colActuelle = (actif->x - PLATEAU_X - OFFSET_X) / tailleCaseX;
         int ligActuelle = (actif->y - OFFSET_Y) / tailleCaseY;
-        
-        if(colActuelle >= 0 && colActuelle < 26 && ligActuelle >= 0 && ligActuelle < 25)
-            visites[ligActuelle][colActuelle] = 1;
 
-        int meilleurChoix = -1;
-        int distanceMin = 999999;
-        int nextX = actif->x;
-        int nextY = actif->y;
+        int nextLig = -1, nextCol = -1;
 
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = actif->x + directions[i][0] * tailleCaseX;
-            int ny = actif->y + directions[i][1] * tailleCaseY;
-            
-            int ncol = (nx - PLATEAU_X - OFFSET_X) / tailleCaseX;
-            int nlig = (ny - OFFSET_Y) / tailleCaseY;
-
-            if (ncol < 0 || ncol >= 26 || nlig < 0 || nlig >= 25) continue;
-
-            if (peutAller(actif->x, actif->y, nx, ny, tailleCaseX, tailleCaseY) && visites[nlig][ncol] == 0)
-            {
-                int dist = abs(nx - cibleX) + abs(ny - cibleY);
-                if (dist < distanceMin)
-                {
-                    distanceMin = dist;
-                    meilleurChoix = i;
-                    nextX = nx;
-                    nextY = ny;
-                }
-            }
-        }
-
-        if (meilleurChoix == -1)
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                int nx = actif->x + directions[i][0] * tailleCaseX;
-                int ny = actif->y + directions[i][1] * tailleCaseY;
-                int ncol = (nx - PLATEAU_X - OFFSET_X) / tailleCaseX;
-                int nlig = (ny - OFFSET_Y) / tailleCaseY;
-
-                if (ncol >= 0 && ncol < 26 && nlig >= 0 && nlig < 25 &&
-                    peutAller(actif->x, actif->y, nx, ny, tailleCaseX, tailleCaseY))
-                {
-                    nextX = nx;
-                    nextY = ny;
-                    break;
-                }
-            }
-        }
-
-        if (nextX == actif->x && nextY == actif->y) {
+        if (trouverProchainPasBFS(ligActuelle, colActuelle, actif->salleCible, &nextLig, &nextCol)) {
+            // Un pas a été trouvé, on se déplace proprement
+            placerJoueurCase(actif, nextCol, nextLig, tailleCaseX, tailleCaseY);
+            actif->mouvementsRestants--;
+        } else {//au cas ou
             actif->mouvementsRestants = 0;
-            break;
         }
 
-        actif->x = nextX;
-        actif->y = nextY;
-        actif->mouvementsRestants--;
-
+        //Vérifier si l'IA vient de marcher sur une porte
         int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
         if (estUnePorte(caseActuelle))
         {
-            int colPorte = (actif->x - PLATEAU_X - OFFSET_X) / tailleCaseX;
-            int ligPorte = (actif->y - OFFSET_Y) / tailleCaseY;
-            int salleId = obtenirSalleDepuisPorte(ligPorte, colPorte);
-
+            int salleId = obtenirSalleDepuisPorte(nextLig, nextCol);
             if (salleId >= 2 && salleId <= 11)
             {
-                actif->ligneAvantSalle = ligPorte;
-                actif->colonneAvantSalle = colPorte;
+                actif->ligneAvantSalle = nextLig;
+                actif->colonneAvantSalle = nextCol;
                 actif->estDansSalle = 1;
                 actif->salleActuelle = salleId;
-                
-                actif->salleCible = -1;
+                actif->salleCible = -1; 
                 
                 teleporterDansSalle(actif, salleId, tailleCaseX, tailleCaseY);
                 actif->mouvementsRestants = 0;
@@ -229,7 +173,7 @@ void jouerTourIA(Joueur* actif, Joueur* joueurs, int nbJoueurs, int* tour, EtatJ
 
     if (actif->estDansSalle)
     {
-        int indexSalleIA = actif->salleActuelle - 2;
+        int indexSalleIA = actif->salleActuelle - 2; 
         if (indexSalleIA >= 0 && indexSalleIA < 9)
         {
             if (actif->difficulteIA == 0) {

@@ -6,6 +6,68 @@
 #include "../entities/room.h"
 #include <stdio.h>
 #include <string.h>
+#include "../game/board.h"
+#include "player.h"
+
+
+int trouverProchainPasBFS(int startLig, int startCol, int cibleSalle, int* nextLig, int* nextCol) {
+    int visites[25][26] = {0};
+    PointBFS parent[25][26];
+    PointBFS file[25 * 26];
+    int debut = 0, fin = 0;
+
+    file[fin++] = (PointBFS){startLig, startCol};
+    visites[startLig][startCol] = 1;
+
+    int dirs[4][2] = {{-1,0}, {1,0}, {0,-1}, {0,1}}; // Haut, Bas, Gauche, Droite
+    PointBFS but = {-1, -1};
+
+    while(debut < fin) {
+        PointBFS p = file[debut++];
+
+        // Succès : on a trouvé une porte qui mène à la bonne salle
+        if(estUnePorte(plateau[p.l][p.c]) && obtenirSalleDepuisPorte(p.l, p.c) == cibleSalle) {
+            but = p;
+            break;
+        }
+
+        // Tester les 4 directions
+        for(int i = 0; i < 4; i++) {
+            int nl = p.l + dirs[i][0];
+            int nc = p.c + dirs[i][1];
+
+            if(nl >= 0 && nl < 25 && nc >= 0 && nc < 26 && !visites[nl][nc]) {
+                int caseArrivee = plateau[nl][nc];
+                int ok = 0;
+
+                // Est-ce qu'on a le droit de marcher ici ?
+                if(caseArrivee == 0 || caseArrivee == 6) ok = 1; 
+                else if(caseArrivee == 12 && nl > p.l) ok = 1;
+                else if(caseArrivee == 13 && nl < p.l) ok = 1;
+                else if(caseArrivee == 14 && nc > p.c) ok = 1;
+                else if(caseArrivee == 15 && nc < p.c) ok = 1;
+                
+                if(ok) {
+                    visites[nl][nc] = 1;
+                    parent[nl][nc] = p;
+                    file[fin++] = (PointBFS){nl, nc};
+                }
+            }
+        }
+    }
+
+    // Remonter le chemin pour trouver le tout premier pas à faire
+    if(but.l != -1) {
+        PointBFS actuel = but;
+        while(parent[actuel.l][actuel.c].l != startLig || parent[actuel.l][actuel.c].c != startCol) {
+            actuel = parent[actuel.l][actuel.c];
+        }
+        *nextLig = actuel.l;
+        *nextCol = actuel.c;
+        return 1;
+    }
+    return 0;
+}
 
 Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage,const char* nom)
 {

@@ -2,6 +2,7 @@
 #include "cards.h"
 #include "../players/player.h"
 #include "../entities/room.h"
+#include "../game/board.h"
 #include <stdio.h>
 
 Carte faireSuspicion(Joueur* accusateur,Joueur* autre,int salle,int suspect,int arme)
@@ -11,9 +12,21 @@ Carte faireSuspicion(Joueur* accusateur,Joueur* autre,int salle,int suspect,int 
 
     if(cible != NULL)
     {
-        teleporterDansSalle(cible,salle,32.5,31);
-    }
+        teleporterDansSalle(cible, salle + 2, 32.5, 31);
+        cible->estDansSalle = 1;
+        cible->salleActuelle = salle + 2;
 
+        int porteTrouvee = 0;
+        for(int l = 0; l < 25 && !porteTrouvee; l++) {
+            for(int c = 0; c < 26 && !porteTrouvee; c++) {
+                if(estUnePorte(plateau[l][c]) && obtenirSalleDepuisPorte(l, c) == (salle + 2)) {
+                    cible->ligneAvantSalle = l;
+                    cible->colonneAvantSalle = c;
+                    porteTrouvee = 1;
+                }
+            }
+        }
+    }
     // cherche une carte à montrer
     for(int i=0;i<autre->nbCartes;i++)
     {

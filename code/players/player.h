@@ -2,6 +2,13 @@
 #define PLAYER_H
 #include "../game/game.h"
 
+typedef struct {
+    int l;
+    int c;
+} PointBFS;
+
+int trouverProchainPasBFS(int startLig, int startCol, int cibleSalle, int* nextLig, int* nextCol);
+
 Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage,const char* nom);
 
 void deplacerJoueur(Joueur* j, int nx, int ny);
