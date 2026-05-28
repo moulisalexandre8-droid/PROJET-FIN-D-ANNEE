@@ -21,3 +21,4 @@ Souris / déplacement :
 La souris permet de lancer le dé, faire une accusation ou un soupçon
 Le déplacement se fait ensuite avec les flèches directionnelles
 Vous devez vous déplacer exactement du nombre indiqué par le dé
+Vous pouvez aussi utiliser les passages secrets en appuyant sur T tout en etant sur une case trappe.
