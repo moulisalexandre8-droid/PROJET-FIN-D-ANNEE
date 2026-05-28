@@ -16,7 +16,6 @@ Déroulement d'un tour :
 -le joueur visé montre une carte, si il en a une, parmis celle citée
 -boucle sur ça
 
-Chaque joueur devra trouver un moyen pour noter ses investigations, aucune grille ne sera supporter in game.
 
 Quand un joueur pense avoir guess il doit se rendre dans la salle qu'il pense être la bonne et faire son accusation, 
 l'ordinateur verifiera si l'accusation correspond. 
