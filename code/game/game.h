@@ -42,6 +42,8 @@ typedef struct Joueur
     int ancienneX;
     int ancienneY;
 
+    int estIA; // 0 humain, 1 IA
+
 } Joueur;
 
 // init SDL

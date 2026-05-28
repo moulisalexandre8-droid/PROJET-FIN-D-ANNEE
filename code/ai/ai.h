@@ -1,5 +1,5 @@
-#ifndef IA_H
-#define IA_H
+#ifndef AI_H
+#define AI_H
 
 #include "../game/game.h"
 #include "../game/cards.h"

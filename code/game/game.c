@@ -16,6 +16,7 @@
 #include "de.h"
 #include "board.h"
 #include "../players/player.h"
+#include "../ia/ia.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -122,6 +123,10 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
     int nbJoueurs = modeActuel.nbJoueurs;
     Joueur* joueurs = malloc(sizeof(Joueur)*nbJoueurs);
 
+    MemoireIA memoireIA;
+    memset(&memoireIA, 0, sizeof(MemoireIA));
+    memoireIA.historique = NULL;
+
     char chemin[200];
     char nom[20];
 
@@ -131,6 +136,7 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
         sprintf(nom,"J%d",i+1);
 
         joueurs[i]=initialiserJoueur(rendu,0,0,chemin,nom);
+        joueurs[i].estIA = (i != 0);
         joueurs[i].estDansSalle = 0;
         joueurs[i].salleActuelle = -1;
             
@@ -298,15 +304,18 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
-                    Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
+                    if (actif->estIA)
+                    {
+                        
+                        Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
 
-                    carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
+                        carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
 
-                    actif->aFaitSoupcon = 1;
+                        actif->aFaitSoupcon = 1;
 
-                    afficherCarte = 1;
-                    attenteValidation = 1;
-                    etatUI = UI_REVELATION;
+                        afficherCarte = 1;
+                        attenteValidation = 1;
+                        etatUI = UI_REVELATION;
                 }
                 if(e.key.keysym.sym == SDLK_ESCAPE)
                 {
