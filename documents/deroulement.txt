@@ -27,7 +27,7 @@ Troisième jalon consacré au code de l'IA. Nous avons codé l'IA facile qui aur
 Partie complexe, surtout dans la gestion des choix, on a utilisé l'IA pour gérer le code. Le plateau était déjà codé mais nous avons continuer à rajouter les éléments essentiels de l'interface graphique tel que le lancé de dé, le bouton pour faire une proposition et le bouton pour montrer. Les conditions principales ont été ajoutées comme le fait de ne pouvoir faire une proposition que si le joueur en question est dans un lieu.
 
 Dernière ligne droite avant la soutenance :
-Cette phase a été marquée par plusieurs difficultés techniques concernant l’intelligence artificielle, notamment sur la gestion des comportements et de la mémoire des joueurs contrôlés par l’ordinateur. Ces complications ont nécessité des ajustements de dernière minute et des simplifications dans certains comportements afin de garantir la stabilité du jeu.
+Cette phase a été marquée par plusieurs difficultés techniques concernant l’intelligence artificielle, notamment sur la gestion des comportements et de la mémoire des joueurs contrôlés par l’ordinateur. Ces complications ont nécessité des ajustements de dernière minute et des simplifications dans certains comportements afin de garantir la stabilité du jeu. On a pris du temps a débuger ensemble.
 
 
 
