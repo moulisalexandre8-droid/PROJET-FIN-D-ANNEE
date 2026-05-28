@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ia_easy.h"
+#include "IA_EASY.h"
 
 void initMemoireIA(MemoireIA *memoire) {
     for (int i = 0; i < MAX_CARTES; i++) {
@@ -34,7 +34,6 @@ int choisirJoueurCible(Joueur *ia, Joueur joueurs[], int nbJoueurs) {
 }
 
 void tourIA(Joueur *ia, Joueur joueurs[], int nbJoueurs,
-            Carte suspects[], int nbSuspects,
             Carte armes[], int nbArmes,
             Carte lieux[], int nbLieux,
             int salleActuelle,
@@ -45,13 +44,18 @@ void tourIA(Joueur *ia, Joueur joueurs[], int nbJoueurs,
     int cibleIndex = choisirJoueurCible(ia, joueurs, nbJoueurs);
     Joueur *cible = &joueurs[cibleIndex];
 
-    Carte suspect = choisirAleatoire(suspects, nbSuspects);
     Carte arme = choisirAleatoire(armes, nbArmes);
-    Carte lieu = lieux[salleActuelle]; // salle actuelle imposée
 
-    printf("%s accuse à %s : %s avec %s dans %s\n",
+    Carte lieu = lieux[salleActuelle];
+
+    Carte suspect;
+    strcpy(suspect.nom, cible->nom);
+    suspect.id = cible->id;
+    suspect.type = 0;
+
+    //affichage a modifier
+    printf("%s accuse : %s avec %s dans %s\n",
            ia->nom,
-           cible->nom,
            suspect.nom,
            arme.nom,
            lieu.nom);
@@ -60,7 +64,6 @@ void tourIA(Joueur *ia, Joueur joueurs[], int nbJoueurs,
 
     if (carteMontree != NULL) {
         printf("%s montre une carte à %s\n", cible->nom, ia->nom);
-
         memoire->cartesVues[carteMontree->id] = 1;
     } else {
         printf("%s ne peut rien montrer\n", cible->nom);

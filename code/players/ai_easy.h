@@ -17,18 +17,21 @@ typedef struct {
 } Joueur;
 
 typedef struct {
-    int cartesVues[MAX_CARTES]; // 0 = inconnu, 1 = vu
+    int cartesVues[MAX_CARTES];
 } MemoireIA;
 
 void initMemoireIA(MemoireIA *memoire);
 
 void tourIA(Joueur *ia, Joueur joueurs[], int nbJoueurs,
-            Carte suspects[], int nbSuspects,
             Carte armes[], int nbArmes,
             Carte lieux[], int nbLieux,
             int salleActuelle,
             MemoireIA *memoire);
 
 Carte* trouver_carte(Joueur j, Carte suspect, Carte arme, Carte lieu);
+
+Carte choisirAleatoire(Carte liste[], int taille);
+
+int choisirJoueurCible(Joueur *ia, Joueur joueurs[], int nbJoueurs);
 
 #endif
