@@ -16,7 +16,7 @@
 #include "de.h"
 #include "board.h"
 #include "../players/player.h"
-#include "../ia/ia.h"
+#include "../ai/ai.h"
 
 #include <SDL2/SDL_image.h>
 
