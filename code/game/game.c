@@ -16,7 +16,6 @@
 #include "de.h"
 #include "board.h"
 #include "../players/player.h"
-#include "../ai/ai.h"
 
 #include <SDL2/SDL_image.h>
 
@@ -122,10 +121,6 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
     int nbJoueurs = modeActuel.nbJoueurs;
     Joueur* joueurs = malloc(sizeof(Joueur)*nbJoueurs);
-
-    MemoireIA memoireIA;
-    memset(&memoireIA, 0, sizeof(MemoireIA));
-    memoireIA.historique = NULL;
 
     char chemin[200];
     char nom[20];
@@ -304,34 +299,7 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
-                    Joueur* autre = prochainJoueur(joueurs, nbJoueurs, tour);
-                    int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
-
-                    if (actif->estIA)
-                    {
-                        // IA : choix simple (peut évoluer après)
-                        int suspectIA = rand() % nbJoueurs;
-                        int armeIA = rand() % modeActuel.nbArmes;
-
-                        Carte c = faireSuspicion(
-                            actif,
-                            autre,
-                            caseActuelle - 2,
-                            suspectIA,
-                            armeIA
-                        );
-
-                        actif->aFaitSoupcon = 1;
-
-                        carteMontree = c;
-                        afficherCarte = 1;
-                        attenteValidation = 1;
-                        etatUI = UI_REVELATION;
-
-                        memoireIA.cartesVues[c.id] = 1;
-                    }
-                    else
-                    {
+                    
                         carteMontree = faireSuspicion(
                             actif,
                             autre,
@@ -345,7 +313,6 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                         afficherCarte = 1;
                         attenteValidation = 1;
                         etatUI = UI_REVELATION;
-                    }
                 }
 
             if(etatUI == UI_REVELATION && e.type == SDL_KEYDOWN)

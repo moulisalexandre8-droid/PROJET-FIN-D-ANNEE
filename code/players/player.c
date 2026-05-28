@@ -38,7 +38,6 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
     j.aFaitSoupcon = 0;
 
-    j.estIA = 0;
 
 
     SDL_Surface* surface = IMG_Load(cheminImage);
