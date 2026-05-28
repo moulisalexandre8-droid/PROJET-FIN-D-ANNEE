@@ -31,6 +31,8 @@ typedef struct Joueur
     int ligneCarnet;
     int aFaitSoupcon;
 
+    int estIA; // 0 = humain, 1 = ia
+
     int estDansSalle;
     int salleActuelle;
 
@@ -42,7 +44,6 @@ typedef struct Joueur
     int ancienneX;
     int ancienneY;
 
-    int estIA; // 0 = humain, 1 = ia
 
 } Joueur;
 

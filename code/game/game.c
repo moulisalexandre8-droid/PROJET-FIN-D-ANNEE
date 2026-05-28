@@ -304,15 +304,22 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
+                    Joueur* autre = prochainJoueur(joueurs, nbJoueurs, tour);
+                    int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+
                     if (actif->estIA)
                     {
-                        Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
+                        // IA : choix simple (peut évoluer après)
+                        int suspectIA = rand() % nbJoueurs;
+                        int armeIA = rand() % modeActuel.nbArmes;
 
-                        Carte c = faireSuspicion(actif,
-                                                autre,
-                                                caseActuelle - 2,
-                                                rand() % modeActuel.nbSuspects,
-                                                rand() % modeActuel.nbArmes);
+                        Carte c = faireSuspicion(
+                            actif,
+                            autre,
+                            caseActuelle - 2,
+                            suspectIA,
+                            armeIA
+                        );
 
                         actif->aFaitSoupcon = 1;
 
@@ -325,21 +332,21 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                     }
                     else
                     {
-                        Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
-
-                        carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
+                        carteMontree = faireSuspicion(
+                            actif,
+                            autre,
+                            caseActuelle - 2,
+                            suspectChoisi,
+                            armeChoisie
+                        );
 
                         actif->aFaitSoupcon = 1;
 
                         afficherCarte = 1;
                         attenteValidation = 1;
                         etatUI = UI_REVELATION;
+                    }
                 }
-                if(e.key.keysym.sym == SDLK_ESCAPE)
-                {
-                    etatUI = UI_PRINCIPALE;
-                }
-            }
 
             if(etatUI == UI_REVELATION && e.type == SDL_KEYDOWN)
             {
@@ -933,7 +940,7 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
     
     free(joueurs);
     TTF_CloseFont(font);
-}
+}}
 // a supp
 
 /*void dessinerGrilleDebug(SDL_Renderer* rendu)
