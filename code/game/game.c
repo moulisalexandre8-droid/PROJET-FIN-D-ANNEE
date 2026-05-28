@@ -109,6 +109,126 @@ void dessinerPortes(SDL_Renderer* rendu, float tailleCaseX, float tailleCaseY)
     }
 }
 
+void jouerTourIA(Joueur* actif, Joueur* joueurs, int nbJoueurs, int* tour, EtatJeu* etatJeu, EtatInterface* etatUI, ModeJeu* modeActuel, float tailleCaseX, float tailleCaseY, MemoireIA* memoireIA)
+{
+    printf("\n--- Tour de %s ---\n", actif->nom);
+    int valeurDe = lancerDe();
+    actif->mouvementsRestants = valeurDe;
+    printf("%s lance le dé : %d\n", actif->nom, valeurDe);
+
+    // 1. Définir une cible : L'IA choisit une salle au hasard vers laquelle se diriger
+    int indexSalleCible = rand() % 9; 
+    int cibleX = PLATEAU_X + OFFSET_X + salleX[indexSalleCible] * tailleCaseX;
+    int cibleY = OFFSET_Y + salleY[indexSalleCible] * tailleCaseY;
+
+    // Mémoriser la case précédente pour empêcher l'IA de faire des allers-retours inutiles
+    int derniereX = actif->x;
+    int derniereY = actif->y;
+
+    int directions[4][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}; // Haut, Bas, Gauche, Droite
+
+    while (actif->mouvementsRestants > 0)
+    {
+        int meilleurChoix = -1;
+        int distanceMin = 999999;
+        int nextX = actif->x;
+        int nextY = actif->y;
+
+        // 2. Évaluer les 4 directions possibles
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = actif->x + directions[i][0] * tailleCaseX;
+            int ny = actif->y + directions[i][1] * tailleCaseY;
+
+            // On vérifie que le mouvement est légal ET qu'on ne fait pas demi-tour
+            if (peutAller(actif->x, actif->y, nx, ny, tailleCaseX, tailleCaseY) && 
+               (nx != derniereX || ny != derniereY)) 
+            {
+                // Calcul de la distance (Manhattan) vers la salle cible
+                int dist = abs(nx - cibleX) + abs(ny - cibleY);
+                
+                // On ajoute un tout petit peu d'aléatoire pour éviter que l'IA ne se coince indéfiniment contre un long mur
+                dist += rand() % 30; 
+
+                // On garde la direction qui nous rapproche le plus
+                if (dist < distanceMin)
+                {
+                    distanceMin = dist;
+                    meilleurChoix = i;
+                    nextX = nx;
+                    nextY = ny;
+                }
+            }
+        }
+
+        // 3. Si l'IA est dans un cul-de-sac (meilleurChoix == -1), on l'autorise exceptionnellement à faire demi-tour
+        if (meilleurChoix == -1)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = actif->x + directions[i][0] * tailleCaseX;
+                int ny = actif->y + directions[i][1] * tailleCaseY;
+                if (peutAller(actif->x, actif->y, nx, ny, tailleCaseX, tailleCaseY))
+                {
+                    nextX = nx;
+                    nextY = ny;
+                    break;
+                }
+            }
+        }
+
+        // Si l'IA est totalement bloquée (aucun mouvement légal), on arrête son tour
+        if (nextX == actif->x && nextY == actif->y) {
+            actif->mouvementsRestants = 0;
+            break;
+        }
+
+        // 4. Appliquer le déplacement
+        derniereX = actif->x;
+        derniereY = actif->y;
+        actif->x = nextX;
+        actif->y = nextY;
+        actif->mouvementsRestants--;
+
+        // 5. Vérifier si l'IA vient de franchir une porte
+        int caseActuelle = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+        if (estUnePorte(caseActuelle))
+        {
+            int colActuelle = (actif->x - PLATEAU_X - OFFSET_X) / tailleCaseX;
+            int ligActuelle = (actif->y - OFFSET_Y) / tailleCaseY;
+            int salle = obtenirSalleDepuisPorte(ligActuelle, colActuelle);
+        
+            if (salle >= 2 && salle <= 10)
+            {
+                actif->ligneAvantSalle = ligActuelle;
+                actif->colonneAvantSalle = colActuelle;
+                actif->estDansSalle = 1;
+                actif->salleActuelle = salle;
+            
+                teleporterDansSalle(actif, salle, tailleCaseX, tailleCaseY);
+                
+                actif->mouvementsRestants = 0; // L'IA s'arrête en entrant
+                printf("%s entre dans la salle %s\n", actif->nom, obtenirNomSalle(salle));
+            }
+        }
+    }
+
+    int caseFinale = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
+    if (estUneSalle(caseFinale))
+    {
+        int salleIA = caseFinale - 2;
+        if (actif->difficulteIA == 0)
+            tourIASimple(actif,joueurs,nbJoueurs,modeActuel->suspects,modeActuel->nbSuspects,modeActuel->armes,modeActuel->nbArmes,salleIA,memoireIA);
+        else
+            tourIAHard(actif,joueurs,nbJoueurs,modeActuel->suspects,modeActuel->nbSuspects,modeActuel->armes,modeActuel->nbArmes,salleIA,memoireIA);
+    }
+
+    changerTour(tour, joueurs, nbJoueurs, etatJeu);
+    *etatUI = UI_PRINCIPALE;
+    *etatJeu = ETAT_ATTENTE_DE;
+}
+
+
 // boucle principale
 
 void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
@@ -485,46 +605,9 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
     if (actif->estIA && etatUI == UI_PRINCIPALE && etatJeu == ETAT_ATTENTE_DE)
     {
-        int salleIA = obtenirCasePlateau(actif->x, actif->y, tailleCaseX, tailleCaseY);
-
-        if (estUneSalle(salleIA))
-        {
-            if (actif->difficulteIA == 0)
-            {
-                tourIASimple(
-                    actif,
-                    joueurs,
-                    nbJoueurs,
-                    modeActuel.suspects,
-                    modeActuel.nbSuspects,
-                    modeActuel.armes,
-                    modeActuel.nbArmes,
-                    salleIA - 2,
-                    &memoireIA
-                );
-            }
-            else
-            {
-                tourIAHard(
-                    actif,
-                    joueurs,
-                    nbJoueurs,
-                    modeActuel.suspects,
-                    modeActuel.nbSuspects,
-                    modeActuel.armes,
-                    modeActuel.nbArmes,
-                    salleIA - 2,
-                    &memoireIA
-                );
-            }
-        }
-
-        changerTour(&tour, joueurs, nbJoueurs, &etatJeu);
+        jouerTourIA(actif,joueurs,nbJoueurs,&tour,&etatJeu,&etatUI,&modeActuel,tailleCaseX,tailleCaseY,&memoireIA);
         actif = &joueurs[tour];
-
-        etatUI = UI_PRINCIPALE;
-        etatJeu = ETAT_ATTENTE_DE;
-
+    
         SDL_Delay(500);
     }
 
