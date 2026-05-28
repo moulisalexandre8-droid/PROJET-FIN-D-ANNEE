@@ -1,5 +1,5 @@
 - Notice du jeu (installation) :  
-  [Ouvrir le PDF](documents/notice-projet-cluelau.pdf)
+  [Ouvrir le PDF](docs/notice-projet-cluelau.pdf)
 
 Voici les différents contrôles dont vous aurez besoin pour jouer :
 
