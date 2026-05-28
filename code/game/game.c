@@ -306,7 +306,25 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
                 {
                     if (actif->estIA)
                     {
-                        
+                        Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
+
+                        Carte c = faireSuspicion(actif,
+                                                autre,
+                                                caseActuelle - 2,
+                                                rand() % modeActuel.nbSuspects,
+                                                rand() % modeActuel.nbArmes);
+
+                        actif->aFaitSoupcon = 1;
+
+                        carteMontree = c;
+                        afficherCarte = 1;
+                        attenteValidation = 1;
+                        etatUI = UI_REVELATION;
+
+                        memoireIA.cartesVues[c.id] = 1;
+                    }
+                    else
+                    {
                         Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
 
                         carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
