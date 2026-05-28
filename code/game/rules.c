@@ -5,41 +5,23 @@
 #include "../game/board.h"
 #include <stdio.h>
 
-Carte faireSuspicion(Joueur* accusateur,Joueur* autre,int salle,int suspect,int arme)
+Carte faireSuspicion(Joueur* accusateur, Joueur* autre, int salle, int suspect, int arme)
 {
-    // téléporte le personnage soupçonné
-    Joueur* cible =obtenirJoueurParSuspect(suspect,accusateur,autre);
-
-    if(cible != NULL)
-    {
-        teleporterDansSalle(cible, salle + 2, 32.5, 31);
-        cible->estDansSalle = 1;
-        cible->salleActuelle = salle + 2;
-
-        int porteTrouvee = 0;
-        for(int l = 0; l < 25 && !porteTrouvee; l++) {
-            for(int c = 0; c < 26 && !porteTrouvee; c++) {
-                if(estUnePorte(plateau[l][c]) && obtenirSalleDepuisPorte(l, c) == (salle + 2)) {
-                    cible->ligneAvantSalle = l;
-                    cible->colonneAvantSalle = c;
-                    porteTrouvee = 1;
-                }
-            }
-        }
-    }
     // cherche une carte à montrer
-    for(int i=0;i<autre->nbCartes;i++)
+    for(int i = 0; i < autre->nbCartes; i++)
     {
         Carte c = autre->cartes[i];
 
-        if((c.type==CARTE_SUSPECT && strcmp(c.nom,cartesSuspects[suspect].nom)==0) || (c.type==CARTE_ARME && strcmp(c.nom,cartesArmes[arme].nom)==0) || (c.type==CARTE_PIECE &&strcmp(c.nom,cartesPieces[salle].nom)==0))
+        if((c.type == CARTE_SUSPECT && strcmp(c.nom, cartesSuspects[suspect].nom) == 0) || 
+           (c.type == CARTE_ARME && strcmp(c.nom, cartesArmes[arme].nom) == 0) || 
+           (c.type == CARTE_PIECE && strcmp(c.nom, cartesPieces[salle].nom) == 0))
         {
             return c;
         }
     }
 
     Carte vide;
-    strcpy(vide.nom,"Aucune");
+    strcpy(vide.nom, "Aucune");
     vide.type = -1;
     vide.id = -1;
     return vide;

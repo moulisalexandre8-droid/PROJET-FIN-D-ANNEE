@@ -420,17 +420,46 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
                 if (e.key.keysym.sym == SDLK_RETURN)
                 {
-                    Joueur* autre = prochainJoueur(joueurs, nbJoueurs, tour);
-
-                    if (autre != NULL)
-                    {
-                        carteMontree = faireSuspicion(actif, autre, caseActuelle - 2, suspectChoisi, armeChoisie);
-
-                        actif->aFaitSoupcon = 1;
-                        afficherCarte = 1;
-                        attenteValidation = 1;
-                        etatUI = UI_REVELATION;
+                    for (int i = 0; i < nbJoueurs; i++) {
+                        if (joueurs[i].personnage == suspectChoisi) {
+                            teleporterDansSalle(&joueurs[i], caseActuelle, tailleCaseX, tailleCaseY);
+                            joueurs[i].estDansSalle = 1;
+                            joueurs[i].salleActuelle = caseActuelle;
+                            trouverPortePourSalle(caseActuelle, &joueurs[i].ligneAvantSalle, &joueurs[i].colonneAvantSalle);
+                            printf("%s a ete convoque dans la salle %s !\n", joueurs[i].nom, obtenirNomSalle(caseActuelle));
+                            break;
+                        }
                     }
+
+                    int indexQuestionne = (tour + 1) % nbJoueurs;
+                    int carteTrouvee = 0;
+                    
+                    while (indexQuestionne != tour)
+                    {
+                        if (!joueurs[indexQuestionne].elimine) 
+                        {
+                            carteMontree = faireSuspicion(actif, &joueurs[indexQuestionne], caseActuelle - 2, suspectChoisi, armeChoisie);
+                            
+                            if (strcmp(carteMontree.nom, "Aucune") != 0) {
+                                carteTrouvee = 1;
+                                printf("%s a montre une carte !\n", joueurs[indexQuestionne].nom);
+                                break;
+                            }
+                        }
+                        indexQuestionne = (indexQuestionne + 1) % nbJoueurs;
+                    }
+
+                    if (!carteTrouvee) {
+                        strcpy(carteMontree.nom, "Aucune");
+                        carteMontree.type = -1;
+                        carteMontree.id = -1;
+                        printf("Personne n'a pu montrer de carte.\n");
+                    }
+
+                    actif->aFaitSoupcon = 1;
+                    afficherCarte = 1;
+                    attenteValidation = 1;
+                    etatUI = UI_REVELATION;
                 }
 
                 if (e.key.keysym.sym == SDLK_ESCAPE)

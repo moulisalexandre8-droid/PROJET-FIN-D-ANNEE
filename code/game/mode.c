@@ -16,10 +16,10 @@ ModeJeu creerModeClassique()
 
     mode.suspects[0] = (Carte){CARTE_SUSPECT,0,"Rose"};
     mode.suspects[1] = (Carte){CARTE_SUSPECT,1,"Moutarde"};
-    mode.suspects[2] = (Carte){CARTE_SUSPECT,2,"Olive"};
-    mode.suspects[3] = (Carte){CARTE_SUSPECT,3,"Violet"};
-    mode.suspects[4] = (Carte){CARTE_SUSPECT,4,"Leblanc"};
-    mode.suspects[5] = (Carte){CARTE_SUSPECT,5,"Pervenche"};
+    mode.suspects[2] = (Carte){CARTE_SUSPECT,2,"Leblanc"};
+    mode.suspects[3] = (Carte){CARTE_SUSPECT,3,"Olive"};
+    mode.suspects[4] = (Carte){CARTE_SUSPECT,4,"Pervenche"};
+    mode.suspects[5] = (Carte){CARTE_SUSPECT,5,"Violet"};
 
     mode.nbArmes = 6;
     mode.armes = malloc(sizeof(Carte) * mode.nbArmes);
@@ -30,17 +30,17 @@ ModeJeu creerModeClassique()
     mode.armes[4] = (Carte){CARTE_ARME,4,"Cle anglaise"};
     mode.armes[5] = (Carte){CARTE_ARME,5,"Matraque"};
 
-    mode.nbPieces = 9;
+mode.nbPieces = 9;
     mode.pieces = malloc(sizeof(Carte) * mode.nbPieces);
     mode.pieces[0] = (Carte){CARTE_PIECE,0,"Cuisine"};
-    mode.pieces[1] = (Carte){CARTE_PIECE,1,"Salon"};
-    mode.pieces[2] = (Carte){CARTE_PIECE,2,"Bibliotheque"};
+    mode.pieces[1] = (Carte){CARTE_PIECE,1,"Studio"};
+    mode.pieces[2] = (Carte){CARTE_PIECE,2,"Veranda"};
     mode.pieces[3] = (Carte){CARTE_PIECE,3,"Salle a manger"};
-    mode.pieces[4] = (Carte){CARTE_PIECE,4,"Hall"};
-    mode.pieces[5] = (Carte){CARTE_PIECE,5,"Veranda"};
-    mode.pieces[6] = (Carte){CARTE_PIECE,6,"Studio"};
-    mode.pieces[7] = (Carte){CARTE_PIECE,7,"Bureau"};
-    mode.pieces[8] = (Carte){CARTE_PIECE,8,"Billard"};
+    mode.pieces[4] = (Carte){CARTE_PIECE,4,"Billard"};
+    mode.pieces[5] = (Carte){CARTE_PIECE,5,"Bibliotheque"};
+    mode.pieces[6] = (Carte){CARTE_PIECE,6,"Salon"};
+    mode.pieces[7] = (Carte){CARTE_PIECE,7,"Hall"};
+    mode.pieces[8] = (Carte){CARTE_PIECE,8,"Bureau"};
 
     return mode;
 }

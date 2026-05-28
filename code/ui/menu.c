@@ -81,9 +81,9 @@ ModeJeu afficherMenu(SDL_Renderer* renderer)
 
 
 
-    int nbJoueurs = 1;
+    int nbJoueurs = 0;
 
-    int nbIA = 2;
+    int nbIA = 0;
 
     int iaDifficulte = 0;
 
