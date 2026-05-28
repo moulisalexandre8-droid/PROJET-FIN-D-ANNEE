@@ -299,20 +299,15 @@ void boucleJeu(SDL_Window* fenetre,SDL_Renderer* rendu,ModeJeu mode)
 
                 if(e.key.keysym.sym == SDLK_RETURN)
                 {
-                    
-                        carteMontree = faireSuspicion(
-                            actif,
-                            autre,
-                            caseActuelle - 2,
-                            suspectChoisi,
-                            armeChoisie
-                        );
+                    Joueur* autre = prochainJoueur(joueurs,nbJoueurs,tour);
 
-                        actif->aFaitSoupcon = 1;
+                    carteMontree = faireSuspicion(actif,autre,caseActuelle - 2,suspectChoisi,armeChoisie);
 
-                        afficherCarte = 1;
-                        attenteValidation = 1;
-                        etatUI = UI_REVELATION;
+                    actif->aFaitSoupcon = 1;
+
+                    afficherCarte = 1;
+                    attenteValidation = 1;
+                    etatUI = UI_REVELATION;
                 }
 
             if(etatUI == UI_REVELATION && e.type == SDL_KEYDOWN)
