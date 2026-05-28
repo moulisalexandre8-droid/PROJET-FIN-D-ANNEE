@@ -3,26 +3,42 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
 Carte choisirAleatoire(Carte liste[], int taille)
 {
+    if (taille <= 0)
+    {
+        Carte vide = {0};
+        strcpy(vide.nom, "Aucune");
+        return vide;
+    }
+
     return liste[rand() % taille];
 }
 
 int choisirJoueurCible(Joueur *ia, Joueur joueurs[], int nbJoueurs)
 {
+    if (ia == NULL || joueurs == NULL || nbJoueurs <= 1)
+        return -1;
+
     int index;
+    int securite = 0;
 
     do {
         index = rand() % nbJoueurs;
-    } while (joueurs[index].personnage == ia->personnage);
+        securite++;
+    } while (joueurs[index].personnage == ia->personnage && securite < 100);
+
+    if (joueurs[index].personnage == ia->personnage)
+        return -1;
 
     return index;
 }
 
 Carte* trouverCarte(Joueur *j, Carte a, Carte b, Carte c)
 {
+    if (j == NULL)
+        return NULL;
+
     for (int i = 0; i < j->nbCartes; i++)
     {
         if (j->cartes[i].id == a.id ||
@@ -32,6 +48,7 @@ Carte* trouverCarte(Joueur *j, Carte a, Carte b, Carte c)
             return &j->cartes[i];
         }
     }
+
     return NULL;
 }
 
@@ -45,11 +62,19 @@ void tourIASimple(Joueur *ia,
                   int salleActuelle,
                   MemoireIA *memoire)
 {
+    if (ia == NULL || joueurs == NULL || memoire == NULL)
+        return;
 
-    int cibleIndex;
-    do {
-        cibleIndex = rand() % nbJoueurs;
-    } while (joueurs[cibleIndex].personnage == ia->personnage);
+    if (nbJoueurs <= 1 || nbSuspects <= 0 || nbArmes <= 0)
+        return;
+
+    int cibleIndex = choisirJoueurCible(ia, joueurs, nbJoueurs);
+
+    if (cibleIndex == -1)
+    {
+        printf("Erreur IA : aucune cible disponible.\n");
+        return;
+    }
 
     Joueur *cible = &joueurs[cibleIndex];
 
@@ -59,17 +84,19 @@ void tourIASimple(Joueur *ia,
     Carte lieu = {0};
     strcpy(lieu.nom, "Salle");
     lieu.id = salleActuelle;
-    lieu.type = 2;
+    lieu.type = CARTE_PIECE;
 
-    printf("%s accuse %s avec %s dans salle %d\n",
+    printf("%s soupçonne %s avec %s dans salle %d\n",
            ia->nom, suspect.nom, arme.nom, salleActuelle);
 
     Carte *c = trouverCarte(cible, suspect, arme, lieu);
 
-    if (c)
+    if (c != NULL)
     {
         printf("Carte montrée : %s\n", c->nom);
-        memoire->cartesVues[c->id] = 1;
+
+        if (c->id >= 0 && c->id < MAX_CARTES)
+            memoire->cartesVues[c->id] = 1;
     }
 }
 
@@ -83,29 +110,33 @@ void tourIAHard(Joueur *ia,
                 int salleActuelle,
                 MemoireIA *memoire)
 {
+    if (ia == NULL || joueurs == NULL || memoire == NULL)
+        return;
+
+    if (nbJoueurs <= 1 || nbSuspects <= 0 || nbArmes <= 0)
+        return;
+
     printf("\n--- IA HARD : %s ---\n", ia->nom);
 
-    int cibleIndex = -1;
+    int cibleIndex = choisirJoueurCible(ia, joueurs, nbJoueurs);
 
-    for (int i = 0; i < nbJoueurs; i++)
+    if (cibleIndex == -1)
     {
-        if (joueurs[i].personnage != ia->personnage)
-        {
-            cibleIndex = i;
-            break;
-        }
+        printf("Erreur IA HARD : aucune cible trouvée.\n");
+        return;
     }
 
     Joueur *cible = &joueurs[cibleIndex];
 
-    int bluff = rand() % 100 < 30; //30% d utiliser la strategie
+    int bluff = rand() % 100 < 30;
 
-    Carte suspect, arme;
+    Carte suspect;
+    Carte arme;
 
-    if (bluff)
+    if (bluff && ia->nbCartes > 0)
     {
-        suspect = ia->cartes[rand() % ia->nbCartes];
-        arme = ia->cartes[rand() % ia->nbCartes];
+        suspect = suspects[rand() % nbSuspects];
+        arme = armes[rand() % nbArmes];
     }
     else
     {
@@ -116,24 +147,34 @@ void tourIAHard(Joueur *ia,
     Carte lieu = {0};
     strcpy(lieu.nom, "Salle");
     lieu.id = salleActuelle;
-    lieu.type = 2;
+    lieu.type = CARTE_PIECE;
 
-    printf("%s (HARD) accuse %s avec %s\n",
+    printf("%s HARD soupçonne %s avec %s\n",
            ia->nom, suspect.nom, arme.nom);
 
     Carte *c = trouverCarte(cible, suspect, arme, lieu);
 
-    if (c)
+    if (c != NULL)
     {
         printf("Révélation : %s\n", c->nom);
-        memoire->cartesVues[c->id] = 1;
 
-        // stockage historique
+        if (c->id >= 0 && c->id < MAX_CARTES)
+            memoire->cartesVues[c->id] = 1;
+
         Action *a = malloc(sizeof(Action));
-        a->source = ia->personnage;
-        a->cible = cible->personnage;
-        a->carteMontree = c->id;
-        a->suiv = memoire->historique;
-        memoire->historique = a;
+
+        if (a != NULL)
+        {
+            a->source = ia->personnage;
+            a->cible = cible->personnage;
+            a->suspect = suspect.id;
+            a->arme = arme.id;
+            a->piece = salleActuelle;
+            a->carteMontree = c->id;
+            a->aMontre = 1;
+
+            a->suiv = memoire->historique;
+            memoire->historique = a;
+        }
     }
 }

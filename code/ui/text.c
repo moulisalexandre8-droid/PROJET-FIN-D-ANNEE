@@ -19,6 +19,9 @@ SDL_Texture* creerTexte(SDL_Renderer* rendu, TTF_Font* font, const char* texte, 
 
 void dessinerTexteCentre(SDL_Renderer* rendu, SDL_Texture* texture, int x, int y, int w, int h)
 {
+    if(texture ==NULL)
+        return ;
+        
     int tw, th;
     SDL_QueryTexture(texture, NULL, NULL, &tw, &th);
 

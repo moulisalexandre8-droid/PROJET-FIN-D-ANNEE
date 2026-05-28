@@ -17,8 +17,11 @@ typedef struct
     Carte* pieces;
     int nbPieces;
 
-    int nbJoueurs;
-    
+    int nbJoueurs;      // total : humains + IA
+    int nbHumains;      // nombre de joueurs humains
+    int nbIA;           // nombre d'IA
+    int iaDifficulte;   // 0 = facile, 1 = experte
+
 } ModeJeu;
 
 ModeJeu creerModeClassique();

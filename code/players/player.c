@@ -44,11 +44,13 @@ Joueur initialiserJoueur(SDL_Renderer* rendu,int x,int y,const char* cheminImage
 
     if (surface == NULL)
     {
-        printf("Erreur image %s : %s\n",cheminImage,IMG_GetError());}
-
-    j.texture = SDL_CreateTextureFromSurface(rendu, surface);
-
-    SDL_FreeSurface(surface);
+        printf("Erreur image %s : %s\n",cheminImage,IMG_GetError());
+        j.texture = NULL;
+    }
+    else{
+        j.texture = SDL_CreateTextureFromSurface(rendu, surface);
+        SDL_FreeSurface(surface); 
+    }
 
     return j;
 }
